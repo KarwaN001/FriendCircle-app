@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import HomeScreen from './HomeScreen';
-import {SearchScreen} from './SearchScreen';
+import {MapScreen} from './MapScreen';
 import {ProfileScreen} from './ProfileScreen';
 
 import {Pressable, SafeAreaView, StatusBar} from "react-native";
@@ -20,8 +20,8 @@ const getTabBarIcon = (routeName, focused) => {
         case 'Home':
             iconName = focused ? 'home' : 'home-outline';
             break;
-        case 'Search':
-            iconName = focused ? 'search' : 'search-outline';
+        case 'Map':
+            iconName = focused ? 'map' : 'map-outline';
             break;
         case 'Profile':
             iconName = focused ? 'person' : 'person-outline';
@@ -72,7 +72,7 @@ const App = () => {
 
                 >
                     <Tab.Screen name="Home" component={HomeScreen} />
-                    <Tab.Screen name="Search" component={SearchScreen} />
+                    <Tab.Screen name="Map" component={MapScreen} />
                     <Tab.Screen name="Profile" component={ProfileScreen} />
 
                 </Tab.Navigator>
