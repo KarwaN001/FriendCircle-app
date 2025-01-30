@@ -11,18 +11,15 @@ export const ProfileScreen = () => {
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
         { icon: 'bell-outline', title: 'Notifications', subtitle: 'Manage your alerts' },
-        { icon: 'shield-lock-outline', title: 'Privacy', subtitle: 'Control your privacy settings' },
+        { icon: 'shield-lock-outline', title: 'Privacy Settings', subtitle: 'Control your privacy settings' },
+        { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
         { icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance' },
         { icon: 'cog-outline', title: 'Settings', subtitle: 'App preferences' },
-
     ];
 
     const MenuItem = ({ icon, title, subtitle }) => (
         <Pressable
-            style={[
-                styles.menuItem,
-                { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }
-            ]}
+            style={styles.menuItem}
             android_ripple={{ color: isLightTheme ? '#eee' : '#333' }}
             onPress={() => {
                 if (title === 'Edit Profile') {
@@ -37,16 +34,10 @@ export const ProfileScreen = () => {
                 style={styles.menuIcon}
             />
             <View style={styles.menuTextContainer}>
-                <Text style={[
-                    styles.menuTitle,
-                    { color: isLightTheme ? '#000' : '#fff' }
-                ]}>
+                <Text style={[styles.menuTitle, { color: isLightTheme ? '#000' : '#fff' }]}>
                     {title}
                 </Text>
-                <Text style={[
-                    styles.menuSubtitle,
-                    { color: isLightTheme ? '#666' : '#aaa' }
-                ]}>
+                <Text style={[styles.menuSubtitle, { color: isLightTheme ? '#666' : '#aaa' }]}>
                     {subtitle}
                 </Text>
             </View>
@@ -64,49 +55,64 @@ export const ProfileScreen = () => {
                 styles.container,
                 { backgroundColor: isLightTheme ? '#f5f5f5' : '#1A1A1A' }
             ]}
+            showsVerticalScrollIndicator={false}
         >
-            {/* Profile Header */}
-            <View style={[
-                styles.header,
-                { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }
-            ]}>
+
+            {/* Profile Section */}
+            <View style={styles.profileSection}>
                 <View style={styles.profileImageContainer}>
                     <Image
                         source={require('../assets/images/4.jpg')}
-                        style={styles.profileImage}
+                        style={[
+                            styles.profileImage,
+                            { borderColor: isLightTheme ? '#fff' : '#2A2A2A' }
+                        ]}
                     />
-
+                    <Pressable style={styles.editImageButton}>
+                        <Icon name="pencil" size={16} color="#fff" />
+                    </Pressable>
                 </View>
-                <Text style={[
-                    styles.name,
-                    { color: isLightTheme ? '#000' : '#fff' }
-                ]}>
-                    John Doe
+                <Text style={[styles.name, { color: isLightTheme ? '#000' : '#fff' }]}>
+                    Test Test
                 </Text>
-                <Text style={[
-                    styles.email,
-                    { color: isLightTheme ? '#666' : '#aaa' }
-                ]}>
-                    john.doe@example.com
+                <Text style={[styles.username, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                    @qwerty
                 </Text>
             </View>
 
-            {/* Theme Switch */}
-            <View style={[
-                styles.themeContainer,
-                { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }
-            ]}>
-                <View style={styles.themeRow}>
+            {/* Stats Card */}
+            <View style={[styles.card, styles.statsCard, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
+                <View style={styles.statsContainer}>
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>5</Text>
+                        <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Groups</Text>
+                    </View>
+                    <View style={[styles.statDivider, { backgroundColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' }]} />
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>12</Text>
+                        <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Check-ins</Text>
+                    </View>
+                    <View style={[styles.statDivider, { backgroundColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' }]} />
+                    <View style={styles.statItem}>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>8</Text>
+                        <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Friends</Text>
+                    </View>
+                </View>
+            </View>
+
+            {/* Theme Switch Card */}
+            <View style={[styles.card, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
+                <Pressable 
+                    style={styles.themeRow}
+                    android_ripple={{ color: isLightTheme ? '#eee' : '#333' }}
+                >
                     <Icon
                         name={isLightTheme ? 'weather-sunny' : 'weather-night'}
                         size={24}
                         color={isLightTheme ? '#1a73e8' : '#64B5F6'}
                     />
-                    <Text style={[
-                        styles.themeText,
-                        { color: isLightTheme ? '#000' : '#fff' }
-                    ]}>
-                        Dark Mode
+                    <Text style={[styles.themeText, { color: isLightTheme ? '#000' : '#fff' }]}>
+                             {!isLightTheme ? 'Dark Mode' : 'Light Mode'} 
                     </Text>
                     <Switch
                         value={!isLightTheme}
@@ -121,21 +127,17 @@ export const ProfileScreen = () => {
                         }}
                         ios_backgroundColor="#767577"
                     />
-                </View>
+                </Pressable>
             </View>
 
-            {/* Menu Items */}
-            <View style={styles.menuContainer}>
+            {/* Menu Card */}
+            <View style={[styles.card, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
                 {menuItems.map((item, index) => (
                     <MenuItem key={index} {...item} />
                 ))}
             </View>
 
-            {/* Version Info */}
-            <Text style={[
-                styles.version,
-                { color: isLightTheme ? '#666' : '#aaa' }
-            ]}>
+            <Text style={[styles.version, { color: isLightTheme ? '#666' : '#aaa' }]}>
                 Version 1.0.0
             </Text>
         </ScrollView>
@@ -145,59 +147,43 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        padding: 16,
     },
-    header: {
+    timeText: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 20,
+        fontWeight: '500',
+    },
+    profileSection: {
         alignItems: 'center',
-        padding: 20,
-        marginBottom: 8,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
+        marginBottom: 24,
     },
     profileImageContainer: {
+        marginBottom: 12,
         position: 'relative',
-        marginBottom: 16,
     },
     profileImage: {
-        width: 130,
-        height: 130,
-        borderRadius: 100,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        borderWidth: 3,
     },
     editImageButton: {
         position: 'absolute',
-        right: 0,
-        bottom: 0,
+        right: -4,
+        bottom: -4,
         backgroundColor: '#1a73e8',
         width: 32,
         height: 32,
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    name: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    email: {
-        fontSize: 16,
-    },
-    themeContainer: {
-        marginBottom: 8,
-        padding: 16,
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.1,
+                shadowOpacity: 0.2,
                 shadowRadius: 4,
             },
             android: {
@@ -205,24 +191,75 @@ const styles = StyleSheet.create({
             },
         }),
     },
+    name: {
+        fontSize: 26,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    username: {
+        fontSize: 16,
+        marginBottom: 8,
+        opacity: 0.8,
+    },
+    card: {
+        borderRadius: 16,
+        marginBottom: 16,
+        overflow: 'hidden',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
+    statsCard: {
+        padding: 8,
+    },
+    statsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        paddingVertical: 12,
+    },
+    statItem: {
+        alignItems: 'center',
+        flex: 1,
+    },
+    statDivider: {
+        width: 1,
+        height: 24,
+        marginHorizontal: 8,
+    },
+    statNumber: {
+        fontSize: 22,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    statLabel: {
+        fontSize: 14,
+        opacity: 0.8,
+    },
     themeRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        padding: 16,
     },
     themeText: {
         flex: 1,
         marginLeft: 16,
         fontSize: 16,
-    },
-    menuContainer: {
-        marginBottom: 8,
+        fontWeight: '500',
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        marginBottom: 1,
+        marginVertical: 2,
     },
     menuIcon: {
         marginRight: 16,
@@ -232,15 +269,18 @@ const styles = StyleSheet.create({
     },
     menuTitle: {
         fontSize: 16,
-        fontWeight: '500',
+        fontWeight: '600',
     },
     menuSubtitle: {
         fontSize: 14,
         marginTop: 2,
+        opacity: 0.7,
     },
     version: {
         textAlign: 'center',
         padding: 16,
         fontSize: 12,
+        opacity: 0.6,
+        fontWeight: '500',
     },
 });
