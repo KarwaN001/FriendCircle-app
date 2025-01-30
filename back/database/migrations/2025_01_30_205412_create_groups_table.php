@@ -5,17 +5,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
-$table->string('name');
-$table->string('group_photo')->nullable();
-$table->string('no_members');
-$table->foreignIdFor(User::class, 'group_admin')->constrained('users');
-$table->timestamps();//
+            $table->string('name');
+            $table->string('group_photo')->nullable();
+            $table->string('no_members');
+            $table->foreignIdFor(User::class, 'group_admin')->constrained('users');
+            $table->timestamps();
         });
     }
 
