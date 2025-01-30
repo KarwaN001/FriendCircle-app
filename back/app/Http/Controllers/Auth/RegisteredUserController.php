@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -18,24 +17,34 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): Response
+    public function store(Request $request)
     {
-        $request->validate([
+        // Validate the incoming request data
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'age' => ['required', 'integer'],
+            'gender' => ['required', 'string', 'max:255', 'in:male,female'],
+            'phone_number' => ['required', 'string', 'max:255'],
+            'longitude' => ['nullable', 'numeric'],
+            'latitude' => ['nullable', 'numeric'],
+            'profile_photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->string('password')),
-        ]);
+        // Create the new user in the database
+        $user = User::create($data);
 
-        event(new Registered($user));
+        // Fire the Registered event
+        // event(new Registered($user));
 
-        Auth::login($user);
+        // Generate Sanctum token for the newly registered user
+        $token = $user->createToken($user->email)->plainTextToken;
 
-        return response()->noContent();
+        // Return the token and user data as the response
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+        ], 201);
     }
 }
