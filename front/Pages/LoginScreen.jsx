@@ -113,7 +113,7 @@ const LoginScreen = ({ navigation }) => {
             style={styles.container}
         >
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.logo}>Logo Creator</Text>
+                <Text style={styles.logo}>Friend circle</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Email"
