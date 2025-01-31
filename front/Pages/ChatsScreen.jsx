@@ -193,7 +193,7 @@ const ChatsScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Messages</Text>
                 <TouchableOpacity style={styles.iconButton}>
-                    <Ionicons name="create-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
+                    <Ionicons name="people-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
             </View>
 
