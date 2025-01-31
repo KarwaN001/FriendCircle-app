@@ -16,6 +16,7 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "expo": "~52.0.0",
+    "expo-location": "^18.0.5",
     "expo-status-bar": "^2.0.1",
     "lucide-react-native": "^0.453.0",
     "react": "^18.3.1",
