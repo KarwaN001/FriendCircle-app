@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
         $user = User::create($data);
 
         // Fire the Registered event
-        // event(new Registered($user));
+         event(new Registered($user));
 
         // Generate Sanctum token for the newly registered user
         $token = $user->createToken($user->email)->plainTextToken;

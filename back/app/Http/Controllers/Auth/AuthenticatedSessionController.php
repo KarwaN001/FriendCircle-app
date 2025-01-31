@@ -20,13 +20,13 @@ class AuthenticatedSessionController extends Controller
 
         // Create a Sanctum token for the authenticated user
         $user = Auth::user();
-        $token = $user->createToken('YourAppName')->plainTextToken;
+        $token = $user->createToken($user->email)->plainTextToken;
 
         // Return the token and user data as the response
         return response()->json([
             'token' => $token,
             'user' => $user,
-        ], 200);
+        ]);
     }
 
     /**
@@ -34,11 +34,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        // Revoke all tokens of the authenticated user
-        $user = Auth::user();
-        $user->tokens->each(function ($token) {
-            $token->delete();
-        });
+        Auth::user()->tokens()->delete();
 
         return response()->json([
             'message' => 'Logged out successfully',
