@@ -143,7 +143,7 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.container}
         >
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.logo}>Logo</Text>
+                <Text style={styles.logo}>Friend circle</Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Full Name"
