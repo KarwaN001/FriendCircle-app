@@ -9,6 +9,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    StatusBar,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,7 +31,8 @@ const SignUpScreen = ({ navigation }) => {
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: isDarkMode ? '#1a1a1a' : '#f5f5f5',
+            backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
+            paddingTop: StatusBar.currentHeight || 0,
         },
         content: {
             flex: 1,
