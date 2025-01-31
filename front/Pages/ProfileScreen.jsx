@@ -1,4 +1,4 @@
-import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform } from 'react-native';
+import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
@@ -147,6 +147,7 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingTop: StatusBar.currentHeight || 0,
         padding: 16,
     },
     timeText: {

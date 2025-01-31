@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         position: 'relative',
+        paddingTop: StatusBar.currentHeight || 0,
     },
     map: {
         ...StyleSheet.absoluteFillObject,
