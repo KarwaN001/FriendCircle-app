@@ -100,8 +100,22 @@ export const MapScreen = () => {
 
     if (!initialRegion) {
         return (
-            <View style={[styles.container, { backgroundColor: isLightTheme ? '#fff' : '#121212' }]}>
-                <Text style={{ color: isLightTheme ? '#000' : '#fff' }}>Loading map...</Text>
+            <View style={[
+                styles.container, 
+                styles.loadingContainer,
+                { backgroundColor: isLightTheme ? '#fff' : '#121212' }
+            ]}>
+                <Ionicons 
+                    name="map-outline" 
+                    size={50} 
+                    color={isLightTheme ? '#007AFF' : '#0A84FF'} 
+                />
+                <Text style={[
+                    styles.loadingText,
+                    { color: isLightTheme ? '#000' : '#fff' }
+                ]}>
+                    Loading map...
+                </Text>
             </View>
         );
     }
@@ -266,5 +280,15 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         fontSize: 16,
         fontWeight: '600',
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 15,
+    },
+    loadingText: {
+        fontSize: 18,
+        fontWeight: '600',
+        textAlign: 'center',
     },
 }); 
