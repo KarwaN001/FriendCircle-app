@@ -2,7 +2,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import HomeScreen from './HomeScreen';
+import ChatsScreen from './ChatsScreen';
 import {MapScreen} from './MapScreen';
 import {ProfileScreen} from './ProfileScreen';
 
@@ -17,8 +17,8 @@ const getTabBarIcon = (routeName, focused) => {
     let iconName;
 
     switch (routeName) {
-        case 'Home':
-            iconName = focused ? 'home' : 'home-outline';
+        case 'Chats':
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
             break;
         case 'Map':
             iconName = focused ? 'map' : 'map-outline';
@@ -27,7 +27,7 @@ const getTabBarIcon = (routeName, focused) => {
             iconName = focused ? 'person' : 'person-outline';
             break;
         default:
-            iconName = 'home';
+            iconName = 'chatbubbles-outline';
     }
 
     return <Ionicons name={iconName} size={24} color={focused ? 'blue' : 'gray'} />;
@@ -38,7 +38,6 @@ const App = () => {
     const isLightTheme = theme === 'light'; // Determine if the current theme is light
 
     return (
-
         <SafeAreaView style={{ flex: 1, paddingTop: 0 }}>
             <StatusBar backgroundColor={isLightTheme ? '#ffffff' : '#1a1a1a'} barStyle={isLightTheme ? 'dark-content' : 'light-content'}/>
 
@@ -67,16 +66,12 @@ const App = () => {
                         tabBarItemStyle: {
                             padding: 5,
                         },
-
                     })}
-
                 >
-                    <Tab.Screen name="Home" component={HomeScreen} />
+                    <Tab.Screen name="Chats" component={ChatsScreen} />
                     <Tab.Screen name="Map" component={MapScreen} />
                     <Tab.Screen name="Profile" component={ProfileScreen} />
-
                 </Tab.Navigator>
-
         </SafeAreaView>
     );
 };
