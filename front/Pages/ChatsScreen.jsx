@@ -2,11 +2,12 @@ import React from 'react';
 import {
     View,
     Text,
-    ScrollView,
+    FlatList,
     TextInput,
     TouchableOpacity,
     StyleSheet,
     StatusBar,
+    Platform,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../DarkMode/ThemeContext";
@@ -23,63 +24,119 @@ const ChatsScreen = () => {
     const isDarkMode = theme === 'dark';
     const [isNotificationPopupVisible, setIsNotificationPopupVisible] = React.useState(false);
 
+    // Memoized render item function for better performance
+    const renderItem = React.useCallback(({ item }) => (
+        <TouchableOpacity 
+            style={styles.chatItem}
+            activeOpacity={0.7}
+        >
+            <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{item.initial}</Text>
+            </View>
+            <View style={styles.chatInfo}>
+                <View style={styles.chatHeader}>
+                    <Text style={styles.chatName}>{item.name}</Text>
+                    <Text style={styles.chatTime}>{item.time}</Text>
+                </View>
+                <Text style={styles.lastMessage} numberOfLines={1}>
+                    {item.lastMessage}
+                </Text>
+            </View>
+        </TouchableOpacity>
+    ), [isDarkMode]); // Only re-create if theme changes
+
+    // Memoized key extractor
+    const keyExtractor = React.useCallback((item) => item.id, []);
+
+    // Memoized empty list component
+    const ListEmptyComponent = React.useCallback(() => (
+        <View style={styles.emptyContainer}>
+            <Text style={[styles.emptyText, { color: isDarkMode ? '#FFFFFF' : '#1A1A1A' }]}>
+                No messages yet
+            </Text>
+        </View>
+    ), [isDarkMode]);
+
     const styles = StyleSheet.create({
         container: {
             flex: 1,
-            backgroundColor: isDarkMode ? '#1a1a1a' : '#ffffff',
+            backgroundColor: isDarkMode ? '#121212' : '#F8F9FA',
             paddingTop: StatusBar.currentHeight || 0,
         },
         header: {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: 16,
-            backgroundColor: isDarkMode ? '#2a2a2a' : '#ffffff',
+            padding: 20,
+            paddingTop: Platform.OS === 'ios' ? 50 : 20,
+            backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: 1,
-            borderBottomColor: isDarkMode ? '#333333' : '#e0e0e0',
+            borderBottomColor: isDarkMode ? '#333333' : '#F0F0F0',
+            ...Platform.select({
+                ios: {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                },
+                android: {
+                    elevation: 4,
+                },
+            }),
         },
         headerTitle: {
-            fontSize: 20,
-            fontWeight: 'bold',
-            color: isDarkMode ? '#ffffff' : '#333333',
-        },
-        searchBar: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: isDarkMode ? '#333333' : '#f5f5f5',
-            borderRadius: 10,
-            padding: 12,
-            margin: 16,
-        },
-        searchInput: {
-            flex: 1,
-            marginLeft: 8,
-            color: isDarkMode ? '#ffffff' : '#333333',
-            fontSize: 16,
+            fontSize: 24,
+            fontWeight: '700',
+            color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
+            letterSpacing: 0.5,
         },
         chatList: {
             flex: 1,
+            paddingHorizontal: 16,
         },
         chatItem: {
             flexDirection: 'row',
             padding: 16,
             alignItems: 'center',
-            borderBottomWidth: 1,
-            borderBottomColor: isDarkMode ? '#333333' : '#f0f0f0',
+            backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+            borderRadius: 16,
+            marginVertical: 6,
+            ...Platform.select({
+                ios: {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                },
+                android: {
+                    elevation: 2,
+                },
+            }),
         },
         avatar: {
-            width: 50,
-            height: 50,
-            borderRadius: 25,
+            width: 56,
+            height: 56,
+            borderRadius: 28,
             backgroundColor: '#007AFF',
             justifyContent: 'center',
             alignItems: 'center',
-            marginRight: 12,
+            marginRight: 16,
+            ...Platform.select({
+                ios: {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 4,
+                },
+                android: {
+                    elevation: 4,
+                },
+            }),
         },
         avatarText: {
-            color: '#ffffff',
-            fontSize: 18,
-            fontWeight: 'bold',
+            color: '#FFFFFF',
+            fontSize: 20,
+            fontWeight: '600',
         },
         chatInfo: {
             flex: 1,
@@ -87,20 +144,40 @@ const ChatsScreen = () => {
         chatHeader: {
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginBottom: 4,
+            alignItems: 'center',
+            marginBottom: 6,
         },
         chatName: {
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: isDarkMode ? '#ffffff' : '#333333',
+            fontSize: 17,
+            fontWeight: '600',
+            color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
+            letterSpacing: 0.3,
         },
         chatTime: {
-            fontSize: 12,
+            fontSize: 13,
             color: isDarkMode ? '#999999' : '#666666',
+            fontWeight: '500',
         },
         lastMessage: {
-            fontSize: 14,
-            color: isDarkMode ? '#cccccc' : '#666666',
+            fontSize: 15,
+            color: isDarkMode ? '#BBBBBB' : '#666666',
+            lineHeight: 20,
+        },
+        iconButton: {
+            padding: 8,
+            borderRadius: 12,
+            backgroundColor: isDarkMode ? '#333333' : '#F0F2F5',
+        },
+        emptyContainer: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: 40,
+        },
+        emptyText: {
+            fontSize: 16,
+            fontWeight: '500',
+            opacity: 0.7,
         },
     });
 
@@ -108,44 +185,33 @@ const ChatsScreen = () => {
         <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => setIsNotificationPopupVisible(true)}>
-                    <Ionicons name="notifications-outline" size={24} color={isDarkMode ? '#ffffff' : '#333333'} />
+                <TouchableOpacity 
+                    style={styles.iconButton}
+                    onPress={() => setIsNotificationPopupVisible(true)}
+                >
+                    <Ionicons name="notifications-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Messages</Text>
-                <TouchableOpacity>
-                    <Ionicons name="create-outline" size={24} color={isDarkMode ? '#ffffff' : '#333333'} />
+                <TouchableOpacity style={styles.iconButton}>
+                    <Ionicons name="create-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
-            </View>
-
-            {/* Search Bar */}
-            <View style={styles.searchBar}>
-                <Ionicons name="search-outline" size={20} color={isDarkMode ? '#999999' : '#666666'} />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search messages..."
-                    placeholderTextColor={isDarkMode ? '#999999' : '#666666'}
-                />
             </View>
 
             {/* Chat List */}
-            <ScrollView style={styles.chatList}>
-                {chatList.map((chat) => (
-                    <TouchableOpacity key={chat.id} style={styles.chatItem}>
-                        <View style={styles.avatar}>
-                            <Text style={styles.avatarText}>{chat.initial}</Text>
-                        </View>
-                        <View style={styles.chatInfo}>
-                            <View style={styles.chatHeader}>
-                                <Text style={styles.chatName}>{chat.name}</Text>
-                                <Text style={styles.chatTime}>{chat.time}</Text>
-                            </View>
-                            <Text style={styles.lastMessage} numberOfLines={1}>
-                                {chat.lastMessage}
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-                ))}
-            </ScrollView>
+            <FlatList
+                data={chatList}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}
+                contentContainerStyle={styles.chatList}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={ListEmptyComponent}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={5}
+                removeClippedSubviews={Platform.OS === 'android'}
+                ListHeaderComponent={<View style={{ height: 10 }} />}
+                ListFooterComponent={<View style={{ height: 10 }} />}
+            />
 
             {/* Notification Popup */}
             <NotificationPopup
