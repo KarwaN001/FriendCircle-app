@@ -21,7 +21,7 @@ class EnsureTokenIsValid
         $accessToken = PersonalAccessToken::findToken($token);
 
         if (!$accessToken || Carbon::parse($accessToken->created_at)->addMinutes(60*24*30)->isPast()) {
-            return response()->json(['message' => 'Token expired. Please refresh.'], 401);
+            return response()->json(['message' => 'Token expired. You should login again.'], 401);
         }
 
         return $next($request);

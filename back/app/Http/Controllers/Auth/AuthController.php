@@ -40,20 +40,4 @@ class AuthController extends Controller
             'message' => 'Logged out successfully',
         ], 200);
     }
-
-    public function refreshToken(Request $request)
-    {
-        $user = $request->user();
-
-        $user->tokens()->delete();
-
-        // Issue a new token
-        $newToken = $user->createToken($user->email)->plainTextToken;
-
-        return response()->json([
-            'access_token' => $newToken,
-            'token_type' => 'Bearer',
-        ]);
-    }
-
 }
