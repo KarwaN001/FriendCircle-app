@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "LogoCreatoR",
-    "slug": "LogoCreatoR",
+    "name": "FriendCircle",
+    "slug": "FriendCircle",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
