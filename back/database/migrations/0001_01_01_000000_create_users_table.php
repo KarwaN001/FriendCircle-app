@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,6 +19,12 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->decimal('longitude', 10, 7)->nullable(); // Longitude (-180 to 180)
+            $table->decimal('latitude', 10, 7)->nullable(); // Latitude (-90 to 90)
+            $table->string('phone_number')->nullable();
+            $table->string('profile_photo', 2048)->nullable();
+            $table->integer('age');
+            $table->enum('gender', ['male', 'female']);
             $table->timestamps();
         });
 
