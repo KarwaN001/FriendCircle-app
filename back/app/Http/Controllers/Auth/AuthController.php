@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
-class AuthenticatedController extends Controller
+class AuthController extends Controller
 {
     /**
      * Handle an incoming authentication request.

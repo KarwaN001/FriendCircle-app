@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthenticatedController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -17,11 +17,11 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware('guest')
     ->name('register');
 
-Route::post('/login', [AuthenticatedController::class, 'store'])
+Route::post('/login', [AuthController::class, 'store'])
     ->middleware('guest')
     ->name('login');
 
-Route::post('/logout', [AuthenticatedController::class, 'destroy'])
+Route::post('/logout', [AuthController::class, 'destroy'])
     ->middleware('auth:sanctum')
     ->name('logout');
 
