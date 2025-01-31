@@ -25,6 +25,8 @@ Route::post('/logout', [AuthController::class, 'destroy'])
     ->middleware('auth:sanctum')
     ->name('logout');
 
+Route::middleware('auth:sanctum')->post('/refresh-token', [AuthController::class, 'refreshToken']);
+
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
     ->middleware('guest')
     ->name('password.email');
