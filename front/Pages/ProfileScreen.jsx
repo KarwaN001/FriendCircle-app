@@ -1,12 +1,40 @@
-import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar } from 'react-native';
+import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar, Alert } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 export const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
     const isLightTheme = theme === 'light';
     const navigation = useNavigation();
+    const { user, logout: authLogout } = useAuth();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+    
+    const handleLogout = async () => {
+        if (isLoggingOut) return; // Prevent multiple logout attempts
+        
+        setIsLoggingOut(true);
+        try {
+            // First call the auth context logout
+            await authLogout();
+            // Then reset navigation
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+            Alert.alert(
+                'Logout Error',
+                'There was a problem logging out. Please try again.',
+                [{ text: 'OK' }]
+            );
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
 
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
@@ -17,6 +45,9 @@ export const ProfileScreen = () => {
         { icon: 'cog-outline', title: 'Settings', subtitle: 'App preferences' },
     ];
 
+    const handlepressButton = async () => {
+        console.log('Current user from context:', user);
+    }
     const MenuItem = ({ icon, title, subtitle }) => (
         <Pressable
             style={styles.menuItem}
@@ -39,6 +70,7 @@ export const ProfileScreen = () => {
                 </Text>
                 <Text style={[styles.menuSubtitle, { color: isLightTheme ? '#666' : '#aaa' }]}>
                     {subtitle}
+                    
                 </Text>
             </View>
             <Icon
@@ -68,15 +100,13 @@ export const ProfileScreen = () => {
                             { borderColor: isLightTheme ? '#fff' : '#2A2A2A' }
                         ]}
                     />
-                    <Pressable style={styles.editImageButton}>
-                        <Icon name="pencil" size={16} color="#fff" />
-                    </Pressable>
+                  
                 </View>
                 <Text style={[styles.name, { color: isLightTheme ? '#000' : '#fff' }]}>
-                    Test Test
+                    {user?.name || 'User'}
                 </Text>
                 <Text style={[styles.username, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    @qwerty
+                    {user?.email || 'No email'}
                 </Text>
             </View>
 
@@ -137,6 +167,41 @@ export const ProfileScreen = () => {
                 ))}
             </View>
 
+            {/* Logout Button */}
+            <Pressable
+                style={[
+                    styles.logoutButton, 
+                    { 
+                        backgroundColor: '#DC3545',
+                        opacity: isLoggingOut ? 0.7 : 1 
+                    }
+                ]}
+                android_ripple={{ color: '#b02a37' }}
+                disabled={isLoggingOut}
+                onPress={() => {
+                    Alert.alert(
+                        'Logout',
+                        'Are you sure you want to logout?',
+                        [
+                            {
+                                text: 'Cancel',
+                                style: 'cancel'
+                            },
+                            {
+                                text: 'Logout',
+                                onPress: handleLogout,
+                                style: 'destructive'
+                            }
+                        ]
+                    );
+                }}
+            >
+                <Icon name="logout" size={24} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.logoutButtonText}>
+                    {isLoggingOut ? 'Logging out...' : 'Logout'}
+                </Text>
+            </Pressable>
+
             <Text style={[styles.version, { color: isLightTheme ? '#666' : '#aaa' }]}>
                 Version 1.0.0
             </Text>
@@ -165,9 +230,9 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     profileImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 130,
+        height: 130,
+        borderRadius: 100,
         borderWidth: 3,
     },
     editImageButton: {
@@ -283,5 +348,31 @@ const styles = StyleSheet.create({
         fontSize: 12,
         opacity: 0.6,
         fontWeight: '500',
+    },
+    logoutButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 16,
+        marginTop: 16,
+        marginBottom: 8,
+        padding: 16,
+        borderRadius: 10,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
+    logoutButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });
