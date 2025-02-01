@@ -3,7 +3,6 @@ import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
-import api from '../apis/api';
 import { useState } from 'react';
 
 export const ProfileScreen = () => {
