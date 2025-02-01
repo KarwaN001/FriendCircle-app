@@ -10,9 +10,11 @@ import {
     Platform,
     ScrollView,
     StatusBar,
+    Alert,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../apis/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -103,10 +105,26 @@ const LoginScreen = ({ navigation }) => {
         },
     });
 
-    const handleLogin = () => {
-        // Implement login logic here
-        console.log('Login with:', email, password);
-        navigation.navigate('Main');
+    const handleLogin = async () => {
+        // Basic validation
+        if (!email || !password) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        try {
+            const credentials = {
+                email,
+                password
+            };
+
+            const response = await api.login(credentials);
+            Alert.alert('Success', 'Login successful!', [
+                { text: 'OK', onPress: () => navigation.navigate('Main') }
+            ]);
+        } catch (error) {
+            Alert.alert('Error', error.message || 'Login failed. Please try again.');
+        }
     };
 
     return (
