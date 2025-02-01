@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Middleware\EnsureEmailIsVerified;
-use App\Http\Middleware\EnsureTokenIsValid;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

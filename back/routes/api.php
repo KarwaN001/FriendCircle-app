@@ -13,7 +13,7 @@ use App\Http\Controllers\Auth\{
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
-});
+})->name('user');
 
 Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
