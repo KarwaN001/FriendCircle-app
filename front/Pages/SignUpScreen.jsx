@@ -150,7 +150,7 @@ const SignUpScreen = ({ navigation }) => {
 
             const response = await api.register(userData);
             Alert.alert('Success', 'Registration successful!', [
-                { text: 'OK', onPress: () => navigation.navigate('Main') }
+                { text: 'OK', onPress: () => navigation.navigate('Login') }
             ]);
         } catch (error) {
             Alert.alert('Error', error.message || 'Registration failed. Please try again.');
