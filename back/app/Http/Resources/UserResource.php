@@ -7,17 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    protected int $id;
-    protected string $name;
-    protected string $email;
-    protected int $age;
-    protected string $gender;
-    protected int $phone_number;
-    protected string $profile_photo;
-    protected int $longitude;
-    protected int $latitude;
-    protected string $created_at;
-
     /**
      * Transform the resource into an array.
      *
