@@ -18,12 +18,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             HandleCors::class,
         ]);
-
-        $middleware->alias([
-            'verified' => EnsureEmailIsVerified::class,
-        ]);
-
-        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

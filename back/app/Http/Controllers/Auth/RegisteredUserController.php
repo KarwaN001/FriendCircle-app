@@ -6,9 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
 {
@@ -30,6 +27,7 @@ class RegisteredUserController extends Controller
             'longitude' => ['nullable', 'numeric'],
             'latitude' => ['nullable', 'numeric'],
             'profile_photo' => ['nullable', 'image', 'max:2048'],
+            'device_name' => ['required', 'string'],
         ]);
 
         // Create the new user in the database
@@ -39,12 +37,11 @@ class RegisteredUserController extends Controller
          event(new Registered($user));
 
         // Generate Sanctum token for the newly registered user
-        $token = $user->createToken($user->email)->plainTextToken;
+        $token = $user->createToken($data['device_name'], ['*'], now()->addHour())->plainTextToken;
 
-        // Return the token and user data as the response
         return response()->json([
             'token' => $token,
-            'user' => $user,
+            'expires_at' => now()->addHour(),
         ], 201);
     }
 }
