@@ -3,30 +3,39 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthenticationController extends Controller
 {
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request)
+    public function store(Request $request)
     {
-        // Validate and authenticate the user
-        $request->authenticate();
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
 
-        // Create a Sanctum token for the authenticated user
-        $user = Auth::user();
-        $token = $user->createToken($user->email)->plainTextToken;
+        $user = User::where('email', $request->email)->first();
 
-        // Return the token and user data as the response
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'The provided credentials are incorrect.',
+            ], 401);
+        }
+
+        // creating a token which expires in 1 hour
+        $token = $user->createToken($request->device_name, ['*'], now()->addHour())->plainTextToken;
+
         return response()->json([
             'token' => $token,
-            'user' => $user,
-        ]);
+            'expires_at' => now()->addHour(),
+        ], 201);
     }
 
     /**
@@ -34,10 +43,27 @@ class AuthenticationController extends Controller
      */
     public function destroy(Request $request)
     {
-        Auth::user()->tokens()->delete();
+        $request->user()->tokens()->delete();
 
         return response()->json([
-            'message' => 'Logged out successfully',
-        ], 200);
+            'message' => 'Logged out',
+        ]);
     }
+
+    public function refresh(Request $request)
+    {
+        $request->validate([
+            'device_name' => 'required',
+        ]);
+
+        $request->user()->tokens()->delete();
+
+        $token = $request->user()->createToken($request->device_name, ['*'], now()->addHour())->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'expires_at' => now()->addHour(),
+        ], 201);
+    }
+
 }
