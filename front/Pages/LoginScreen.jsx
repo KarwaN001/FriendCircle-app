@@ -10,9 +10,13 @@ import {
     Platform,
     ScrollView,
     StatusBar,
+    Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../apis/api';
+import { useAuth } from '../context/AuthContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,7 +24,9 @@ const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { theme } = useTheme();
+    const { login } = useAuth();
     const isDarkMode = theme === 'dark';
 
     const styles = StyleSheet.create({
@@ -101,12 +107,33 @@ const LoginScreen = ({ navigation }) => {
             fontWeight: 'bold',
             marginLeft: 5,
         },
+        buttonDisabled: {
+            backgroundColor: '#cccccc',
+        },
     });
 
-    const handleLogin = () => {
-        // Implement login logic here
-        console.log('Login with:', email, password);
-        navigation.navigate('Main');
+    const handleLogin = async () => {
+        // Basic validation
+        if (!email || !password) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const credentials = {
+                email,
+                password
+            };
+
+            await login(credentials);
+            // No need for Alert here as the navigation will happen automatically
+            // through the AuthContext state change
+        } catch (error) {
+            Alert.alert('Error', error.message || 'Login failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -124,6 +151,7 @@ const LoginScreen = ({ navigation }) => {
                     onChangeText={setEmail}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    editable={!isLoading}
                 />
                 <View style={styles.passwordContainer}>
                     <TextInput
@@ -133,6 +161,7 @@ const LoginScreen = ({ navigation }) => {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry={!showPassword}
+                        editable={!isLoading}
                     />
                     <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                         <Ionicons
@@ -142,8 +171,16 @@ const LoginScreen = ({ navigation }) => {
                         />
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Login</Text>
+                <TouchableOpacity 
+                    style={[styles.button, isLoading && styles.buttonDisabled]} 
+                    onPress={handleLogin}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator color="#ffffff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Login</Text>
+                    )}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.forgotPassword}>
                     <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
