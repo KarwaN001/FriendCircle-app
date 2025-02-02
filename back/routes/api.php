@@ -1,9 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\{
-    AuthController,
+    AuthenticationController,
     EmailVerificationNotificationController,
     NewPasswordController,
     PasswordResetLinkController,
@@ -11,23 +12,31 @@ use App\Http\Controllers\Auth\{
     VerifyEmailController
 };
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-})->name('user');
+Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
+Route::post('/login', [AuthenticationController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('login');
 
-Route::middleware('guest')->group(function () {
-    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
-    Route::post('/login', [AuthController::class, 'store'])->name('login');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
-});
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
+// Routes for authenticated users
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
-    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
-    Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
+    Route::middleware('throttle:6,1')->group(function () {
+        Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+            ->name('verification.send');
+        Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
+            ->middleware('signed')
+            ->name('verification.verify');
+    });
+
+    // Routes for verified users
+    Route::middleware('verified')->group(function () {
+        Route::post('/logout', [AuthenticationController::class, 'destroy'])->name('logout');
+
+        Route::post('/refresh', [AuthenticationController::class, 'refresh'])->name('refresh');
+
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
+    });
 });

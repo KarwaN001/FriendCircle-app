@@ -17,14 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->api(prepend: [
             HandleCors::class,
-            EnsureFrontendRequestsAreStateful::class,
         ]);
-
-        $middleware->alias([
-            'verified' => EnsureEmailIsVerified::class,
-        ]);
-
-        //
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
