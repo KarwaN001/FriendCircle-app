@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return response()->json($users);
+        $users = User::where('id', '!=', $request->user()->id)->get();
+        return UserResource::collection($users);
     }
 
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::find($id);
-        return response()->json($user);
+        return new UserResource($user);
     }
 }
