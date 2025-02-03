@@ -51,6 +51,11 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // Relationships
+    public function refreshTokens(): HasMany
+    {
+        return $this->hasMany(RefreshToken::class, 'user_id');
+    }
+
     public function groups(): HasMany
     {
         return $this->hasMany(UserGroup::class, 'user_id');

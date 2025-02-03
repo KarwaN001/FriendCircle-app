@@ -16,6 +16,7 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->name('regi
 Route::post('/login', [AuthenticationController::class, 'store'])
         ->middleware('throttle:5,1')
         ->name('login');
+Route::post('/refresh', [AuthenticationController::class, 'refresh'])->name('refresh');
 
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
@@ -33,8 +34,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Routes for verified users
     Route::middleware('verified')->group(function () {
         Route::post('/logout', [AuthenticationController::class, 'destroy'])->name('logout');
-
-        Route::post('/refresh', [AuthenticationController::class, 'refresh'])->name('refresh');
 
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{id}', [UserController::class, 'show'])->name('users.show');
