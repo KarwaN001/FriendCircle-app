@@ -6,13 +6,12 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\{AuthController,
     EmailVerificationController,
     ForgotPasswordController,
-    RefreshTokenController};
+  };
 
 Route::post('/register', [AuthController::class, 'store'])->name('register');
 Route::post('/login', [AuthController::class, 'authenticate'])
         ->middleware('throttle:5,1')
         ->name('login');
-Route::post('/refresh-token', RefreshTokenController::class)->name('refreshToken');
 
 Route::post('/forgot-password', [ForgotPasswordController::class, 'email'])->name('password.email');
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.reset');

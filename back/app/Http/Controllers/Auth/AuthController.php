@@ -4,16 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendEmailVerification;
-use App\Models\RefreshToken;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Traits\TokenGenerationTrait;
 
 class AuthController extends Controller
 {
-    use TokenGenerationTrait;
-
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -33,7 +29,13 @@ class AuthController extends Controller
 
         SendEmailVerification::dispatch($user);
 
-        return response()->json($this->generateTokens($user, $validatedData['device_name']));
+        $user->tokens()->delete();
+
+        $token = $user->createToken($validatedData['device_name'])->plainTextToken;
+
+        return response()->json([
+           'token' => $token,
+        ]);
     }
 
     public function authenticate(Request $request)
@@ -50,27 +52,18 @@ class AuthController extends Controller
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        // Generate tokens using the trait method
-        return response()->json($this->generateTokens($user, $validatedData['device_name']));
+        $user->tokens()->delete();
+
+        $token = $user->createToken($validatedData['device_name'])->plainTextToken;
+
+        return response()->json(['token' => $token]);
     }
 
     public function destroy(Request $request)
     {
         $request->validate(['device_name' => 'required|string']);
 
-        $user = $request->user();
-
-        $refreshToken = RefreshToken::where('user_id', $user->id)
-            ->where('device_name', $request->device_name)
-            ->first();
-
-        if (!$refreshToken) {
-            return response()->json(['error' => 'Device not found'], 404);
-        }
-
-        $refreshToken->delete();
-
-        $user->tokens()->where('name', $request->device_name)->delete();
+        $request->user()->tokens()->where('name', $request->device_name)->delete();
 
         return response()->json(['message' => 'Logged out successfully from the device.']);
     }
