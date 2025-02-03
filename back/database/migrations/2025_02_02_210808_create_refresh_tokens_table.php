@@ -11,11 +11,11 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('device_name');
-            $table->string('refresh_token', 64);
+            $table->string('token')->unique();
             $table->timestamp('expires_at');
             $table->timestamps();
 
-            $table->index(['refresh_token', 'device_name']);
+            $table->unique(['user_id', 'device_name']);
         });
     }
 
