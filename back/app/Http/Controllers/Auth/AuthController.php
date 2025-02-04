@@ -34,6 +34,7 @@ class AuthController extends Controller
         $token = $user->createToken($validatedData['device_name'])->plainTextToken;
 
         return response()->json([
+            'message' => 'an email sent to your email address for verification',
            'token' => $token,
         ]);
     }

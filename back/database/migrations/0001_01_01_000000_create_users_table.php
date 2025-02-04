@@ -19,6 +19,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->string('verification_otp')->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
             $table->decimal('longitude', 10, 7)->nullable(); // Longitude (-180 to 180)
             $table->decimal('latitude', 10, 7)->nullable(); // Latitude (-90 to 90)
             $table->string('phone_number')->nullable();

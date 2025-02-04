@@ -38,32 +38,5 @@ class AppServiceProvider extends ServiceProvider
             // 4. The user's email (as a query parameter)
             return "{$frontendUrl}/reset-password.html?token={$token}&email={$email}";
         });
-
-        // Customize the email verification link to point to your frontend application
-        VerifyEmail::createUrlUsing(function (object $notifiable) {
-            $frontendUrl = config('app.frontend_url');
-
-            $id = $notifiable->getKey(); // User ID
-            $hash = sha1($notifiable->getEmailForVerification()); // Email hash
-
-            // Generate a temporary signed URL
-            $verifyUrl = URL::temporarySignedRoute(
-                'verification.verify',  // Route name defined in api.php
-                Carbon::now()->addMinutes(60),  // URL expiration time (60 minutes)
-                compact('id', 'hash')
-            );
-
-            // Extract query parameters (expires & signature)
-            parse_str(parse_url($verifyUrl, PHP_URL_QUERY), $queryParams);
-
-            // Merge all parameters correctly
-            $finalParams = http_build_query(array_merge($queryParams, [
-                'id' => $id,
-                'hash' => $hash,
-            ]));
-
-            // Return final frontend verification URL
-            return "{$frontendUrl}/verify-email.html?{$finalParams}";
-        });
     }
 }

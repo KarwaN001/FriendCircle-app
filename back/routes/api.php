@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Auth\{AuthController,
