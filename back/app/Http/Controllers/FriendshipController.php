@@ -36,7 +36,7 @@ class FriendshipController extends Controller
         ]);
     }
 
-    // POST /api/friend-requests
+    // POST /api/friend-request
     // Send a friend request
     public function store(Request $request)
     {
