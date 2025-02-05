@@ -3,35 +3,60 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendEmailVerification;
-use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\JsonResponse;
+use App\Jobs\SendEmail;
+use App\Models\PendingUser;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class EmailVerificationController extends Controller
 {
-    public function send(Request $request): JsonResponse
+    public function resendOtp(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified'], 409);
+        $validated = $request->validate([
+            'verification_id' => 'required|numeric'
+        ]);
+
+        $pendingUser = PendingUser::findOrFail($validated['verification_id']);
+
+        // Check cooldown (30 seconds)
+        $latestOtp = $pendingUser->otps()->latest()->first();
+        if ($latestOtp && abs(now()->diffInSeconds($latestOtp->created_at)) < 30) {
+            return response()->json(['error' => 'Please wait 30 seconds before requesting a new OTP.'], 429);
         }
 
-        SendEmailVerification::dispatch($request->user());
+        SendEmail::dispatch($pendingUser->generateNewOtp());
 
-        return response()->json(['status' => 'verification-link-sent']);
+        return response()->json(['message' => 'New OTP sent']);
     }
 
-    public function verify(EmailVerificationRequest $request): JsonResponse
+    public function verifyOtp(Request $request)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return response()->json(['message' => 'Email already verified'], 409);
+        $validated = $request->validate([
+            'verification_id' => 'required|numeric',
+            'otp' => 'required|digits:6'
+        ]);
+
+        $pendingUser = PendingUser::findOrFail($validated['verification_id']);
+        $otp = $pendingUser->otps()
+            ->where('code', $validated['otp'])
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$otp) {
+            return response()->json(['error' => 'Invalid or expired OTP'], 422);
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
+        $user = User::create($pendingUser->user_data);
 
-        return response()->json(['message' => 'Email verified']);
+        $user->markEmailAsVerified();
+
+        $pendingUser->delete();
+
+        $token = $user->createToken($user->user_data['device_name'] ?? 'default')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Account verified and created',
+            'token' => $token
+        ]);
     }
 }
