@@ -1,4 +1,3 @@
-<!-- resources/views/emails/otp.blade.php -->
 <!DOCTYPE html>
 <html>
 <head>

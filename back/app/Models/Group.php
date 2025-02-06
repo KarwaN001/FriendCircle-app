@@ -10,7 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Group extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'group_photo', 'no_members', 'group_admin'];
+
+    protected $fillable = ['name', 'group_photo', 'group_admin'];
+
+    protected $appends = ['members_count'];
 
     public function groupAdmin(): BelongsTo
     {
@@ -20,5 +23,11 @@ class Group extends Model
     public function members(): HasMany
     {
         return $this->hasMany(UserGroup::class, 'group_id');
+    }
+
+    // Helper methods
+    public function getMembersCountAttribute(): int
+    {
+        return $this->members()->count();
     }
 }

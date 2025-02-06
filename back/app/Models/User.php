@@ -103,6 +103,4 @@ class User extends Authenticatable implements MustVerifyEmail
         $friendIds = array_merge($friendsFromSender, $friendsFromRecipient);
         return self::whereIn('id', $friendIds)->get();
     }
-
-
 }
