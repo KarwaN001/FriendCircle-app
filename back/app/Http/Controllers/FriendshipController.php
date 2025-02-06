@@ -35,14 +35,14 @@ class FriendshipController extends Controller
         ]);
     }
 
-    // POST /api/friend-request
+    // POST /api/friend-requests
     // Send a friend request
     public function store(Request $request)
     {
         $user = $request->user();
 
         $validator = Validator::make($request->all(), [
-            'recipient_id' => 'required|exists:users,id|different:'.$user->id,
+            'recipient_id' => 'required|numeric|exists:users,id|not_in:' . $user->id
         ]);
 
         if ($validator->fails()) {
@@ -65,7 +65,7 @@ class FriendshipController extends Controller
         $friendRequest = Friendship::create([
             'sender_id' => $user->id,
             'recipient_id' => $request->recipient_id,
-            'status' => 'pending',
+            // Status is pending by default
         ]);
 
         return response()->json($friendRequest, 201);
