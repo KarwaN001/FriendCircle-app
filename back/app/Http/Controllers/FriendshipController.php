@@ -41,13 +41,9 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $validator = Validator::make($request->all(), [
-            'recipient_id' => 'required|numeric|exists:users,id|not_in:' . $user->id
+        $request->validate([
+            'recipient_id' => 'required|numeric|exists:users,id|not_in:'.$user->id
         ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
 
         // Check if a friendship already exists between the two users
         $exists = Friendship::where(function ($query) use ($user, $request) {
