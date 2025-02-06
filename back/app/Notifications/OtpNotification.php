@@ -11,43 +11,31 @@ class OtpNotification extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
+    protected string $isEmailVerification;
+
     public function __construct(public string $otp)
     {
-        //
+        $this->isEmailVerification = request()->routeIs('verification.verify');
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['mail'];
     }
 
-
     public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your Verification Code')
-            ->line("Your OTP code is: {$this->otp}")
-            ->line('This code will expire in 10 minutes')
-            ->line("If you didn't request this, no further action is required.");
+            ->subject(config('app.name').' - Your OTP Code')
+            ->markdown('mail.otp-notification', [
+                'otp' => $this->otp,
+                'isEmailVerification' => $this->isEmailVerification,
+                'appName' => config('app.name')
+            ]);
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 }
