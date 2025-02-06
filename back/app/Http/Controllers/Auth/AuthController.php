@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendEmailVerification;
+use App\Jobs\SendEmail;
+use App\Models\PendingUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -12,29 +13,29 @@ class AuthController extends Controller
 {
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => [
-                'required',
-                'confirmed'
-            ],
+            'password' => ['required', 'confirmed'],
             'age' => ['required', 'integer', 'min:13'],
             'gender' => ['required', 'string', 'max:255', 'in:male,female'],
             'phone_number' => ['required', 'string', 'max:255'],
             'device_name' => ['required', 'string', 'max:255'],
         ]);
 
-        $user = User::create($validatedData);
+        $pendingUser = PendingUser::updateOrCreate(
+            ['email' => $validated['email']],
+            [
+                'user_data' => $validated,
+                'expires_at' => now()->addDay()
+            ]
+        );
 
-        SendEmailVerification::dispatch($user);
-
-        $user->tokens()->delete();
-
-        $token = $user->createToken($validatedData['device_name'])->plainTextToken;
+        SendEmail::dispatch($pendingUser->generateNewOtp());
 
         return response()->json([
-           'token' => $token,
+            'message' => 'OTP sent to email',
+            'verification_id' => $pendingUser->id
         ]);
     }
 

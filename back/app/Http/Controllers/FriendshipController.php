@@ -18,6 +18,8 @@ class FriendshipController extends Controller
             ->whereNotIn('id', $user->friends()->pluck('id'))
             ->paginate(10);
 
+        \Log::info($suggestions);
+
         return response()->json($suggestions);
     }
 
@@ -131,7 +133,7 @@ class FriendshipController extends Controller
 
         $friendship->delete();
 
-        return response()->json(['message' => 'Friend request cancelled.'], 200);
+        return response()->json(['message' => 'Friend request cancelled.']);
     }
 }
 

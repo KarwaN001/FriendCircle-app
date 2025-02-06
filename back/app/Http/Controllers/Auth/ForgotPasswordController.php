@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendPasswordResetLink;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Jobs\SendEmail;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class ForgotPasswordController extends Controller
 {
@@ -20,37 +16,52 @@ class ForgotPasswordController extends Controller
             'email' => ['required', 'email'],
         ]);
 
-        SendPasswordResetLink::dispatch($request->email);
+        $user = User::where('email', $request->email)->first();
 
-        return response()->json(['status' => __('passwords.sent')]);
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        // Check cooldown (30 seconds)
+        $latestOtp = $user->otps()->latest()->first();
+        if ($latestOtp && now()->diffInSeconds($latestOtp->created_at) < 30) {
+            return response()->json(['error' => 'Please wait 30 seconds before requesting a new OTP.'], 429);
+        }
+
+        $otp = $user->generateNewOtp();
+        SendEmail::dispatch($otp);
+
+        return response()->json(['message' => 'OTP sent to email.']);
     }
 
     public function reset(Request $request): JsonResponse
     {
         $request->validate([
-            'token' => ['required'],
             'email' => ['required', 'email'],
+            'otp' => ['required', 'digits:6'],
             'password' => ['required', 'confirmed'],
         ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user) use ($request) {
-                $user->forceFill([
-                    'password' => Hash::make($request->password),
-                    'remember_token' => Str::random(60),
-                ])->save();
+        $user = User::where('email', $request->email)->first();
 
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status != Password::PASSWORD_RESET) {
-            throw ValidationException::withMessages([
-                'email' => [__($status)],
-            ]);
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
         }
 
-        return response()->json(['status' => __($status)]);
+        $otp = $user->otps()
+            ->where('code', $request->otp)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$otp) {
+            return response()->json(['error' => 'Invalid or expired OTP.'], 422);
+        }
+
+        $user->update(['password' => $request->password]);
+
+        $user->tokens()->delete();
+        $otp->delete();
+
+        return response()->json(['message' => 'Password reset successfully.']);
     }
 }
