@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->string('group_photo')->nullable();
             $table->foreignIdFor(User::class, 'group_admin')->constrained('users')->onDelete('cascade');
             $table->timestamps();
+
+            $table->unique(['name', 'group_admin']);
         });
     }
 

@@ -28,8 +28,7 @@ class ForgotPasswordController extends Controller
             return response()->json(['error' => 'Please wait 30 seconds before requesting a new OTP.'], 429);
         }
 
-        $otp = $user->generateNewOtp();
-        SendEmail::dispatch($otp);
+        SendEmail::dispatch($user->generateNewOtp(), false);
 
         return response()->json(['message' => 'OTP sent to email.']);
     }

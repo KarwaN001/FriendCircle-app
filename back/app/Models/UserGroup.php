@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserGroup extends Model
 {
-    protected $table = 'user_groups';
-
     protected $fillable = ['user_id', 'group_id'];
 
     // Relationships

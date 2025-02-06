@@ -3,19 +3,17 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\Request;
 
 class OtpNotification extends Notification
 {
     use Queueable;
 
-    protected bool $isEmailVerification;
-
-    public function __construct(public string $otp)
+    public function __construct(public string $otp, public bool $isEmailVerification)
     {
-        $this->isEmailVerification = request()->routeIs('verification.verify');
+        //
     }
 
     public function via(object $notifiable): array

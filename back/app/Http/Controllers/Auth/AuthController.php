@@ -31,7 +31,7 @@ class AuthController extends Controller
             ]
         );
 
-        SendEmail::dispatch($pendingUser->generateNewOtp());
+        SendEmail::dispatch($pendingUser->generateNewOtp(), true);
 
         return response()->json([
             'message' => 'OTP sent to email',
