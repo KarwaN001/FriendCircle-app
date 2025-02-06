@@ -14,11 +14,8 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $suggestions = User::whereNot('id', $user->id)
-            ->whereNotIn('id', $user->friends()->pluck('id'))
+        $suggestions = User::whereNotIn('id', $user->friends()->pluck('id')->push($user->id))
             ->paginate(10);
-
-        \Log::info($suggestions);
 
         return response()->json($suggestions);
     }
@@ -34,7 +31,7 @@ class FriendshipController extends Controller
 
         return response()->json([
             'incoming' => $incoming,
-            'outgoing'  => $outgoing
+            'outgoing' => $outgoing
         ]);
     }
 
