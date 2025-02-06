@@ -28,10 +28,8 @@ Route::middleware('throttle:5,1')->group(function () {
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
     ->name('password.reset');
 
-// Routes for authenticated users
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Routes for verified users
     Route::middleware('verified')->group(function () {
         Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
