@@ -113,10 +113,25 @@ export const ProfileScreen = () => {
         <ScrollView
             style={[
                 styles.container,
-                { backgroundColor: isLightTheme ? '#f5f5f5' : '#1A1A1A' }
+                { backgroundColor: isLightTheme ? '#f8f9fa' : '#121212' }
             ]}
             showsVerticalScrollIndicator={false}
         >
+            {/* Header Background */}
+            <View style={[
+                styles.headerBackground,
+                { 
+                    backgroundColor: isLightTheme ? '#1a73e8' : '#1a1a1a',
+                    borderBottomLeftRadius: 30,
+                    borderBottomRightRadius: 30,
+                }
+            ]}>
+                <View style={[styles.headerOverlay, {
+                    backgroundColor: isLightTheme ? 
+                        'rgba(255, 255, 255, 0.1)' : 
+                        'rgba(0, 0, 0, 0.2)'
+                }]} />
+            </View>
 
             {/* Profile Section */}
             <View style={styles.profileSection}>
@@ -125,31 +140,44 @@ export const ProfileScreen = () => {
                         source={userData?.profile_photo ? { uri: userData.profile_photo } : require('../assets/images/4.jpg')}
                         style={[
                             styles.profileImage,
-                            { borderColor: isLightTheme ? '#fff' : '#2A2A2A' }
                         ]}
                     />
+                    
                 </View>
-                <Text style={[styles.name, { color: isLightTheme ? '#000' : '#fff' }]}>
-                    {userData?.name || 'Loading...'}
-                </Text>
-                <Text style={[styles.username, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    {userData?.email || 'loading'}
-                </Text>
+                <View style={styles.profileInfo}>
+                    <Text style={[styles.name, { 
+                        color: '#fff',
+                        textShadowColor: 'rgba(0, 0, 0, 0.2)',
+                        textShadowOffset: { width: 0, height: 1 },
+                        textShadowRadius: 2
+                    }]}>
+                        {userData?.name || 'Loading...'}
+                    </Text>
+                    <View style={styles.emailContainer}>
+                        <Icon name="email" size={16} color="rgba(255, 255, 255, 0.9)" style={styles.emailIcon} />
+                        <Text style={[styles.username, { color: 'rgba(255, 255, 255, 0.9)' }]}>
+                            {userData?.email || 'loading'}
+                        </Text>
+                    </View>
+                </View>
             </View>
 
             {/* Stats Card */}
-            <View style={[styles.card, styles.statsCard, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
+            <View style={[styles.card, styles.statsCard, { 
+                backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                marginTop: -30,
+                marginHorizontal: 24,
+            }]}>
                 <View style={styles.statsContainer}>
                     <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#1a73e8' : '#64B5F6' }]}>
                             {userData?.groups_count || 0}
                         </Text>
                         <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Groups</Text>
                     </View>
-                                     
                     <View style={[styles.statDivider, { backgroundColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' }]} />
                     <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#1a73e8' : '#64B5F6' }]}>
                             {userData?.friends_count || 0}
                         </Text>
                         <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Friends</Text>
@@ -157,62 +185,71 @@ export const ProfileScreen = () => {
                 </View>
             </View>
 
-            {/* Theme Switch Card */}
-            <View style={[styles.card, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
-                <Pressable 
-                    style={styles.themeRow}
-                    android_ripple={{ color: isLightTheme ? '#eee' : '#333' }}
+            {/* Menu Section */}
+            <View style={styles.menuSection}>
+                {/* Theme Switch Card */}
+                <View style={[styles.card, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
+                    <Pressable 
+                        style={styles.themeRow}
+                        android_ripple={{ color: isLightTheme ? '#eee' : '#333' }}
+                    >
+                        <View style={[styles.iconContainer, { 
+                            backgroundColor: isLightTheme ? '#e3f2fd' : '#333',
+                            borderWidth: 1,
+                            borderColor: isLightTheme ? 'rgba(26, 115, 232, 0.1)' : 'rgba(255, 255, 255, 0.1)'
+                        }]}>
+                            <Icon
+                                name={isLightTheme ? 'weather-sunny' : 'weather-night'}
+                                size={24}
+                                color={isLightTheme ? '#1a73e8' : '#64B5F6'}
+                            />
+                        </View>
+                        <Text style={[styles.themeText, { color: isLightTheme ? '#000' : '#fff' }]}>
+                            {!isLightTheme ? 'Dark Mode' : 'Light Mode'}
+                        </Text>
+                        <Switch
+                            value={!isLightTheme}
+                            onValueChange={toggleTheme}
+                            thumbColor={isLightTheme ? '#fff' : '#64B5F6'}
+                            trackColor={{
+                                false: '#767577',
+                                true: Platform.select({
+                                    ios: '#64B5F6',
+                                    android: '#1a73e8'
+                                })
+                            }}
+                            ios_backgroundColor="#767577"
+                        />
+                    </Pressable>
+                </View>
+
+                {/* Menu Items */}
+                <View style={[styles.card, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
+                    {menuItems.map((item, index) => (
+                        <MenuItem key={index} {...item} />
+                    ))}
+                </View>
+
+                {/* Logout Button */}
+                <Pressable
+                    style={({ pressed }) => [
+                        styles.logoutButton,
+                        {
+                            backgroundColor: pressed ? 'rgba(220, 38, 38, 0.9)' : '#dc2626',
+                            transform: [{ scale: pressed ? 0.98 : 1 }],
+                        }
+                    ]}
+                    onPress={handleLogout}
                 >
-                    <Icon
-                        name={isLightTheme ? 'weather-sunny' : 'weather-night'}
-                        size={24}
-                        color={isLightTheme ? '#1a73e8' : '#64B5F6'}
-                    />
-                    <Text style={[styles.themeText, { color: isLightTheme ? '#000' : '#fff' }]}>
-                             {!isLightTheme ? 'Dark Mode' : 'Light Mode'} 
-                    </Text>
-                    <Switch
-                        value={!isLightTheme}
-                        onValueChange={toggleTheme}
-                        thumbColor={isLightTheme ? '#fff' : '#64B5F6'}
-                        trackColor={{
-                            false: '#767577',
-                            true: Platform.select({
-                                ios: '#64B5F6',
-                                android: '#1a73e8'
-                            })
-                        }}
-                        ios_backgroundColor="#767577"
-                    />
+                    <Icon name="logout" size={24} color="#fff" style={styles.logoutIcon} />
+                    <Text style={styles.logoutText}>Logout</Text>
                 </Pressable>
+
+                <Text style={[styles.version, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                    Version 1.0.0
+                </Text>
             </View>
-
-            {/* Menu Card */}
-            <View style={[styles.card, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
-                {menuItems.map((item, index) => (
-                    <MenuItem key={index} {...item} />
-                ))}
-            </View>
-
-            {/* Logout Button */}
-            <Pressable
-                style={({ pressed }) => [
-                    styles.logoutButton,
-                    {
-                        backgroundColor: pressed ? '#d32f2f' : '#f44336',
-                        transform: [{ scale: pressed ? 0.98 : 1 }],
-                    }
-                ]}
-                onPress={handleLogout}
-            >
-                <Icon name="logout" size={24} color="#fff" style={styles.logoutIcon} />
-                <Text style={styles.logoutText}>Logout</Text>
-            </Pressable>
-
-            <Text style={[styles.version, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                Version 1.0.0
-            </Text>
-            <View style={{ height: 40 }}></View>
+            <View style={{ height: 40 }} />
         </ScrollView>
     );
 };
@@ -220,43 +257,76 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: StatusBar.currentHeight || 0,
-        padding: 16,
     },
-    timeText: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginBottom: 20,
-        fontWeight: '500',
+    headerBackground: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 280,
+        zIndex: -1,
+        overflow: 'hidden',
+    },
+    headerOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0.5,
     },
     profileSection: {
         alignItems: 'center',
-        marginBottom: 24,
+        paddingTop: 45,
+        paddingBottom: 60,
     },
     profileImageContainer: {
-        marginBottom: 12,
+        marginBottom: 16,
         position: 'relative',
     },
     profileImage: {
-        width: 130,
-        height: 130,
+        width: 125,
+        height: 125,
         borderRadius: 100,
         borderWidth: 3,
     },
+  
+    profileInfo: {
+        alignItems: 'center',
+        marginTop: 4,
+    },
     name: {
-        fontSize: 26,
+        fontSize: 24,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: 6,
+        letterSpacing: 0.3,
+    },
+    emailContainer: {
+        marginBottom: 25,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+    emailIcon: {
+        marginRight: 6,
     },
     username: {
-        fontSize: 16,
-        marginBottom: 8,
-        opacity: 0.8,
+        fontSize: 14,
+        letterSpacing: 0.3,
+        fontWeight: '500',
+    },
+    menuSection: {
+        paddingHorizontal: 20,
     },
     card: {
-        borderRadius: 16,
+        borderRadius: 24,
         marginBottom: 16,
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -270,31 +340,41 @@ const styles = StyleSheet.create({
         }),
     },
     statsCard: {
-        padding: 8,
+        padding: 16,
+        elevation: 8,
     },
     statsContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-around',
-        paddingVertical: 12,
     },
     statItem: {
         alignItems: 'center',
         flex: 1,
+        paddingVertical: 8,
     },
     statDivider: {
         width: 1,
-        height: 24,
-        marginHorizontal: 8,
+        height: 36,
+        marginHorizontal: 16,
     },
     statNumber: {
         fontSize: 22,
         fontWeight: '700',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     statLabel: {
-        fontSize: 14,
-        opacity: 0.8,
+        fontSize: 13,
+        fontWeight: '600',
+        letterSpacing: 0.3,
+    },
+    iconContainer: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16,
     },
     themeRow: {
         flexDirection: 'row',
@@ -303,15 +383,16 @@ const styles = StyleSheet.create({
     },
     themeText: {
         flex: 1,
-        marginLeft: 16,
         fontSize: 16,
-        fontWeight: '500',
+        fontWeight: '600',
+        letterSpacing: 0.5,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        marginVertical: 2,
+        padding: 18,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
     },
     menuIcon: {
         marginRight: 16,
@@ -322,27 +403,19 @@ const styles = StyleSheet.create({
     menuTitle: {
         fontSize: 16,
         fontWeight: '600',
+        letterSpacing: 0.5,
     },
     menuSubtitle: {
         fontSize: 14,
         marginTop: 2,
         opacity: 0.7,
     },
-    version: {
-        textAlign: 'center',
-        padding: 16,
-        fontSize: 12,
-        opacity: 0.6,
-        fontWeight: '500',
-    },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f44336',
-        padding: 16,
-        borderRadius: 12,
-        marginHorizontal: 16,
+        padding: 18,
+        borderRadius: 24,
         marginBottom: 16,
         ...Platform.select({
             ios: {
@@ -352,7 +425,7 @@ const styles = StyleSheet.create({
                 shadowRadius: 8,
             },
             android: {
-                elevation: 4,
+                elevation: 6,
             },
         }),
     },
@@ -363,5 +436,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
+        letterSpacing: 0.5,
+    },
+    version: {
+        textAlign: 'center',
+        padding: 16,
+        fontSize: 12,
+        opacity: 0.6,
+        fontWeight: '500',
+        letterSpacing: 0.5,
     },
 });
