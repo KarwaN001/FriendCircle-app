@@ -184,6 +184,7 @@ export const ProfileScreen = () => {
             <Text style={[styles.version, { color: isLightTheme ? '#666' : '#aaa' }]}>
                 Version 1.0.0
             </Text>
+            <View style={{ height: 40 }}></View>
         </ScrollView>
     );
 };
