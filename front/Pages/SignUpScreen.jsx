@@ -10,9 +10,11 @@ import {
     Platform,
     ScrollView,
     StatusBar,
+    Alert,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import axiosInstance from '../services/api.config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,6 +24,8 @@ const SignUpScreen = ({ navigation }) => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [age, setAge] = useState('');
+    const [gender, setGender] = useState('male'); // default to male
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -121,12 +125,82 @@ const SignUpScreen = ({ navigation }) => {
             fontWeight: 'bold',
             marginLeft: 5,
         },
+        genderContainer: {
+            flexDirection: 'row',
+            width: width * 0.8,
+            marginBottom: 15,
+            justifyContent: 'space-between',
+        },
+        genderButton: {
+            width: width * 0.38,
+            height: 50,
+            borderRadius: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#f0f0f0',
+            borderWidth: 1,
+            borderColor: '#ddd',
+        },
+        genderButtonActive: {
+            backgroundColor: '#007AFF',
+            borderColor: '#007AFF',
+        },
+        genderButtonText: {
+            fontSize: 16,
+            color: '#666',
+        },
+        genderButtonTextActive: {
+            color: '#fff',
+        },
     });
 
-    const handleSignUp = () => {
-        // Implement sign up logic here
-        console.log('Sign up with:', name, email, phoneNumber, password);
-        navigation.navigate('Main');
+    const handleSignUp = async () => {
+        // Basic validation
+        if (!name || !email || !phoneNumber || !password || !confirmPassword || !age) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match');
+            return;
+        }
+
+        if (parseInt(age) < 6) {
+            Alert.alert('Error', 'You must be at least 6 years old to register');
+            return;
+        }
+
+        try {
+            const response = await axiosInstance.post('/register', {
+                name,
+                email,
+                password,
+                password_confirmation: confirmPassword,
+                phone_number: `+964${phoneNumber}`,
+                age: parseInt(age),
+                gender,
+                device_name: `${Platform.OS}-${Platform.Version}`,
+            });
+
+            console.log('Registration response:', response.data);
+            Alert.alert(
+                'Success',
+                'Registration successful! Please check your email for verification code.',
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('OTPVerification', { 
+                            verification_id: response.data.verification_id 
+                        })
+                    }
+                ]
+            );
+        } catch (error) {
+            console.error('Registration error:', error);
+            const errorMessage = error.response?.data?.error || 'An error occurred during registration';
+            Alert.alert('Registration Failed', errorMessage);
+        }
     };
 
     const handlePhoneChange = (text) => {
@@ -173,6 +247,41 @@ const SignUpScreen = ({ navigation }) => {
                         keyboardType="phone-pad"
                         maxLength={10}
                     />
+                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Age"
+                    placeholderTextColor={isDarkMode ? '#cccccc' : '#999999'}
+                    value={age}
+                    onChangeText={setAge}
+                    keyboardType="numeric"
+                    maxLength={2}
+                />
+                <View style={styles.genderContainer}>
+                    <TouchableOpacity 
+                        style={[
+                            styles.genderButton, 
+                            gender === 'male' && styles.genderButtonActive
+                        ]}
+                        onPress={() => setGender('male')}
+                    >
+                        <Text style={[
+                            styles.genderButtonText,
+                            gender === 'male' && styles.genderButtonTextActive
+                        ]}>Male</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.genderButton, 
+                            gender === 'female' && styles.genderButtonActive
+                        ]}
+                        onPress={() => setGender('female')}
+                    >
+                        <Text style={[
+                            styles.genderButtonText,
+                            gender === 'female' && styles.genderButtonTextActive
+                        ]}>Female</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.passwordContainer}>
                     <TextInput

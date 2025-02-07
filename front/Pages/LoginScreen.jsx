@@ -10,10 +10,12 @@ import {
     Platform,
     ScrollView,
     StatusBar,
+    Alert,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import axiosInstance from '../services/api.config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -109,13 +111,34 @@ const LoginScreen = ({ navigation }) => {
     const handleLogin = async () => {
         try {
             const response = await axiosInstance.post('/login', {
-                email: "email",
-                password: "password",
+                email: email,
+                password: password,
+                device_name: `${Platform.OS}-${Platform.Version}`,
             });
             console.log('Login response:', response.data);
+            // Store the token
+            await AsyncStorage.setItem('token', response.data.token);
             navigation.navigate('Main');
         } catch (error) {
             console.error('Login error:', error);
+            if (error.response?.status === 401) {
+                Alert.alert(
+                    'Login Failed',
+                    'Invalid credentials. If you haven\'t registered yet, please sign up first.',
+                    [
+                        {
+                            text: 'Sign Up',
+                            onPress: () => navigation.navigate('SignUp'),
+                        },
+                        {
+                            text: 'OK',
+                            style: 'cancel',
+                        },
+                    ]
+                );
+            } else {
+                Alert.alert('Error', 'An error occurred while trying to log in. Please try again.');
+            }
         }
     };
 
