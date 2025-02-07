@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        PendingUser::where('expires_at', '<', Carbon::now())->delete();
+        Otp::where('expires_at', '<', Carbon::now())->delete();
     }
 }

@@ -24,7 +24,7 @@ class EmailVerificationController extends Controller
             return response()->json(['error' => 'Please wait 30 seconds before requesting a new OTP.'], 429);
         }
 
-        SendEmail::dispatch($pendingUser->generateNewOtp());
+        SendEmail::dispatch($pendingUser->generateNewOtp(), true);
 
         return response()->json(['message' => 'New OTP sent']);
     }

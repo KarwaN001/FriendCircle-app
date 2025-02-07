@@ -14,11 +14,8 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $suggestions = User::whereNot('id', $user->id)
-            ->whereNotIn('id', $user->friends()->pluck('id'))
+        $suggestions = User::whereNotIn('id', $user->friends()->pluck('id')->push($user->id))
             ->paginate(10);
-
-        \Log::info($suggestions);
 
         return response()->json($suggestions);
     }
@@ -34,23 +31,19 @@ class FriendshipController extends Controller
 
         return response()->json([
             'incoming' => $incoming,
-            'outgoing'  => $outgoing
+            'outgoing' => $outgoing
         ]);
     }
 
-    // POST /api/friend-request
+    // POST /api/friend-requests
     // Send a friend request
     public function store(Request $request)
     {
         $user = $request->user();
 
-        $validator = Validator::make($request->all(), [
-            'recipient_id' => 'required|exists:users,id|different:'.$user->id,
+        $request->validate([
+            'recipient_id' => 'required|numeric|exists:users,id|not_in:'.$user->id
         ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
 
         // Check if a friendship already exists between the two users
         $exists = Friendship::where(function ($query) use ($user, $request) {
@@ -68,7 +61,7 @@ class FriendshipController extends Controller
         $friendRequest = Friendship::create([
             'sender_id' => $user->id,
             'recipient_id' => $request->recipient_id,
-            'status' => 'pending',
+            // Status is pending by default
         ]);
 
         return response()->json($friendRequest, 201);
