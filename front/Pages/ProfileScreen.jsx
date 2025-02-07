@@ -44,7 +44,6 @@ export const ProfileScreen = () => {
         { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
         { icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance' },
         { icon: 'cog-outline', title: 'Settings', subtitle: 'App preferences' },
-        { icon: 'logout', title: 'Logout', subtitle: 'Sign out of your account', onPress: handleLogout },
     ];
 
     const MenuItem = ({ icon, title, subtitle, onPress }) => (
@@ -168,6 +167,21 @@ export const ProfileScreen = () => {
                     <MenuItem key={index} {...item} />
                 ))}
             </View>
+
+            {/* Logout Button */}
+            <Pressable
+                style={({ pressed }) => [
+                    styles.logoutButton,
+                    {
+                        backgroundColor: pressed ? '#d32f2f' : '#f44336',
+                        transform: [{ scale: pressed ? 0.98 : 1 }],
+                    }
+                ]}
+                onPress={handleLogout}
+            >
+                <Icon name="logout" size={24} color="#fff" style={styles.logoutIcon} />
+                <Text style={styles.logoutText}>Logout</Text>
+            </Pressable>
 
             <Text style={[styles.version, { color: isLightTheme ? '#666' : '#aaa' }]}>
                 Version 1.0.0
@@ -315,5 +329,34 @@ const styles = StyleSheet.create({
         fontSize: 12,
         opacity: 0.6,
         fontWeight: '500',
+    },
+    logoutButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#f44336',
+        padding: 16,
+        borderRadius: 12,
+        marginHorizontal: 16,
+        marginBottom: 16,
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.2,
+                shadowRadius: 8,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
+    logoutIcon: {
+        marginRight: 8,
+    },
+    logoutText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });
