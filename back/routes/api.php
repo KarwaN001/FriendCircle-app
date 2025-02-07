@@ -36,7 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Profile routes
         Route::get('/profile', [ProfileController::class, 'show']);
-        Route::put('/profile', [ProfileController::class, 'update']);
+        Route::patch('/profile', [ProfileController::class, 'update']);
 
         // Friendship routes
         Route::get('/friend-suggestions', [FriendshipController::class, 'suggestions']);
