@@ -10,6 +10,7 @@ import {
     Alert,
     ActivityIndicator,
     Platform,
+    Dimensions,
 } from 'react-native';
 import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -202,49 +203,51 @@ export const EditProfileScreen = () => {
                 </Pressable>
             </View>
 
-            <View style={styles.photoSection}>
-                <Pressable onPress={pickImage} style={styles.photoContainer}>
-                    <Image
-                        source={
-                            newPhoto
-                                ? { uri: newPhoto }
-                                : formData.profile_photo
-                                    ? { uri: formData.profile_photo }
-                                    : require('../../assets/images/4.jpg')
-                        }
-                        style={styles.profilePhoto}
+            <View style={styles.contentContainer}>
+                <View style={styles.photoSection}>
+                    <Pressable onPress={pickImage} style={styles.photoContainer}>
+                        <Image
+                            source={
+                                newPhoto
+                                    ? { uri: newPhoto }
+                                    : formData.profile_photo
+                                        ? { uri: formData.profile_photo }
+                                        : require('../../assets/images/4.jpg')
+                            }
+                            style={styles.profilePhoto}
+                        />
+                        <View style={styles.editIconContainer}>
+                            <Icon name="camera" size={20} color="#fff" />
+                        </View>
+                    </Pressable>
+                </View>
+
+                <View style={styles.form}>
+                    <InputField
+                        label="Full Name"
+                        value={formData.name}
+                        onChangeText={(text) => setFormData({ ...formData, name: text })}
                     />
-                    <View style={styles.editIconContainer}>
-                        <Icon name="camera" size={20} color="#fff" />
-                    </View>
-                </Pressable>
-            </View>
+                    
+                    <InputField
+                        label="Email"
+                        value={formData.email}
+                        onChangeText={(text) => setFormData({ ...formData, email: text })}
+                    />
 
-            <View style={styles.form}>
-                <InputField
-                    label="Full Name"
-                    value={formData.name}
-                    onChangeText={(text) => setFormData({ ...formData, name: text })}
-                />
-                
-                <InputField
-                    label="Email"
-                    value={formData.email}
-                    onChangeText={(text) => setFormData({ ...formData, email: text })}
-                />
+                    <InputField
+                        label="Phone Number"
+                        value={formData.phone}
+                        onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                    />
 
-                <InputField
-                    label="Phone Number"
-                    value={formData.phone}
-                    onChangeText={(text) => setFormData({ ...formData, phone: text })}
-                />
-
-                <InputField
-                    label="Bio"
-                    value={formData.bio}
-                    onChangeText={(text) => setFormData({ ...formData, bio: text })}
-                    multiline={true}
-                />
+                    <InputField
+                        label="Bio"
+                        value={formData.bio}
+                        onChangeText={(text) => setFormData({ ...formData, bio: text })}
+                        multiline={true}
+                    />
+                </View>
             </View>
         </ScrollView>
     );
@@ -253,79 +256,128 @@ export const EditProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        marginTop: Platform.OS === 'ios' ? 40 : 20,
+    },
+    contentContainer: {
+        flex: 1,
+        paddingHorizontal: 20,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingTop: Platform.OS === 'ios' ? 60 : 20,
-        paddingBottom: 10,
+        paddingTop: Platform.OS === 'ios' ? 20 : 10,
+        paddingBottom: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.1)',
+        marginBottom: 20,
     },
     backButton: {
         padding: 8,
+        borderRadius: 20,
+        backgroundColor: 'rgba(0,0,0,0.05)',
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 22,
+        fontWeight: '700',
+        letterSpacing: 0.5,
     },
     saveButton: {
-        backgroundColor: '#1a73e8',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-        minWidth: 70,
+        backgroundColor: '#2196F3',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 25,
+        minWidth: 80,
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     saveButtonText: {
         color: '#fff',
         fontWeight: '600',
+        fontSize: 15,
     },
     photoSection: {
         alignItems: 'center',
-        marginVertical: 20,
+        marginVertical: 25,
     },
     photoContainer: {
         position: 'relative',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+        elevation: 8,
     },
     profilePhoto: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: 140,
+        height: 140,
+        borderRadius: 70,
+        borderWidth: 3,
+        borderColor: '#fff',
     },
     editIconContainer: {
         position: 'absolute',
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#1a73e8',
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        right: 5,
+        bottom: 5,
+        backgroundColor: '#2196F3',
+        width: 40,
+        height: 40,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
         borderColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     form: {
-        paddingHorizontal: 16,
+        marginTop: 10,
     },
     inputContainer: {
-        marginBottom: 20,
+        marginBottom: 25,
     },
     label: {
         fontSize: 16,
         fontWeight: '600',
-        marginBottom: 8,
+        marginBottom: 10,
+        marginLeft: 5,
+        letterSpacing: 0.5,
     },
     input: {
         borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        borderRadius: 15,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
         fontSize: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
     },
     multilineInput: {
-        height: 100,
+        height: 120,
         textAlignVertical: 'top',
+        paddingTop: 15,
     },
 }); 
