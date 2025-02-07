@@ -10,10 +10,12 @@ import {
     Platform,
     ScrollView,
     StatusBar,
+    Alert,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import axiosInstance from '../services/api.config';
+import { setToken, setUser } from '../services/storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -107,15 +109,67 @@ const LoginScreen = ({ navigation }) => {
     });
 
     const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert('Error', 'Please enter both email and password');
+            return;
+        }
+
         try {
+            console.log('Attempting login with:', { email, device_name: `${Platform.OS}-${Platform.Version}` });
+            
             const response = await axiosInstance.post('/login', {
-                email: "email",
-                password: "password",
+                email: email,
+                password: password,
+                device_name: `${Platform.OS}-${Platform.Version}`,
             });
+
             console.log('Login response:', response.data);
-            navigation.navigate('Main');
+            
+            if (response.data.token) {
+                await setToken(response.data.token);
+                if (response.data.user) {
+                    await setUser(response.data.user);
+                }
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Main' }],
+                });
+            } else {
+                Alert.alert('Error', 'No token received from server');
+            }
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('Login error details:', {
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.message
+            });
+
+            if (error.response?.status === 401) {
+                Alert.alert(
+                    'Login Failed',
+                    'Invalid email or password. Please check your credentials and try again.',
+                    [
+                        {
+                            text: 'OK',
+                            style: 'cancel',
+                        },
+                        {
+                            text: 'Sign Up',
+                            onPress: () => navigation.navigate('SignUp'),
+                        },
+                    ]
+                );
+            } else if (error.response?.status === 422) {
+                Alert.alert('Validation Error', 'Please check your email and password format.');
+            } else if (error.response?.status === 429) {
+                Alert.alert('Too Many Attempts', 'Please try again later.');
+            } else {
+                Alert.alert(
+                    'Connection Error',
+                    'Could not connect to the server. Please check your internet connection.',
+                    [{ text: 'OK' }]
+                );
+            }
         }
     };
 
@@ -155,7 +209,10 @@ const LoginScreen = ({ navigation }) => {
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.forgotPassword}>
+                <TouchableOpacity 
+                    style={styles.forgotPassword}
+                    onPress={() => navigation.navigate('ForgotPassword')}
+                >
                     <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                 </TouchableOpacity>
                 <View style={styles.signUpContainer}>

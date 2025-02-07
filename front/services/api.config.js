@@ -1,11 +1,13 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getToken } from './storage';
 import { Platform } from 'react-native';
 
 // Use 10.0.2.2 for Android emulator and localhost for iOS
+//android: "http://192.168.1.200:8000/api",
+//php artisan serve --host=192.168.1.200
 const API_URL = Platform.select({
-    android: "http://10.0.2.2:8001/api",
-    ios: "http://127.0.0.1:8000/api",
+    android: "http://192.168.1.200:8000/api",
+    ios: "http://localhost:8000/api",
 });
 
 const axiosInstance = axios.create({
@@ -22,7 +24,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     async (config) => {
         try {
-            const token = await AsyncStorage.getItem('token');
+            const token = await getToken();
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
