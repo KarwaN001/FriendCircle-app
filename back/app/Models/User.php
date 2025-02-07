@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
+use Database\Factories\UserFactory;
+use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use RuntimeException;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
     /**
@@ -37,6 +41,25 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    // Relationships
+    public function otps(): morphMany
+    {
+        return $this->morphMany(Otp::class, 'otpable');
+    }
+
+    public function sentFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'sender_id');
+    }
+
+    public function receivedFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'recipient_id');
+    }
+
+
+    // Helper methods
+
     /**
      * Get the attributes that should be cast.
      *
@@ -50,9 +73,36 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    // Relationships
-    public function groups(): HasMany
+    public function generateNewOtp()
     {
-        return $this->hasMany(UserGroup::class, 'user_id');
+        $this->otps()->delete();
+
+        try {
+            $otp = $this->otps()->create([
+                'code' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+                'expires_at' => now()->addMinutes(10)
+            ]);
+        } catch (Exception $e) {
+            throw new RuntimeException($e->getMessage());
+        }
+
+        return $otp;
     }
+
+    public function friends(): object
+    {
+        $friendsFromSender = $this->sentFriendRequests()
+            ->where('status', 'accepted')
+            ->pluck('recipient_id')
+            ->toArray();
+        $friendsFromRecipient = $this->receivedFriendRequests()
+            ->where('status', 'accepted')
+            ->pluck('sender_id')
+            ->toArray();
+
+        $friendIds = array_merge($friendsFromSender, $friendsFromRecipient);
+        return self::whereIn('id', $friendIds)->get();
+    }
+
+
 }

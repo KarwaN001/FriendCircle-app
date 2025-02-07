@@ -3,41 +3,69 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Jobs\SendEmail;
+use App\Models\PendingUser;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    /**
-     * Handle an incoming authentication request.
-     */
-    public function store(LoginRequest $request)
+    public function store(Request $request)
     {
-        // Validate and authenticate the user
-        $request->authenticate();
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed'],
+            'age' => ['required', 'integer', 'min:13'],
+            'gender' => ['required', 'string', 'max:255', 'in:male,female'],
+            'phone_number' => ['required', 'string', 'max:255'],
+            'device_name' => ['required', 'string', 'max:255'],
+        ]);
 
-        // Create a Sanctum token for the authenticated user
-        $user = Auth::user();
-        $token = $user->createToken($user->email)->plainTextToken;
+        $pendingUser = PendingUser::updateOrCreate(
+            ['email' => $validated['email']],
+            [
+                'user_data' => $validated,
+                'expires_at' => now()->addDay()
+            ]
+        );
 
-        // Return the token and user data as the response
+        SendEmail::dispatch($pendingUser->generateNewOtp());
+
         return response()->json([
-            'token' => $token,
-            'user' => $user,
+            'message' => 'OTP sent to email',
+            'verification_id' => $pendingUser->id
         ]);
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
+    public function authenticate(Request $request)
+    {
+        $validatedData = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required|string',
+        ]);
+
+        $user = User::where('email', $validatedData['email'])->first();
+
+        if (!$user || !Hash::check($validatedData['password'], $user->password)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        $user->tokens()->delete();
+
+        $token = $user->createToken($validatedData['device_name'])->plainTextToken;
+
+        return response()->json(['token' => $token]);
+    }
+
     public function destroy(Request $request)
     {
-        Auth::user()->tokens()->delete();
+        $request->validate(['device_name' => 'required|string']);
 
-        return response()->json([
-            'message' => 'Logged out successfully',
-        ], 200);
+        $request->user()->tokens()->where('name', $request->device_name)->delete();
+
+        return response()->json(['message' => 'Logged out successfully from the device.']);
     }
 }

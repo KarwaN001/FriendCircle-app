@@ -1,33 +1,51 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\{
-    AuthController,
-    EmailVerificationNotificationController,
-    NewPasswordController,
-    PasswordResetLinkController,
-    RegisteredUserController,
-    VerifyEmailController
+use Illuminate\Http\Request;
+use App\Http\Controllers\Auth\{AuthController,
+    EmailVerificationController,
+    ForgotPasswordController,
 };
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('/register', [AuthController::class, 'store'])->name('register');
 
-Route::middleware('guest')->group(function () {
-    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
-    Route::post('/login', [AuthController::class, 'store'])->name('login');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store');
-});
+Route::middleware('throttle:5,1')->group(function () {
+    Route::post('/login', [AuthController::class, 'authenticate'])
+        ->name('login');
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
-    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
-        ->name('verification.send');
-    Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['signed', 'throttle:6,1'])
+    Route::post('/email/resend-otp', [EmailVerificationController::class, 'resendOtp'])
+        ->name('verification.resend');
+
+    Route::post('/email/verify', [EmailVerificationController::class, 'verifyOtp'])
         ->name('verification.verify');
+
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'email'])
+        ->name('password.email');
+});
+
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
+    ->name('password.reset');
+
+// Routes for authenticated users
+Route::middleware('auth:sanctum')->group(function () {
+
+    // Routes for verified users
+    Route::middleware('verified')->group(function () {
+        Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+
+        // Profile routes
+        Route::get('/profile', [ProfileController::class, 'show']);
+        Route::put('/profile', [ProfileController::class, 'update']);
+
+        // Friendship routes
+        Route::get('/friend-suggestions', [FriendshipController::class, 'suggestions']);
+        Route::get('/friend-requests',
+            [FriendshipController::class, 'index']);  // List pending friend requests (incoming &/or outgoing as needed)
+        Route::post('/friend-requests', [FriendshipController::class, 'store']);   // Send a friend request
+        Route::put('/friend-requests/{friendship}/accept', [FriendshipController::class, 'accept']);
+        Route::put('/friend-requests/{friendship}/decline', [FriendshipController::class, 'decline']);
+        Route::delete('/friend-requests/{friendship}', [FriendshipController::class, 'cancel']);  // Cancel a sent friend request
+    });
 });
