@@ -10,11 +10,9 @@ import {
     Platform,
     ScrollView,
     StatusBar,
-    Alert,
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
-import api from '../apis/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -125,36 +123,10 @@ const SignUpScreen = ({ navigation }) => {
         },
     });
 
-    const handleSignUp = async () => {
-        // Basic validation
-        if (!name || !email || !phoneNumber || !password || !confirmPassword) {
-            Alert.alert('Error', 'Please fill in all fields');
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            Alert.alert('Error', 'Passwords do not match');
-            return;
-        }
-
-        try {
-            const userData = {
-                name,
-                email,
-                phone_number: `+964${phoneNumber}`,
-                password,
-                password_confirmation: confirmPassword,
-                age: 18,
-                gender: 'male'
-            };
-
-            const response = await api.register(userData);
-            Alert.alert('Success', 'Registration successful!', [
-                { text: 'OK', onPress: () => navigation.navigate('Login') }
-            ]);
-        } catch (error) {
-            Alert.alert('Error', error.message || 'Registration failed. Please try again.');
-        }
+    const handleSignUp = () => {
+        // Implement sign up logic here
+        console.log('Sign up with:', name, email, phoneNumber, password);
+        navigation.navigate('Main');
     };
 
     const handlePhoneChange = (text) => {
