@@ -7,7 +7,7 @@ import SignUpScreen from './Pages/SignUpScreen';
 import Navigations from './Pages/Navigations';
 
 const Stack = createStackNavigator();
-
+//test
 const App = () => {
     return (
         <ThemeProvider>
