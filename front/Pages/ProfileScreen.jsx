@@ -2,12 +2,41 @@ import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform,
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import { clearAuthData } from '../services/storage';
+import { clearAuthData, getUser, setUser } from '../services/storage';
+import React, { useState, useEffect } from 'react';
+import axiosInstance from '../services/api.config';
 
 export const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
     const isLightTheme = theme === 'light';
     const navigation = useNavigation();
+    const [userData, setUserData] = useState(null);
+
+    // Fetch user data when component mounts
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                // First try to get from storage
+                const storedUser = await getUser();
+                if (storedUser) {
+                    setUserData(storedUser);
+                }
+                
+                // Then fetch fresh data from API
+                const response = await axiosInstance.get('/profile');
+                const freshUserData = response.data;
+                setUserData(freshUserData);
+                console.log('Logged in User Information:', freshUserData);
+                
+                // Update storage with fresh data
+                await setUser(freshUserData);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                Alert.alert('Error', 'Failed to load profile data. Please try again.');
+            }
+        };
+        fetchUserData();
+    }, []);
 
     const handleLogout = async () => {
         Alert.alert(
@@ -93,19 +122,18 @@ export const ProfileScreen = () => {
             <View style={styles.profileSection}>
                 <View style={styles.profileImageContainer}>
                     <Image
-                        source={require('../assets/images/4.jpg')}
+                        source={userData?.profile_photo ? { uri: userData.profile_photo } : require('../assets/images/4.jpg')}
                         style={[
                             styles.profileImage,
                             { borderColor: isLightTheme ? '#fff' : '#2A2A2A' }
                         ]}
                     />
-                  
                 </View>
                 <Text style={[styles.name, { color: isLightTheme ? '#000' : '#fff' }]}>
-                    Test Test
+                    {userData?.name || 'Loading...'}
                 </Text>
                 <Text style={[styles.username, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    @qwerty
+                    {userData?.email || 'loading'}
                 </Text>
             </View>
 
@@ -113,17 +141,17 @@ export const ProfileScreen = () => {
             <View style={[styles.card, styles.statsCard, { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }]}>
                 <View style={styles.statsContainer}>
                     <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>5</Text>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>
+                            {userData?.groups_count || 0}
+                        </Text>
                         <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Groups</Text>
                     </View>
+                                     
                     <View style={[styles.statDivider, { backgroundColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' }]} />
                     <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>12</Text>
-                        <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Check-ins</Text>
-                    </View>
-                    <View style={[styles.statDivider, { backgroundColor: isLightTheme ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)' }]} />
-                    <View style={styles.statItem}>
-                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>8</Text>
+                        <Text style={[styles.statNumber, { color: isLightTheme ? '#000' : '#fff' }]}>
+                            {userData?.friends_count || 0}
+                        </Text>
                         <Text style={[styles.statLabel, { color: isLightTheme ? '#666' : '#aaa' }]}>Friends</Text>
                     </View>
                 </View>
