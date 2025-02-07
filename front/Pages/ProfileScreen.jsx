@@ -99,9 +99,7 @@ export const ProfileScreen = () => {
                             { borderColor: isLightTheme ? '#fff' : '#2A2A2A' }
                         ]}
                     />
-                    <Pressable style={styles.editImageButton}>
-                        <Icon name="pencil" size={16} color="#fff" />
-                    </Pressable>
+                  
                 </View>
                 <Text style={[styles.name, { color: isLightTheme ? '#000' : '#fff' }]}>
                     Test Test
@@ -215,28 +213,6 @@ const styles = StyleSheet.create({
         height: 130,
         borderRadius: 100,
         borderWidth: 3,
-    },
-    editImageButton: {
-        position: 'absolute',
-        right: -4,
-        bottom: -4,
-        backgroundColor: '#1a73e8',
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 4,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
     },
     name: {
         fontSize: 26,
