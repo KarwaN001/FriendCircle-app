@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Exception;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -57,6 +58,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Friendship::class, 'recipient_id');
     }
 
+    public function groups(): HasMany
+    {
+        return $this->hasMany(Group::class, 'group_admin');
+    }
+
+    public function userGroups(): belongsToMany
+    {
+        return $this->belongsToMany(UserGroup::class, 'user_id');
+    }
 
     // Helper methods
 
@@ -103,6 +113,4 @@ class User extends Authenticatable implements MustVerifyEmail
         $friendIds = array_merge($friendsFromSender, $friendsFromRecipient);
         return self::whereIn('id', $friendIds)->get();
     }
-
-
 }

@@ -24,12 +24,11 @@ class ForgotPasswordController extends Controller
 
         // Check cooldown (30 seconds)
         $latestOtp = $user->otps()->latest()->first();
-        if ($latestOtp && now()->diffInSeconds($latestOtp->created_at) < 30) {
+        if ($latestOtp && abs(now()->diffInSeconds($latestOtp->created_at)) < 30) {
             return response()->json(['error' => 'Please wait 30 seconds before requesting a new OTP.'], 429);
         }
 
-        $otp = $user->generateNewOtp();
-        SendEmail::dispatch($otp);
+        SendEmail::dispatch($user->generateNewOtp(), false);
 
         return response()->json(['message' => 'OTP sent to email.']);
     }

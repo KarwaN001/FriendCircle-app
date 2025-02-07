@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
@@ -28,10 +29,8 @@ Route::middleware('throttle:5,1')->group(function () {
 Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
     ->name('password.reset');
 
-// Routes for authenticated users
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Routes for verified users
     Route::middleware('verified')->group(function () {
         Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
 
@@ -47,5 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/friend-requests/{friendship}/accept', [FriendshipController::class, 'accept']);
         Route::put('/friend-requests/{friendship}/decline', [FriendshipController::class, 'decline']);
         Route::delete('/friend-requests/{friendship}', [FriendshipController::class, 'cancel']);  // Cancel a sent friend request
+
+        // Group routes
+        Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
     });
 });

@@ -14,13 +14,13 @@ class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(public Otp $otp)
+    public function __construct(public Otp $otp, public bool $isEmailVerification)
     {
         //
     }
 
     public function handle(): void
     {
-        $this->otp->otpable->notify(new OtpNotification($this->otp->code));
+        $this->otp->otpable->notify(new OtpNotification($this->otp->code, $this->isEmailVerification));
     }
 }
