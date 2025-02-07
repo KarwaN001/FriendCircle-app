@@ -43,44 +43,15 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     // Relationships
-    public function otps(): morphMany
-    {
-        return $this->morphMany(Otp::class, 'otpable');
-    }
-
-    public function sentFriendRequests(): HasMany
-    {
-        return $this->hasMany(Friendship::class, 'sender_id');
-    }
-
-    public function receivedFriendRequests(): HasMany
-    {
-        return $this->hasMany(Friendship::class, 'recipient_id');
-    }
-
-    public function groups(): HasMany
+    public function adminGroups(): HasMany
     {
         return $this->hasMany(Group::class, 'group_admin');
     }
 
-    public function userGroups(): belongsToMany
+    public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(UserGroup::class, 'user_id');
-    }
-
-    // Helper methods
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsToMany(Group::class, 'user_groups', 'user_id', 'group_id')
+            ->withTimestamps();
     }
 
     public function generateNewOtp()
@@ -99,18 +70,43 @@ class User extends Authenticatable implements MustVerifyEmail
         return $otp;
     }
 
-    public function friends(): object
+    public function otps(): morphMany
     {
-        $friendsFromSender = $this->sentFriendRequests()
-            ->where('status', 'accepted')
-            ->pluck('recipient_id')
-            ->toArray();
-        $friendsFromRecipient = $this->receivedFriendRequests()
-            ->where('status', 'accepted')
-            ->pluck('sender_id')
-            ->toArray();
+        return $this->morphMany(Otp::class, 'otpable');
+    }
 
-        $friendIds = array_merge($friendsFromSender, $friendsFromRecipient);
-        return self::whereIn('id', $friendIds)->get();
+    public function friends(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'recipient_id')
+            ->where('status', 'accepted')
+            ->orWhere(function ($query) {
+                $query->where('recipient_id', $this->id)
+                    ->where('status', 'accepted');
+            })->withTimestamps();
+    }
+
+    public function sentFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'sender_id');
+    }
+
+    public function receivedFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'recipient_id');
+    }
+
+    // Helper methods
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }
