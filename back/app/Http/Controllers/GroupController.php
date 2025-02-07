@@ -30,15 +30,13 @@ class GroupController extends Controller
             $validated['group_photo'] = $groupPhoto->hashName();
         }
 
-        $group = $user->groups()->create($validated);
+        $group = $user->adminGroups()->create($validated);
 
-        $group->members()->create([
-            'user_id' => $user->id,
-        ]);
+        $group->members()->attach($user->id);
 
         if ($request->has('initial_members')) {
             $initialMembers = json_decode($request->initial_members, true);
-            $group->members()->createMany($initialMembers);
+            $group->members()->attach($initialMembers);
         }
 
         return response()->json($group);

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Group extends Model
@@ -15,17 +16,19 @@ class Group extends Model
 
     protected $appends = ['members_count'];
 
+    // Relationships
     public function groupAdmin(): BelongsTo
     {
         return $this->belongsTo(User::class, 'group_admin');
     }
 
-    public function members(): HasMany
+    public function members(): BelongsToMany
     {
-        return $this->hasMany(UserGroup::class, 'group_id');
+        return $this->belongsToMany(User::class, 'user_groups', 'group_id', 'user_id')
+            ->withTimestamps();
     }
 
-    // Helper methods
+    // Accessors
     public function getMembersCountAttribute(): int
     {
         return $this->members()->count();

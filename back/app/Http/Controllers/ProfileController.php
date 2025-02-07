@@ -8,7 +8,9 @@ class ProfileController extends Controller
 {
     public function show(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user()->loadCount('groups', 'friends');
+
+        return response()->json($user);
     }
 
     public function update(Request $request)
@@ -27,7 +29,7 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             if ($user->profile_photo) {
-                unlink(public_path('profile-photos/' . $user->profile_photo));
+                unlink(public_path('profile-photos/'.$user->profile_photo));
             }
 
             $profilePhoto = $request->file('profile_photo');
