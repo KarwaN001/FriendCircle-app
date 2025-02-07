@@ -1,12 +1,42 @@
-import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar } from 'react-native';
+import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar, Alert } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
     const isLightTheme = theme === 'light';
     const navigation = useNavigation();
+
+    const handleLogout = async () => {
+        Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Logout',
+                    onPress: async () => {
+                        try {
+                            await AsyncStorage.removeItem('token');
+                            await AsyncStorage.removeItem('user');
+                            navigation.getParent()?.reset({
+                                index: 0,
+                                routes: [{ name: 'Login' }],
+                            });
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                            Alert.alert('Error', 'Failed to logout. Please try again.');
+                        }
+                    }
+                }
+            ]
+        );
+    };
 
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
@@ -15,14 +45,17 @@ export const ProfileScreen = () => {
         { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
         { icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance' },
         { icon: 'cog-outline', title: 'Settings', subtitle: 'App preferences' },
+        { icon: 'logout', title: 'Logout', subtitle: 'Sign out of your account', onPress: handleLogout },
     ];
 
-    const MenuItem = ({ icon, title, subtitle }) => (
+    const MenuItem = ({ icon, title, subtitle, onPress }) => (
         <Pressable
             style={styles.menuItem}
             android_ripple={{ color: isLightTheme ? '#eee' : '#333' }}
             onPress={() => {
-                if (title === 'Edit Profile') {
+                if (onPress) {
+                    onPress();
+                } else if (title === 'Edit Profile') {
                     navigation.navigate('EditProfile');
                 }
             }}
