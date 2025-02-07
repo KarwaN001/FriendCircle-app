@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import axiosInstance from '../services/api.config';
 
 const { width, height } = Dimensions.get('window');
+
+
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
@@ -103,10 +106,17 @@ const LoginScreen = ({ navigation }) => {
         },
     });
 
-    const handleLogin = () => {
-        // Implement login logic here
-        console.log('Login with:', email, password);
-        navigation.navigate('Main');
+    const handleLogin = async () => {
+        try {
+            const response = await axiosInstance.post('/login', {
+                email: "email",
+                password: "password",
+            });
+            console.log('Login response:', response.data);
+            navigation.navigate('Main');
+        } catch (error) {
+            console.error('Login error:', error);
+        }
     };
 
     return (
