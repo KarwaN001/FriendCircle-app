@@ -2,7 +2,7 @@ import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform,
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearAuthData } from '../services/storage';
 
 export const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -22,8 +22,7 @@ export const ProfileScreen = () => {
                     text: 'Logout',
                     onPress: async () => {
                         try {
-                            await AsyncStorage.removeItem('token');
-                            await AsyncStorage.removeItem('user');
+                            await clearAuthData();
                             navigation.getParent()?.reset({
                                 index: 0,
                                 routes: [{ name: 'Login' }],

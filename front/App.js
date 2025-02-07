@@ -7,7 +7,7 @@ import SignUpScreen from './Pages/SignUpScreen';
 import OTPVerification from './Pages/OTPVerification';
 import ForgotPasswordScreen from './Pages/ForgotPasswordScreen';
 import Navigations from './Pages/Navigations';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getToken } from './services/storage';
 import { ActivityIndicator, View } from 'react-native';
 
 const Stack = createStackNavigator();
@@ -20,7 +20,7 @@ const App = () => {
         // Check for token when app starts
         const checkToken = async () => {
             try {
-                const token = await AsyncStorage.getItem('token');
+                const token = await getToken();
                 setUserToken(token);
             } catch (error) {
                 console.error('Error checking token:', error);

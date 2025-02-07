@@ -15,7 +15,7 @@ import {
 import { useTheme } from '../DarkMode/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 import axiosInstance from '../services/api.config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setToken, setUser } from '../services/storage';
 
 const { width, height } = Dimensions.get('window');
 
@@ -126,9 +126,9 @@ const LoginScreen = ({ navigation }) => {
             console.log('Login response:', response.data);
             
             if (response.data.token) {
-                await AsyncStorage.setItem('token', response.data.token);
+                await setToken(response.data.token);
                 if (response.data.user) {
-                    await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
+                    await setUser(response.data.user);
                 }
                 navigation.reset({
                     index: 0,
