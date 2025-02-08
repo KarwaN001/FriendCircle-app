@@ -74,6 +74,7 @@ export const ProfileScreen = () => {
 
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
+        { icon: 'account-plus', title: 'Add Friend', subtitle: 'Find and add new friends' },
         { icon: 'bell-outline', title: 'Notifications', subtitle: 'Manage your alerts' },
         { icon: 'shield-lock-outline', title: 'Privacy Settings', subtitle: 'Control your privacy settings' },
         { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
@@ -90,6 +91,8 @@ export const ProfileScreen = () => {
                     onPress();
                 } else if (title === 'Edit Profile') {
                     navigation.navigate('EditProfile');
+                } else if (title === 'Add Friend') {
+                    navigation.navigate('AddFriend');
                 }
             }}
         >

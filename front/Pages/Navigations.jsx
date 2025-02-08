@@ -6,6 +6,7 @@ import ChatsScreen from './ChatsScreen';
 import {MapScreen} from './MapScreen';
 import {ProfileScreen} from './ProfileScreen';
 import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
+import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
 
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
@@ -47,6 +48,11 @@ const ProfileStack = () => {
             <Stack.Screen 
                 name="EditProfile"
                 component={EditProfileScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+                name="AddFriend"
+                component={AddFriendScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
