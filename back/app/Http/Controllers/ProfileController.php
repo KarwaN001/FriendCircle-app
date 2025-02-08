@@ -17,7 +17,7 @@ class ProfileController extends Controller
     {
         $validatedData = $request->validate([
             'name' => ['string', 'max:255'],
-            'email' => ['string', 'email', 'max:255', 'unique:users'],
+            'email' => ['string', 'email', 'max:255', 'unique:users,email,'.$request->user()->id],
             'age' => ['integer', 'min:13'],
             'gender' => ['string', 'max:255', 'in:male,female'],
             'phone_number' => ['string', 'max:255'],
@@ -28,7 +28,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($request->hasFile('profile_photo')) {
-            if ($user->profile_photo) {
+            if (file_exists(public_path('profile-photos/'.$user->profile_photo))) {
                 unlink(public_path('profile-photos/'.$user->profile_photo));
             }
 
@@ -38,6 +38,8 @@ class ProfileController extends Controller
         }
 
         $user->update($validatedData);
+
+        $user->loadCount('groups', 'friends');
 
         return response()->json($user);
     }
