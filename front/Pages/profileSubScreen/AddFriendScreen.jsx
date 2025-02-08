@@ -17,6 +17,8 @@ export const AddFriendScreen = ({ navigation }) => {
     const [hasMorePages, setHasMorePages] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [friendRequests, setFriendRequests] = useState({});
+    const [activeTab, setActiveTab] = useState('suggestions');
+    const [outgoingRequests, setOutgoingRequests] = useState([]);
 
     const fetchSuggestions = async (page = 1, shouldRefresh = false) => {
         try {
@@ -33,7 +35,11 @@ export const AddFriendScreen = ({ navigation }) => {
             });
             console.log('Friend suggestions response:', response.data);
             
-            const newSuggestions = response.data.data || [];
+            // Filter out users who already have pending friend requests
+            const newSuggestions = (response.data.data || []).filter(
+                user => !friendRequests[user.id]
+            );
+
             if (shouldRefresh || page === 1) {
                 setSuggestions(newSuggestions);
             } else {
@@ -63,11 +69,12 @@ export const AddFriendScreen = ({ navigation }) => {
     const fetchFriendRequests = async () => {
         try {
             const response = await axiosInstance.get('/friend-requests');
-            const outgoingRequests = {};
+            const outgoingRequestsMap = {};
+            setOutgoingRequests(response.data.outgoing.data || []);
             response.data.outgoing.data.forEach(request => {
-                outgoingRequests[request.recipient_id] = request.id;
+                outgoingRequestsMap[request.recipient_id] = request.id;
             });
-            setFriendRequests(outgoingRequests);
+            setFriendRequests(outgoingRequestsMap);
         } catch (error) {
             console.error('Error fetching friend requests:', error);
         }
@@ -97,11 +104,25 @@ export const AddFriendScreen = ({ navigation }) => {
                 recipient_id: userId
             });
             Alert.alert('Success', 'Friend request sent successfully!');
+            
             // Update the friend requests state
             setFriendRequests(prev => ({
                 ...prev,
                 [userId]: response.data.id
             }));
+
+            // Remove the user from suggestions
+            setSuggestions(prev => prev.filter(user => user.id !== userId));
+
+            // Update outgoing requests
+            const userToAdd = suggestions.find(user => user.id === userId);
+            if (userToAdd) {
+                setOutgoingRequests(prev => [...prev, {
+                    id: response.data.id,
+                    recipient: userToAdd,
+                    created_at: new Date().toISOString()
+                }]);
+            }
         } catch (error) {
             console.error('Error sending friend request:', error);
             Alert.alert(
@@ -118,12 +139,19 @@ export const AddFriendScreen = ({ navigation }) => {
             setSendingRequests(prev => ({ ...prev, [userId]: true }));
             await axiosInstance.delete(`/friend-requests/${friendRequests[userId]}`);
             Alert.alert('Success', 'Friend request cancelled successfully!');
-            // Remove the friend request from state
+            
+            // Remove the friend request from states
             setFriendRequests(prev => {
                 const newState = { ...prev };
                 delete newState[userId];
                 return newState;
             });
+
+            // Remove from outgoing requests
+            setOutgoingRequests(prev => prev.filter(request => request.recipient.id !== userId));
+
+            // Refresh suggestions to potentially show the user again
+            fetchSuggestions(1, true);
         } catch (error) {
             console.error('Error cancelling friend request:', error);
             Alert.alert(
@@ -194,6 +222,57 @@ export const AddFriendScreen = ({ navigation }) => {
         </View>
     );
 
+    const renderRequestItem = ({ item }) => (
+        <View style={[
+            styles.userCard,
+            { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }
+        ]}>
+            <View style={styles.userInfo}>
+                <Text style={[
+                    styles.userName,
+                    { color: isLightTheme ? '#000' : '#fff' }
+                ]}>
+                    {item.recipient.name}
+                </Text>
+                <Text style={[
+                    styles.userEmail,
+                    { color: isLightTheme ? '#666' : '#aaa' }
+                ]}>
+                    {item.recipient.email}
+                </Text>
+                <Text style={[
+                    styles.requestStatus,
+                    { color: isLightTheme ? '#666' : '#aaa' }
+                ]}>
+                    Pending since {new Date(item.created_at).toLocaleDateString()}
+                </Text>
+            </View>
+            <TouchableOpacity
+                style={[
+                    styles.addButton,
+                    { backgroundColor: isLightTheme ? '#dc2626' : '#ef4444' },
+                    sendingRequests[item.recipient.id] && styles.addButtonDisabled
+                ]}
+                onPress={() => cancelFriendRequest(item.recipient.id)}
+                disabled={sendingRequests[item.recipient.id]}
+            >
+                {sendingRequests[item.recipient.id] ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                    <View style={styles.buttonContent}>
+                        <Icon 
+                            name="close" 
+                            size={16} 
+                            color="#fff" 
+                            style={styles.buttonIcon}
+                        />
+                        <Text style={styles.addButtonText}>Cancel Request</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+        </View>
+    );
+
     return (
         <View style={[
             styles.container,
@@ -218,99 +297,166 @@ export const AddFriendScreen = ({ navigation }) => {
                 </Text>
             </View>
 
-            <View style={styles.searchContainer}>
-                <View style={[
-                    styles.searchBox,
-                    { 
-                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
-                        borderColor: isLightTheme ? '#ddd' : '#444'
-                    }
-                ]}>
-                    <Icon 
-                        name="magnify" 
-                        size={24} 
-                        color={isLightTheme ? '#666' : '#aaa'} 
-                        style={styles.searchIcon}
-                    />
-                    <TextInput
-                        style={[
-                            styles.searchInput,
-                            { color: isLightTheme ? '#000' : '#fff' }
-                        ]}
-                        placeholder="Search by username or email"
-                        placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        onSubmitEditing={handleSearch}
-                        returnKeyType="search"
-                    />
-                    {searchQuery.length > 0 && (
-                        <TouchableOpacity
-                            onPress={() => {
-                                setSearchQuery('');
-                                handleSearch();
-                            }}
-                            style={styles.clearButton}
-                        >
-                            <Icon 
-                                name="close-circle" 
-                                size={20} 
-                                color={isLightTheme ? '#666' : '#aaa'} 
-                            />
-                        </TouchableOpacity>
-                    )}
-                </View>
+            <View style={styles.tabContainer}>
+                <TouchableOpacity 
+                    style={[
+                        styles.tab,
+                        activeTab === 'suggestions' && styles.activeTab,
+                        { borderColor: isLightTheme ? '#1a73e8' : '#64B5F6' }
+                    ]}
+                    onPress={() => setActiveTab('suggestions')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'suggestions' && styles.activeTabText,
+                        { color: activeTab === 'suggestions' 
+                            ? (isLightTheme ? '#1a73e8' : '#64B5F6')
+                            : (isLightTheme ? '#666' : '#aaa')
+                        }
+                    ]}>
+                        Suggestions
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[
+                        styles.tab,
+                        activeTab === 'requests' && styles.activeTab,
+                        { borderColor: isLightTheme ? '#1a73e8' : '#64B5F6' }
+                    ]}
+                    onPress={() => setActiveTab('requests')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'requests' && styles.activeTabText,
+                        { color: activeTab === 'requests' 
+                            ? (isLightTheme ? '#1a73e8' : '#64B5F6')
+                            : (isLightTheme ? '#666' : '#aaa')
+                        }
+                    ]}>
+                        Sent Requests {outgoingRequests.length > 0 && `(${outgoingRequests.length})`}
+                    </Text>
+                </TouchableOpacity>
             </View>
 
-            {loading && currentPage === 1 ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
-                    <Text style={[styles.loadingText, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                        Loading suggestions...
-                    </Text>
-                </View>
-            ) : error ? (
-                <View style={styles.errorContainer}>
-                    <Icon name="alert-circle-outline" size={48} color={isLightTheme ? '#dc2626' : '#ef4444'} />
-                    <Text style={[styles.errorText, { color: isLightTheme ? '#dc2626' : '#ef4444' }]}>
-                        {error}
-                    </Text>
-                    <TouchableOpacity
-                        style={[styles.retryButton, { backgroundColor: isLightTheme ? '#1a73e8' : '#64B5F6' }]}
-                        onPress={() => fetchSuggestions(1, true)}
-                    >
-                        <Text style={styles.retryButtonText}>Retry</Text>
-                    </TouchableOpacity>
-                </View>
+            {activeTab === 'suggestions' ? (
+                <>
+                    <View style={styles.searchContainer}>
+                        <View style={[
+                            styles.searchBox,
+                            { 
+                                backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                borderColor: isLightTheme ? '#ddd' : '#444'
+                            }
+                        ]}>
+                            <Icon 
+                                name="magnify" 
+                                size={24} 
+                                color={isLightTheme ? '#666' : '#aaa'} 
+                                style={styles.searchIcon}
+                            />
+                            <TextInput
+                                style={[
+                                    styles.searchInput,
+                                    { color: isLightTheme ? '#000' : '#fff' }
+                                ]}
+                                placeholder="Search by username or email"
+                                placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                                value={searchQuery}
+                                onChangeText={setSearchQuery}
+                                onSubmitEditing={handleSearch}
+                                returnKeyType="search"
+                            />
+                            {searchQuery.length > 0 && (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setSearchQuery('');
+                                        handleSearch();
+                                    }}
+                                    style={styles.clearButton}
+                                >
+                                    <Icon 
+                                        name="close-circle" 
+                                        size={20} 
+                                        color={isLightTheme ? '#666' : '#aaa'} 
+                                    />
+                                </TouchableOpacity>
+                            )}
+                        </View>
+                    </View>
+
+                    {loading && currentPage === 1 ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
+                            <Text style={[styles.loadingText, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                                Loading suggestions...
+                            </Text>
+                        </View>
+                    ) : error ? (
+                        <View style={styles.errorContainer}>
+                            <Icon name="alert-circle-outline" size={48} color={isLightTheme ? '#dc2626' : '#ef4444'} />
+                            <Text style={[styles.errorText, { color: isLightTheme ? '#dc2626' : '#ef4444' }]}>
+                                {error}
+                            </Text>
+                            <TouchableOpacity
+                                style={[styles.retryButton, { backgroundColor: isLightTheme ? '#1a73e8' : '#64B5F6' }]}
+                                onPress={() => fetchSuggestions(1, true)}
+                            >
+                                <Text style={styles.retryButtonText}>Retry</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <FlatList
+                            data={suggestions}
+                            renderItem={renderUserItem}
+                            keyExtractor={(item) => item.id.toString()}
+                            contentContainerStyle={styles.listContainer}
+                            showsVerticalScrollIndicator={false}
+                            onEndReached={handleLoadMore}
+                            onEndReachedThreshold={0.5}
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            ListFooterComponent={() => (
+                                loading && currentPage > 1 ? (
+                                    <View style={styles.footerLoader}>
+                                        <ActivityIndicator size="small" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
+                                    </View>
+                                ) : null
+                            )}
+                            ListEmptyComponent={
+                                <View style={styles.emptyContainer}>
+                                    <Icon 
+                                        name={searchQuery ? "account-search-outline" : "account-group-outline"} 
+                                        size={48} 
+                                        color={isLightTheme ? '#666' : '#aaa'} 
+                                    />
+                                    <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                                        {searchQuery 
+                                            ? 'No users found matching your search'
+                                            : 'No suggestions available'}
+                                    </Text>
+                                </View>
+                            }
+                        />
+                    )}
+                </>
             ) : (
                 <FlatList
-                    data={suggestions}
-                    renderItem={renderUserItem}
+                    data={outgoingRequests}
+                    renderItem={renderRequestItem}
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.listContainer}
                     showsVerticalScrollIndicator={false}
-                    onEndReached={handleLoadMore}
-                    onEndReachedThreshold={0.5}
                     refreshing={refreshing}
-                    onRefresh={handleRefresh}
-                    ListFooterComponent={() => (
-                        loading && currentPage > 1 ? (
-                            <View style={styles.footerLoader}>
-                                <ActivityIndicator size="small" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
-                            </View>
-                        ) : null
-                    )}
+                    onRefresh={fetchFriendRequests}
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <Icon 
-                                name={searchQuery ? "account-search-outline" : "account-group-outline"} 
+                                name="send-clock-outline" 
                                 size={48} 
                                 color={isLightTheme ? '#666' : '#aaa'} 
                             />
                             <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                                {searchQuery 
-                                    ? 'No users found matching your search'
-                                    : 'No suggestions available'}
+                                No pending friend requests
                             </Text>
                         </View>
                     }
@@ -471,5 +617,32 @@ const styles = StyleSheet.create({
     },
     buttonIcon: {
         marginRight: 4,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        marginBottom: 8,
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 12,
+        marginHorizontal: 4,
+        borderBottomWidth: 2,
+        borderColor: 'transparent',
+    },
+    activeTab: {
+        borderBottomWidth: 2,
+    },
+    tabText: {
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    activeTabText: {
+        fontWeight: '600',
+    },
+    requestStatus: {
+        fontSize: 12,
+        marginTop: 4,
     },
 }); 
