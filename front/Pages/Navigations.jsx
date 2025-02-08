@@ -1,11 +1,14 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import ChatsScreen from './ChatsScreen';
 import {MapScreen} from './MapScreen';
 import {ProfileScreen} from './ProfileScreen';
 import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
+import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
+import {FriendsScreen} from './profileSubScreen/FriendsScreen';
 
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
@@ -49,6 +52,16 @@ const ProfileStack = () => {
                 component={EditProfileScreen}
                 options={{ headerShown: false }}
             />
+            <Stack.Screen 
+                name="AddFriend"
+                component={AddFriendScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+                name="Friends"
+                component={FriendsScreen}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     );
 };
@@ -85,15 +98,67 @@ const TabNavigator = () => {
                 },
             })}
         >
-            <Tab.Screen name="Chats" component={ChatsScreen} />
-            <Tab.Screen name="Map" component={MapScreen} />
+            <Tab.Screen 
+                name="Chats" 
+                component={ChatsScreen}
+                options={({ route }) => ({
+                    tabBarStyle: {
+                        display: getTabBarVisibility(route),
+                        backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
+                        borderTopWidth: 0,
+                        elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 2,
+                        height: 70,
+                    }
+                })}
+            />
+            <Tab.Screen 
+                name="Map" 
+                component={MapScreen}
+                options={({ route }) => ({
+                    tabBarStyle: {
+                        display: getTabBarVisibility(route),
+                        backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
+                        borderTopWidth: 0,
+                        elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 2,
+                        height: 70,
+                    }
+                })}
+            />
             <Tab.Screen 
                 name="ProfileTab" 
                 component={ProfileStack}
-                options={{ tabBarLabel: 'Profile' }}
+                options={({ route }) => ({
+                    tabBarLabel: 'Profile',
+                    tabBarStyle: {
+                        display: getTabBarVisibility(route),
+                        backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
+                        borderTopWidth: 0,
+                        elevation: 5,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.1,
+                        shadowRadius: 2,
+                        height: 70,
+                    }
+                })}
             />
         </Tab.Navigator>
     );
+};
+
+// Function to handle tab bar visibility
+const getTabBarVisibility = (route) => {
+    const routeName = getFocusedRouteNameFromRoute(route) ?? '';
+    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends'];
+    return hideOnScreens.includes(routeName) ? 'none' : 'flex';
 };
 
 const Navigations = () => {

@@ -1,9 +1,9 @@
 import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar, Alert } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { clearAuthData, getUser, setUser } from '../services/storage';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../services/api.config';
 
 export const ProfileScreen = () => {
@@ -12,31 +12,37 @@ export const ProfileScreen = () => {
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
 
-    // Fetch user data when component mounts
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // First try to get from storage
-                const storedUser = await getUser();
-                if (storedUser) {
-                    setUserData(storedUser);
-                }
-                
-                // Then fetch fresh data from API
-                const response = await axiosInstance.get('/profile');
-                const freshUserData = response.data;
-                setUserData(freshUserData);
-                console.log('Logged in User Information:', freshUserData);
-                
-                // Update storage with fresh data
-                await setUser(freshUserData);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                Alert.alert('Error', 'Failed to load profile data. Please try again.');
+    const fetchUserData = async () => {
+        try {
+            // First try to get from storage
+            const storedUser = await getUser();
+            if (storedUser) {
+                setUserData(storedUser);
             }
-        };
-        fetchUserData();
-    }, []);
+            
+            // Then fetch fresh data from API
+            const response = await axiosInstance.get('/profile');
+            const freshUserData = response.data;
+            setUserData(freshUserData);
+            console.log('Logged in User Information:', freshUserData);
+            
+            // Update storage with fresh data
+            await setUser(freshUserData);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            Alert.alert('Error', 'Failed to load profile data. Please try again.');
+        }
+    };
+
+    // Use useFocusEffect to refresh data when screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            fetchUserData();
+        }, [])
+    );
+    // useEffect(() => {
+    //     console.log("test test :",userData?.friends_count);
+    // }, [userData]);
 
     const handleLogout = async () => {
         Alert.alert(
@@ -68,6 +74,8 @@ export const ProfileScreen = () => {
 
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
+        { icon: 'account-plus', title: 'Add Friend', subtitle: 'Find and add new friends' },
+        { icon: 'account-group', title: 'Friends', subtitle: 'View and manage your friends' },
         { icon: 'bell-outline', title: 'Notifications', subtitle: 'Manage your alerts' },
         { icon: 'shield-lock-outline', title: 'Privacy Settings', subtitle: 'Control your privacy settings' },
         { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
@@ -84,6 +92,10 @@ export const ProfileScreen = () => {
                     onPress();
                 } else if (title === 'Edit Profile') {
                     navigation.navigate('EditProfile');
+                } else if (title === 'Add Friend') {
+                    navigation.navigate('AddFriend');
+                } else if (title === 'Friends') {
+                    navigation.navigate('Friends');
                 }
             }}
         >

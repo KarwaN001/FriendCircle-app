@@ -14,8 +14,20 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $suggestions = User::whereNotIn('id', $user->friends()->pluck('id')->push($user->id))
-            ->paginate(10);
+        $suggestions = User::whereNotIn('users.id', function($query) use ($user) {
+            $query->select('users.id')
+                ->from('users')
+                ->join('friendships', function($join) use ($user) {
+                    $join->on('users.id', '=', 'friendships.recipient_id')
+                        ->where('friendships.sender_id', $user->id)
+                        ->where('friendships.status', 'accepted')
+                        ->orWhere(function($query) use ($user) {
+                            $query->where('friendships.recipient_id', $user->id)
+                                ->where('friendships.status', 'accepted');
+                        });
+                })
+                ->union(User::select('users.id')->where('users.id', $user->id));
+        })->paginate(10);
 
         return response()->json($suggestions);
     }
@@ -24,10 +36,17 @@ class FriendshipController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $status = $request->get('include', 'pending');
 
-        $incoming = $user->receivedFriendRequests()->where('status', 'pending')->with('sender')->paginate(5);
+        $incoming = $user->receivedFriendRequests()
+            ->where('status', $status)
+            ->with('sender')
+            ->paginate(5);
 
-        $outgoing = $user->sentFriendRequests()->where('status', 'pending')->with('recipient')->paginate(5);
+        $outgoing = $user->sentFriendRequests()
+            ->where('status', $status)
+            ->with('recipient')
+            ->paginate(5);
 
         return response()->json([
             'incoming' => $incoming,
