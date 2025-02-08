@@ -40,6 +40,9 @@ export const ProfileScreen = () => {
             fetchUserData();
         }, [])
     );
+    // useEffect(() => {
+    //     console.log("test test :",userData?.friends_count);
+    // }, [userData]);
 
     const handleLogout = async () => {
         Alert.alert(
