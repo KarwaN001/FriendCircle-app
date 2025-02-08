@@ -60,7 +60,7 @@ const ProfileStack = () => {
             <Stack.Screen 
                 name="Friends"
                 component={FriendsScreen}
-                options={{ headerShown: true }}
+                options={{ headerShown: false }}
             />
         </Stack.Navigator>
     );
