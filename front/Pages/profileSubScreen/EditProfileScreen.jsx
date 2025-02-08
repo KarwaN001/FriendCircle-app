@@ -28,12 +28,15 @@ export const EditProfileScreen = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        phone: '',
-        bio: '',
+        phone_number: '',
+        age: '',
+        gender: '',
         profile_photo: null,
     });
 
     const [newPhoto, setNewPhoto] = useState(null);
+
+    const [userData, setUserData] = useState(null);
 
     useEffect(() => {
         loadUserData();
@@ -42,9 +45,11 @@ export const EditProfileScreen = () => {
 
     const requestPermissions = async () => {
         if (Platform.OS !== 'web') {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to upload photos.');
+            const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+            
+            if (mediaStatus !== 'granted' && cameraStatus !== 'granted') {
+                Alert.alert('Permission needed', 'Sorry, we need camera and gallery permissions to upload photos.');
             }
         }
     };
@@ -53,11 +58,13 @@ export const EditProfileScreen = () => {
         try {
             const userData = await getUser();
             if (userData) {
+                setUserData(userData);
                 setFormData({
                     name: userData.name || '',
                     email: userData.email || '',
-                    phone: userData.phone || '',
-                    bio: userData.bio || '',
+                    phone_number: userData.phone_number || '',
+                    age: userData.age ? userData.age.toString() : '',
+                    gender: userData.gender || '',
                     profile_photo: userData.profile_photo || null,
                 });
             }
@@ -69,30 +76,47 @@ export const EditProfileScreen = () => {
 
     const pickImage = async () => {
         try {
-            // Request permission
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert(
-                        'Permission Needed',
-                        'Sorry, we need camera roll permissions to upload photos.',
-                        [{ text: 'OK' }]
-                    );
-                    return;
-                }
-            }
+            // Show action sheet for image source selection
+            Alert.alert(
+                'Select Photo',
+                'Choose a photo from gallery or take a new one',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel'
+                    },
+                    {
+                        text: 'Take Photo',
+                        onPress: async () => {
+                            const result = await ImagePicker.launchCameraAsync({
+                                mediaTypes: ['image'],
+                                allowsEditing: true,
+                                aspect: [1, 1],
+                                quality: 0.8,
+                            });
 
-            // Launch image picker
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 0.8,
-            });
+                            if (!result.canceled && result.assets && result.assets.length > 0) {
+                                setNewPhoto(result.assets[0].uri);
+                            }
+                        }
+                    },
+                    {
+                        text: 'Choose from Gallery',
+                        onPress: async () => {
+                            const result = await ImagePicker.launchImageLibraryAsync({
+                                mediaTypes: ['image'],
+                                allowsEditing: true,
+                                aspect: [1, 1],
+                                quality: 0.8,
+                            });
 
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-                setNewPhoto(result.assets[0].uri);
-            }
+                            if (!result.canceled && result.assets && result.assets.length > 0) {
+                                setNewPhoto(result.assets[0].uri);
+                            }
+                        }
+                    }
+                ]
+            );
         } catch (error) {
             console.error('Error picking image:', error);
             Alert.alert(
@@ -106,15 +130,35 @@ export const EditProfileScreen = () => {
     const handleSave = async () => {
         setLoading(true);
         try {
-            const formDataToSend = new FormData();
-            
-            // Append text fields
-            formDataToSend.append('name', formData.name);
-            formDataToSend.append('phone', formData.phone);
-            formDataToSend.append('bio', formData.bio);
+            // Validate required fields
+            if (!formData.name?.trim()) {
+                Alert.alert('Error', 'Name is required');
+                return;
+            }
 
-            // Append photo if new one selected
+            if (!formData.age || parseInt(formData.age) < 13) {
+                Alert.alert('Error', 'Age must be at least 13');
+                return;
+            }
+
+            if (!formData.gender) {
+                Alert.alert('Error', 'Please select your gender');
+                return;
+            }
+
+            let requestData;
+            let headers = {
+                'Accept': 'application/json'
+            };
+
+            // If we have a new photo, use FormData
             if (newPhoto) {
+                const formDataToSend = new FormData();
+                formDataToSend.append('name', formData.name.trim());
+                formDataToSend.append('phone_number', formData.phone_number?.trim() || '');
+                formDataToSend.append('age', formData.age.toString());
+                formDataToSend.append('gender', formData.gender);
+
                 const filename = newPhoto.split('/').pop();
                 const match = /\.(\w+)$/.exec(filename);
                 const type = match ? `image/${match[1]}` : 'image';
@@ -124,13 +168,27 @@ export const EditProfileScreen = () => {
                     name: filename,
                     type,
                 });
+
+                requestData = formDataToSend;
+                headers['Content-Type'] = 'multipart/form-data';
+                console.log('Sending profile update with FormData:', Object.fromEntries(formDataToSend));
+            } else {
+                // If no new photo, send as JSON
+                requestData = {
+                    name: formData.name.trim(),
+                    age: parseInt(formData.age),
+                    gender: formData.gender,
+                    phone_number: formData.phone_number?.trim() || '',
+                };
+
+                headers['Content-Type'] = 'application/json';
+                console.log('Sending profile update with JSON:', requestData);
             }
 
-            const response = await axiosInstance.post('/profile/update', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            console.log('Making PATCH request to /profile...');
+            const response = await axiosInstance.patch('/profile', requestData, { headers });
+
+            console.log('Profile update response:', response.data);
 
             if (response.data) {
                 await setUser(response.data);
@@ -139,34 +197,15 @@ export const EditProfileScreen = () => {
             }
         } catch (error) {
             console.error('Error updating profile:', error);
-            Alert.alert('Error', 'Failed to update profile');
+            console.error('Error details:', error.response?.data);
+            const errorMessage = error.response?.data?.message || 
+                               error.response?.data?.error || 
+                               'Failed to update profile';
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
     };
-
-    const InputField = ({ label, value, onChangeText, multiline = false }) => (
-        <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
-                {label}
-            </Text>
-            <TextInput
-                style={[
-                    styles.input,
-                    multiline && styles.multilineInput,
-                    {
-                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
-                        color: isLightTheme ? '#000' : '#fff',
-                        borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                    },
-                ]}
-                value={value}
-                onChangeText={onChangeText}
-                multiline={multiline}
-                placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
-            />
-        </View>
-    );
 
     return (
         <ScrollView
@@ -223,30 +262,153 @@ export const EditProfileScreen = () => {
                 </View>
 
                 <View style={styles.form}>
-                    <InputField
-                        label="Full Name"
-                        value={formData.name}
-                        onChangeText={(text) => setFormData({ ...formData, name: text })}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Full Name
+                        </Text>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    color: isLightTheme ? '#000' : '#fff',
+                                    borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                },
+                            ]}
+                            value={formData.name}
+                            onChangeText={(text) => setFormData({ ...formData, name: text })}
+                            placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                        />
+                    </View>
                     
-                    <InputField
-                        label="Email"
-                        value={formData.email}
-                        onChangeText={(text) => setFormData({ ...formData, email: text })}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Email
+                        </Text>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isLightTheme ? '#f5f5f5' : '#1a1a1a',
+                                    color: isLightTheme ? '#666' : '#888',
+                                    borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                },
+                            ]}
+                            value={formData.email}
+                            editable={false}
+                            placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                        />
+                    </View>
 
-                    <InputField
-                        label="Phone Number"
-                        value={formData.phone}
-                        onChangeText={(text) => setFormData({ ...formData, phone: text })}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Phone Number
+                        </Text>
+                        <View style={[
+                            styles.phoneInputContainer,
+                            {
+                                backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                            }
+                        ]}>
+                            <Text style={[
+                                styles.phonePrefix,
+                                { color: isLightTheme ? '#000' : '#fff' }
+                            ]}>+964</Text>
+                            <TextInput
+                                style={[
+                                    styles.phoneInput,
+                                    {
+                                        color: isLightTheme ? '#000' : '#fff',
+                                    },
+                                ]}
+                                value={formData.phone_number}
+                                onChangeText={(text) => {
+                                    const numericValue = text.replace(/[^0-9]/g, '');
+                                    if (numericValue.length <= 10) {
+                                        setFormData({ ...formData, phone_number: numericValue });
+                                    }
+                                }}
+                                maxLength={10}
+                                keyboardType="numeric"
+                                placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                            />
+                        </View>
+                    </View>
 
-                    <InputField
-                        label="Bio"
-                        value={formData.bio}
-                        onChangeText={(text) => setFormData({ ...formData, bio: text })}
-                        multiline={true}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Age
+                        </Text>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    color: isLightTheme ? '#000' : '#fff',
+                                    borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                },
+                            ]}
+                            value={formData.age}
+                            onChangeText={(text) => {
+                                const numericValue = text.replace(/[^0-9]/g, '');
+                                if (numericValue.length <= 2) {
+                                    setFormData({ ...formData, age: numericValue });
+                                }
+                            }}
+                            maxLength={2}
+                            keyboardType="numeric"
+                            placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Gender
+                        </Text>
+                        <View style={styles.genderContainer}>
+                            <Pressable
+                                style={[
+                                    styles.genderButton,
+                                    formData.gender === 'male' && styles.genderButtonActive,
+                                    {
+                                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    }
+                                ]}
+                                onPress={() => setFormData({ ...formData, gender: 'male' })}
+                            >
+                                <Text
+                                    style={[
+                                        styles.genderButtonText,
+                                        formData.gender === 'male' && styles.genderButtonTextActive,
+                                        { color: isLightTheme ? '#000' : '#fff' }
+                                    ]}
+                                >
+                                    Male
+                                </Text>
+                            </Pressable>
+                            <Pressable
+                                style={[
+                                    styles.genderButton,
+                                    formData.gender === 'female' && styles.genderButtonActive,
+                                    {
+                                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    }
+                                ]}
+                                onPress={() => setFormData({ ...formData, gender: 'female' })}
+                            >
+                                <Text
+                                    style={[
+                                        styles.genderButtonText,
+                                        formData.gender === 'female' && styles.genderButtonTextActive,
+                                        { color: isLightTheme ? '#000' : '#fff' }
+                                    ]}
+                                >
+                                    Female
+                                </Text>
+                            </Pressable>
+                        </View>
+                    </View>
                 </View>
             </View>
         </ScrollView>
@@ -256,7 +418,7 @@ export const EditProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: Platform.OS === 'ios' ? 40 : 20,
+        paddingTop: Platform.OS === 'ios' ? 40 : 20,
     },
     contentContainer: {
         flex: 1,
@@ -323,7 +485,7 @@ const styles = StyleSheet.create({
         width: 140,
         height: 140,
         borderRadius: 70,
-        borderWidth: 3,
+        borderWidth: 1.5,
         borderColor: '#fff',
     },
     editIconContainer: {
@@ -337,15 +499,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
     form: {
         marginTop: 10,
@@ -379,5 +532,57 @@ const styles = StyleSheet.create({
         height: 120,
         textAlignVertical: 'top',
         paddingTop: 15,
+    },
+    genderContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+    },
+    genderButton: {
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 15,
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderColor: 'rgba(0,0,0,0.1)',
+    },
+    genderButtonActive: {
+        backgroundColor: '#2196F3',
+        borderColor: '#2196F3',
+    },
+    genderButtonText: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    genderButtonTextActive: {
+        color: '#fff',
+    },
+    phoneInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderRadius: 15,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+    },
+    phonePrefix: {
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        fontSize: 16,
+        fontWeight: '500',
+        borderRightWidth: 1,
+        borderRightColor: 'rgba(0,0,0,0.1)',
+    },
+    phoneInput: {
+        flex: 1,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        fontSize: 16,
     },
 }); 
