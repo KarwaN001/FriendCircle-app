@@ -12,38 +12,132 @@ export const AddFriendScreen = ({ navigation }) => {
     const [suggestions, setSuggestions] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [sendingRequests, setSendingRequests] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMorePages, setHasMorePages] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [friendRequests, setFriendRequests] = useState({});
 
-    const fetchSuggestions = async () => {
+    const fetchSuggestions = async (page = 1, shouldRefresh = false) => {
         try {
-            setLoading(true);
+            if (page === 1) {
+                setLoading(true);
+            }
             setError(null);
             console.log('Fetching friend suggestions...');
-            const response = await axiosInstance.get('/friend-suggestions');
+            const response = await axiosInstance.get('/friend-suggestions', {
+                params: {
+                    page,
+                    search: searchQuery
+                }
+            });
             console.log('Friend suggestions response:', response.data);
-            setSuggestions(response.data.data || []); // Access the paginated data
+            
+            const newSuggestions = response.data.data || [];
+            if (shouldRefresh || page === 1) {
+                setSuggestions(newSuggestions);
+            } else {
+                setSuggestions(prev => [...prev, ...newSuggestions]);
+            }
+            
+            setCurrentPage(page);
+            setHasMorePages(response.data.current_page < response.data.last_page);
         } catch (error) {
             console.error('Error fetching suggestions:', error);
             setError('Failed to load friend suggestions. Please check your connection and try again.');
             if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
                 console.log('Error response data:', error.response.data);
                 console.log('Error response status:', error.response.status);
                 console.log('Error response headers:', error.response.headers);
             } else if (error.request) {
-                // The request was made but no response was received
                 console.log('Error request:', error.request);
             } else {
-                // Something happened in setting up the request that triggered an Error
                 console.log('Error message:', error.message);
             }
         } finally {
             setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
+    const fetchFriendRequests = async () => {
+        try {
+            const response = await axiosInstance.get('/friend-requests');
+            const outgoingRequests = {};
+            response.data.outgoing.data.forEach(request => {
+                outgoingRequests[request.recipient_id] = request.id;
+            });
+            setFriendRequests(outgoingRequests);
+        } catch (error) {
+            console.error('Error fetching friend requests:', error);
+        }
+    };
+
+    const handleLoadMore = () => {
+        if (!loading && hasMorePages) {
+            fetchSuggestions(currentPage + 1);
+        }
+    };
+
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchSuggestions(1, true);
+    };
+
+    const handleSearch = () => {
+        setCurrentPage(1);
+        setHasMorePages(true);
+        fetchSuggestions(1, true);
+    };
+
+    const sendFriendRequest = async (userId) => {
+        try {
+            setSendingRequests(prev => ({ ...prev, [userId]: true }));
+            const response = await axiosInstance.post('/friend-requests', {
+                recipient_id: userId
+            });
+            Alert.alert('Success', 'Friend request sent successfully!');
+            // Update the friend requests state
+            setFriendRequests(prev => ({
+                ...prev,
+                [userId]: response.data.id
+            }));
+        } catch (error) {
+            console.error('Error sending friend request:', error);
+            Alert.alert(
+                'Error',
+                error.response?.data?.message || 'Failed to send friend request. Please try again.'
+            );
+        } finally {
+            setSendingRequests(prev => ({ ...prev, [userId]: false }));
+        }
+    };
+
+    const cancelFriendRequest = async (userId) => {
+        try {
+            setSendingRequests(prev => ({ ...prev, [userId]: true }));
+            await axiosInstance.delete(`/friend-requests/${friendRequests[userId]}`);
+            Alert.alert('Success', 'Friend request cancelled successfully!');
+            // Remove the friend request from state
+            setFriendRequests(prev => {
+                const newState = { ...prev };
+                delete newState[userId];
+                return newState;
+            });
+        } catch (error) {
+            console.error('Error cancelling friend request:', error);
+            Alert.alert(
+                'Error',
+                error.response?.data?.message || 'Failed to cancel friend request. Please try again.'
+            );
+        } finally {
+            setSendingRequests(prev => ({ ...prev, [userId]: false }));
         }
     };
 
     useEffect(() => {
         fetchSuggestions();
+        fetchFriendRequests();
     }, []);
 
     const renderUserItem = ({ item }) => (
@@ -65,11 +159,38 @@ export const AddFriendScreen = ({ navigation }) => {
                     {item.email}
                 </Text>
             </View>
-            <View style={[styles.statusIndicator, { backgroundColor: isLightTheme ? '#e5e7eb' : '#374151' }]}>
-                <Text style={[styles.statusText, { color: isLightTheme ? '#4b5563' : '#9ca3af' }]}>
-                    Coming soon
-                </Text>
-            </View>
+            <TouchableOpacity
+                style={[
+                    styles.addButton,
+                    { 
+                        backgroundColor: friendRequests[item.id] 
+                            ? (isLightTheme ? '#dc2626' : '#ef4444')  // Red for cancel
+                            : (isLightTheme ? '#1a73e8' : '#64B5F6')  // Blue for add
+                    },
+                    sendingRequests[item.id] && styles.addButtonDisabled
+                ]}
+                onPress={() => friendRequests[item.id] 
+                    ? cancelFriendRequest(item.id)
+                    : sendFriendRequest(item.id)
+                }
+                disabled={sendingRequests[item.id]}
+            >
+                {sendingRequests[item.id] ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                    <View style={styles.buttonContent}>
+                        <Icon 
+                            name={friendRequests[item.id] ? "close" : "account-plus"} 
+                            size={16} 
+                            color="#fff" 
+                            style={styles.buttonIcon}
+                        />
+                        <Text style={styles.addButtonText}>
+                            {friendRequests[item.id] ? 'Cancel Request' : 'Add Friend'}
+                        </Text>
+                    </View>
+                )}
+            </TouchableOpacity>
         </View>
     );
 
@@ -120,11 +241,28 @@ export const AddFriendScreen = ({ navigation }) => {
                         placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
+                        onSubmitEditing={handleSearch}
+                        returnKeyType="search"
                     />
+                    {searchQuery.length > 0 && (
+                        <TouchableOpacity
+                            onPress={() => {
+                                setSearchQuery('');
+                                handleSearch();
+                            }}
+                            style={styles.clearButton}
+                        >
+                            <Icon 
+                                name="close-circle" 
+                                size={20} 
+                                color={isLightTheme ? '#666' : '#aaa'} 
+                            />
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
 
-            {loading ? (
+            {loading && currentPage === 1 ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
                     <Text style={[styles.loadingText, { color: isLightTheme ? '#666' : '#aaa' }]}>
@@ -139,7 +277,7 @@ export const AddFriendScreen = ({ navigation }) => {
                     </Text>
                     <TouchableOpacity
                         style={[styles.retryButton, { backgroundColor: isLightTheme ? '#1a73e8' : '#64B5F6' }]}
-                        onPress={fetchSuggestions}
+                        onPress={() => fetchSuggestions(1, true)}
                     >
                         <Text style={styles.retryButtonText}>Retry</Text>
                     </TouchableOpacity>
@@ -151,11 +289,28 @@ export const AddFriendScreen = ({ navigation }) => {
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={styles.listContainer}
                     showsVerticalScrollIndicator={false}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.5}
+                    refreshing={refreshing}
+                    onRefresh={handleRefresh}
+                    ListFooterComponent={() => (
+                        loading && currentPage > 1 ? (
+                            <View style={styles.footerLoader}>
+                                <ActivityIndicator size="small" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
+                            </View>
+                        ) : null
+                    )}
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
-                            <Icon name="account-search" size={48} color={isLightTheme ? '#666' : '#aaa'} />
+                            <Icon 
+                                name={searchQuery ? "account-search-outline" : "account-group-outline"} 
+                                size={48} 
+                                color={isLightTheme ? '#666' : '#aaa'} 
+                            />
                             <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                                No suggestions found
+                                {searchQuery 
+                                    ? 'No users found matching your search'
+                                    : 'No suggestions available'}
                             </Text>
                         </View>
                     }
@@ -285,5 +440,36 @@ const styles = StyleSheet.create({
     emptyText: {
         marginTop: 12,
         fontSize: 16,
+    },
+    addButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        minWidth: 130,
+    },
+    addButtonDisabled: {
+        opacity: 0.7,
+    },
+    addButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    footerLoader: {
+        paddingVertical: 16,
+        alignItems: 'center',
+    },
+    clearButton: {
+        padding: 8,
+    },
+    buttonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonIcon: {
+        marginRight: 4,
     },
 }); 
