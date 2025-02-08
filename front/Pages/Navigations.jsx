@@ -7,6 +7,7 @@ import {MapScreen} from './MapScreen';
 import {ProfileScreen} from './ProfileScreen';
 import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
 import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
+import {FriendsScreen} from './profileSubScreen/FriendsScreen';
 
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
@@ -53,6 +54,11 @@ const ProfileStack = () => {
             <Stack.Screen 
                 name="AddFriend"
                 component={AddFriendScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+                name="Friends"
+                component={FriendsScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
