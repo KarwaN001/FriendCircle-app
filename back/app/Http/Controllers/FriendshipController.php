@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Friendship;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 class FriendshipController extends Controller
 {
@@ -14,14 +13,27 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $suggestions = User::whereDoesntHave('friends')
-            ->whereNot('id', $user->id)
-            ->paginate(10);
+        $friendsIds = $user->friends()->get()->pluck('sender_id')->merge($user->friends()->get()->pluck('recipient_id'))->unique();
+
+        $suggestions = User::whereNotIn('id', $friendsIds)->paginate(10);
 
         return response()->json($suggestions);
     }
 
     // GET /api/friend-requests
+
+    public function friends(Request $request)
+    {
+        $user = $request->user();
+
+        $friends = $user->friends()->paginate(10);
+
+        return response()->json($friends);
+    }
+
+    // POST /api/friend-requests
+    // Send a friend request
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -43,8 +55,8 @@ class FriendshipController extends Controller
         ]);
     }
 
-    // POST /api/friend-requests
-    // Send a friend request
+    // PUT /api/friend-requests/{friendship}/accept
+
     public function store(Request $request)
     {
         $user = $request->user();
@@ -75,7 +87,8 @@ class FriendshipController extends Controller
         return response()->json($friendRequest, 201);
     }
 
-    // PUT /api/friend-requests/{friendship}/accept
+    // PUT /api/friend-requests/{friendship}/decline
+
     public function accept(Request $request, Friendship $friendship)
     {
         $user = $request->user();
@@ -96,7 +109,9 @@ class FriendshipController extends Controller
         return response()->json($friendship);
     }
 
-    // PUT /api/friend-requests/{friendship}/decline
+    // DELETE /api/friend-requests/{friendship}
+    // Cancel a sent friend request
+
     public function decline(Request $request, Friendship $friendship)
     {
         $user = $request->user();
@@ -116,8 +131,8 @@ class FriendshipController extends Controller
         return response()->json($friendship);
     }
 
-    // DELETE /api/friend-requests/{friendship}
-    // Cancel a sent friend request
+    // GET /api/friends
+
     public function cancel(Request $request, Friendship $friendship)
     {
         $user = $request->user();

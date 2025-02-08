@@ -75,17 +75,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphMany(Otp::class, 'otpable');
     }
 
-    public function friends(): BelongsToMany
+    public function friends(): HasMany
     {
-        return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'recipient_id')
-            ->wherePivot('status', 'accepted')
-            ->withTimestamps()
+        return $this->hasMany(Friendship::class, 'sender_id')
+            ->where('status', 'accepted')
+            ->with('recipient')
             ->union(
-                $this->belongsToMany(User::class, 'friendships', 'recipient_id', 'sender_id')
-                    ->wherePivot('status', 'accepted')
-                    ->withTimestamps()
+                $this->hasMany(Friendship::class, 'recipient_id')
+                    ->where('status', 'accepted')
+                    ->with('sender')
             );
     }
+
 
     public function sentFriendRequests(): HasMany
     {
