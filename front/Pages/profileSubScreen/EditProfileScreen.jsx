@@ -207,7 +207,7 @@ export const EditProfileScreen = () => {
         }
     };
 
-    const InputField = ({ label, value, onChangeText, multiline = false }) => (
+    const InputField = ({ label, value, onChangeText, multiline = false, keyboardType }) => (
         <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
                 {label}
@@ -223,9 +223,14 @@ export const EditProfileScreen = () => {
                     },
                 ]}
                 value={value}
-                onChangeText={onChangeText}
+                onChangeText={(text) => {
+                    // Only allow numbers
+                    const numericValue = text.replace(/[^0-9]/g, '');
+                    onChangeText(numericValue);
+                }}
                 multiline={multiline}
                 placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                keyboardType={keyboardType}
             />
         </View>
     );
@@ -313,13 +318,25 @@ export const EditProfileScreen = () => {
                     <InputField
                         label="Phone Number"
                         value={formData.phone_number}
-                        onChangeText={(text) => setFormData({ ...formData, phone_number: text })}
+                        onChangeText={(text) => {
+                            // Only allow numbers and limit to 10 digits
+                            const numericValue = text.replace(/[^0-9]/g, '');
+                            if (numericValue.length <= 10) {
+                                setFormData({ ...formData, phone_number: numericValue });
+                            }
+                        }}
+                        keyboardType="numeric"
                     />
 
                     <InputField
                         label="Age"
                         value={formData.age}
-                        onChangeText={(text) => setFormData({ ...formData, age: text })}
+                        onChangeText={(text) => {
+                            // Only allow numbers
+                            const numericValue = text.replace(/[^0-9]/g, '');
+                            setFormData({ ...formData, age: numericValue });
+                        }}
+                        keyboardType="numeric"
                     />
 
                     <View style={styles.inputContainer}>
