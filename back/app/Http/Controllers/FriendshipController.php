@@ -36,10 +36,17 @@ class FriendshipController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $status = $request->get('include', 'pending');
 
-        $incoming = $user->receivedFriendRequests()->where('status', 'pending')->with('sender')->paginate(5);
+        $incoming = $user->receivedFriendRequests()
+            ->where('status', $status)
+            ->with('sender')
+            ->paginate(5);
 
-        $outgoing = $user->sentFriendRequests()->where('status', 'pending')->with('recipient')->paginate(5);
+        $outgoing = $user->sentFriendRequests()
+            ->where('status', $status)
+            ->with('recipient')
+            ->paginate(5);
 
         return response()->json([
             'incoming' => $incoming,

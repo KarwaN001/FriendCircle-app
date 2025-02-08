@@ -9,7 +9,8 @@ import {
     RefreshControl,
     ActivityIndicator,
     Alert,
-    TouchableOpacity
+    TouchableOpacity,
+    ScrollView
 } from 'react-native';
 import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -24,42 +25,85 @@ export const FriendsScreen = () => {
     const [friendRequests, setFriendRequests] = useState({ incoming: [], outgoing: [] });
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [activeTab, setActiveTab] = useState('friends');
 
     const fetchFriendRequests = async () => {
         try {
             const response = await axiosInstance.get('/friend-requests');
-            setFriendRequests(response.data);
+            console.log('Friend requests response:', response.data);
+            setFriendRequests({
+                incoming: response.data.incoming?.data || [],
+                outgoing: response.data.outgoing?.data || []
+            });
         } catch (error) {
             console.error('Error fetching friend requests:', error);
+            setFriendRequests({ incoming: [], outgoing: [] });
         }
     };
 
     const fetchFriends = async () => {
         try {
-            const response = await axiosInstance.get('/profile');
-            if (response.data.friends) {
-                setFriends(response.data.friends);
-            }
+            // Get friend requests for the Invitations tab
             await fetchFriendRequests();
+            
+            // Get profile data which includes friends
+            const response = await axiosInstance.get('/profile');
+            console.log('Profile response:', response.data);
+            
+            // Get all friendships including accepted ones
+            const friendshipsResponse = await axiosInstance.get('/friend-requests', {
+                params: { include: 'accepted' }
+            });
+            console.log('Friendships response:', friendshipsResponse.data);
+            
+            // Get friends from accepted friendships
+            const acceptedFriends = [];
+            
+            // Add friends where we were the sender and they accepted
+            friendshipsResponse.data.outgoing?.data.forEach(friendship => {
+                if (friendship.status === 'accepted') {
+                    acceptedFriends.push(friendship.recipient);
+                }
+            });
+            
+            // Add friends where they were the sender and we accepted
+            friendshipsResponse.data.incoming?.data.forEach(friendship => {
+                if (friendship.status === 'accepted') {
+                    acceptedFriends.push(friendship.sender);
+                }
+            });
+            
+            setFriends(acceptedFriends);
         } catch (error) {
             console.error('Error fetching friends:', error);
             Alert.alert('Error', 'Failed to load friends. Please try again.');
+            setFriends([]);
         } finally {
             setLoading(false);
             setRefreshing(false);
         }
     };
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchFriends();
-        }, [])
-    );
-
-    const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchFriends();
-    }, []);
+    const findFriendshipId = async (friendId) => {
+        try {
+            // Get all friendships
+            const response = await axiosInstance.get('/friend-requests');
+            
+            // Look in both incoming and outgoing accepted friendships
+            const friendship = 
+                response.data.incoming?.data.find(fr => 
+                    fr.sender.id === friendId && fr.status === 'accepted'
+                ) ||
+                response.data.outgoing?.data.find(fr => 
+                    fr.recipient.id === friendId && fr.status === 'accepted'
+                );
+            
+            return friendship?.id;
+        } catch (error) {
+            console.error('Error finding friendship:', error);
+            return null;
+        }
+    };
 
     const handleRemoveFriend = async (friendId) => {
         Alert.alert(
@@ -75,9 +119,15 @@ export const FriendsScreen = () => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            // Since there's no direct remove friend endpoint, we'll just update the UI
+                            const friendshipId = await findFriendshipId(friendId);
+                            if (!friendshipId) {
+                                throw new Error('Friendship not found');
+                            }
+                            
+                            await axiosInstance.delete(`/friend-requests/${friendshipId}`);
                             setFriends(friends.filter(friend => friend.id !== friendId));
                             Alert.alert('Success', 'Friend removed successfully');
+                            fetchFriends(); // Refresh the friends list
                         } catch (error) {
                             console.error('Error removing friend:', error);
                             Alert.alert('Error', 'Failed to remove friend. Please try again.');
@@ -91,8 +141,9 @@ export const FriendsScreen = () => {
     const handleAcceptRequest = async (friendshipId) => {
         try {
             await axiosInstance.put(`/friend-requests/${friendshipId}/accept`);
-            await fetchFriends(); // Refresh the lists
-            Alert.alert('Success', 'Friend request accepted');
+            Alert.alert('Success', 'Friend request accepted!');
+            // Refresh both friends list and requests
+            fetchFriends();
         } catch (error) {
             console.error('Error accepting friend request:', error);
             Alert.alert('Error', 'Failed to accept friend request. Please try again.');
@@ -102,13 +153,37 @@ export const FriendsScreen = () => {
     const handleDeclineRequest = async (friendshipId) => {
         try {
             await axiosInstance.put(`/friend-requests/${friendshipId}/decline`);
-            await fetchFriends(); // Refresh the lists
             Alert.alert('Success', 'Friend request declined');
+            // Refresh the requests list
+            fetchFriendRequests();
         } catch (error) {
             console.error('Error declining friend request:', error);
             Alert.alert('Error', 'Failed to decline friend request. Please try again.');
         }
     };
+
+    const handleCancelRequest = async (friendshipId) => {
+        try {
+            await axiosInstance.delete(`/friend-requests/${friendshipId}`);
+            Alert.alert('Success', 'Friend request cancelled');
+            // Refresh the requests list
+            fetchFriendRequests();
+        } catch (error) {
+            console.error('Error cancelling friend request:', error);
+            Alert.alert('Error', 'Failed to cancel friend request. Please try again.');
+        }
+    };
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchFriends();
+    }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchFriends();
+        }, [])
+    );
 
     const renderFriendItem = ({ item }) => (
         <View style={[styles.friendCard, { 
@@ -145,7 +220,11 @@ export const FriendsScreen = () => {
             borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'
         }]}>
             <Image
-                source={item.sender?.profile_photo ? { uri: item.sender.profile_photo } : require('../../assets/images/4.jpg')}
+                source={
+                    type === 'incoming' 
+                        ? (item.sender?.profile_photo ? { uri: item.sender.profile_photo } : require('../../assets/images/4.jpg'))
+                        : (item.recipient?.profile_photo ? { uri: item.recipient.profile_photo } : require('../../assets/images/4.jpg'))
+                }
                 style={styles.friendImage}
             />
             <View style={styles.friendInfo}>
@@ -153,35 +232,40 @@ export const FriendsScreen = () => {
                     {type === 'incoming' ? item.sender?.name : item.recipient?.name}
                 </Text>
                 <Text style={[styles.friendEmail, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                    {type === 'incoming' ? item.sender?.email : item.recipient?.email}
+                </Text>
+                <Text style={[styles.requestStatus, { color: isLightTheme ? '#666' : '#aaa' }]}>
                     {type === 'incoming' ? 'Wants to be your friend' : 'Request sent'}
                 </Text>
             </View>
-            {type === 'incoming' && (
+            {type === 'incoming' ? (
                 <View style={styles.requestButtons}>
                     <TouchableOpacity
                         onPress={() => handleAcceptRequest(item.id)}
-                        style={[styles.acceptButton, { backgroundColor: '#22c55e' }]}
+                        style={[styles.actionButton, styles.acceptButton]}
                     >
                         <Icon name="check" size={20} color="#fff" />
+                        <Text style={styles.actionButtonText}>Accept</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => handleDeclineRequest(item.id)}
-                        style={[styles.declineButton, { backgroundColor: '#dc2626' }]}
+                        style={[styles.actionButton, styles.declineButton]}
                     >
                         <Icon name="close" size={20} color="#fff" />
+                        <Text style={styles.actionButtonText}>Decline</Text>
                     </TouchableOpacity>
                 </View>
+            ) : (
+                <TouchableOpacity
+                    onPress={() => handleCancelRequest(item.id)}
+                    style={[styles.actionButton, styles.cancelButton]}
+                >
+                    <Icon name="close" size={20} color="#fff" />
+                    <Text style={styles.actionButtonText}>Cancel</Text>
+                </TouchableOpacity>
             )}
         </View>
     );
-
-    if (loading) {
-        return (
-            <View style={[styles.container, { backgroundColor: isLightTheme ? '#f8f9fa' : '#121212' }]}>
-                <ActivityIndicator size="large" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
-            </View>
-        );
-    }
 
     return (
         <View style={[styles.container, { backgroundColor: isLightTheme ? '#f8f9fa' : '#121212' }]}>
@@ -211,64 +295,137 @@ export const FriendsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {friendRequests.incoming.length > 0 && (
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: isLightTheme ? '#000' : '#fff' }]}>
-                        Friend Requests ({friendRequests.incoming.length})
+            <View style={styles.tabContainer}>
+                <TouchableOpacity 
+                    style={[
+                        styles.tab,
+                        activeTab === 'friends' && styles.activeTab,
+                        { borderColor: isLightTheme ? '#1a73e8' : '#64B5F6' }
+                    ]}
+                    onPress={() => setActiveTab('friends')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'friends' && styles.activeTabText,
+                        { color: activeTab === 'friends' 
+                            ? (isLightTheme ? '#1a73e8' : '#64B5F6')
+                            : (isLightTheme ? '#666' : '#aaa')
+                        }
+                    ]}>
+                        Friends ({friends?.length || 0})
                     </Text>
-                    {friendRequests.incoming.map(request => renderFriendRequest({ item: request, type: 'incoming' }))}
-                </View>
-            )}
-
-            {friendRequests.outgoing.length > 0 && (
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: isLightTheme ? '#000' : '#fff' }]}>
-                        Pending Requests ({friendRequests.outgoing.length})
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[
+                        styles.tab,
+                        activeTab === 'invitations' && styles.activeTab,
+                        { borderColor: isLightTheme ? '#1a73e8' : '#64B5F6' }
+                    ]}
+                    onPress={() => setActiveTab('invitations')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'invitations' && styles.activeTabText,
+                        { color: activeTab === 'invitations' 
+                            ? (isLightTheme ? '#1a73e8' : '#64B5F6')
+                            : (isLightTheme ? '#666' : '#aaa')
+                        }
+                    ]}>
+                        Invitations ({(friendRequests.incoming?.length || 0) + (friendRequests.outgoing?.length || 0)})
                     </Text>
-                    {friendRequests.outgoing.map(request => renderFriendRequest({ item: request, type: 'outgoing' }))}
-                </View>
-            )}
+                </TouchableOpacity>
+            </View>
 
-            <FlatList
-                data={friends}
-                renderItem={renderFriendItem}
-                keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                        colors={[isLightTheme ? '#1a73e8' : '#64B5F6']}
-                        tintColor={isLightTheme ? '#1a73e8' : '#64B5F6'}
-                    />
-                }
-                ListHeaderComponent={
-                    friends.length > 0 ? (
-                        <Text style={[styles.sectionTitle, { color: isLightTheme ? '#000' : '#fff' }]}>
-                            Your Friends ({friends.length})
-                        </Text>
-                    ) : null
-                }
-                ListEmptyComponent={
-                    <View style={styles.emptyContainer}>
-                        <Icon 
-                            name="account-group-outline" 
-                            size={64} 
-                            color={isLightTheme ? '#1a73e8' : '#64B5F6'} 
+            {loading ? (
+                <View style={[styles.container, { backgroundColor: isLightTheme ? '#f8f9fa' : '#121212' }]}>
+                    <ActivityIndicator size="large" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
+                </View>
+            ) : activeTab === 'friends' ? (
+                <FlatList
+                    data={friends}
+                    renderItem={renderFriendItem}
+                    keyExtractor={(item) => item.id.toString()}
+                    contentContainerStyle={styles.listContainer}
+                    showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            colors={[isLightTheme ? '#1a73e8' : '#64B5F6']}
+                            tintColor={isLightTheme ? '#1a73e8' : '#64B5F6'}
                         />
-                        <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                            No friends yet
-                        </Text>
-                        <TouchableOpacity
-                            style={[styles.addFriendButton, { backgroundColor: isLightTheme ? '#1a73e8' : '#64B5F6' }]}
-                            onPress={() => navigation.navigate('AddFriend')}
-                        >
-                            <Text style={styles.addFriendButtonText}>Find Friends</Text>
-                        </TouchableOpacity>
-                    </View>
-                }
-            />
+                    }
+                    ListEmptyComponent={
+                        <View style={styles.emptyContainer}>
+                            <Icon 
+                                name="account-group-outline" 
+                                size={64} 
+                                color={isLightTheme ? '#1a73e8' : '#64B5F6'} 
+                            />
+                            <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                                No friends yet
+                            </Text>
+                            <TouchableOpacity
+                                style={[styles.addFriendButton, { backgroundColor: isLightTheme ? '#1a73e8' : '#64B5F6' }]}
+                                onPress={() => navigation.navigate('AddFriend')}
+                            >
+                                <Text style={styles.addFriendButtonText}>Find Friends</Text>
+                            </TouchableOpacity>
+                        </View>
+                    }
+                />
+            ) : (
+                <ScrollView 
+                    style={styles.invitationsContainer}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            colors={[isLightTheme ? '#1a73e8' : '#64B5F6']}
+                            tintColor={isLightTheme ? '#1a73e8' : '#64B5F6'}
+                        />
+                    }
+                >
+                    {friendRequests.incoming?.length > 0 && (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: isLightTheme ? '#000' : '#fff' }]}>
+                                Incoming Requests ({friendRequests.incoming.length})
+                            </Text>
+                            {friendRequests.incoming.map(item => 
+                                <View key={item.id}>
+                                    {renderFriendRequest({ item, type: 'incoming' })}
+                                </View>
+                            )}
+                        </View>
+                    )}
+
+                    {friendRequests.outgoing?.length > 0 && (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: isLightTheme ? '#000' : '#fff' }]}>
+                                Sent Requests ({friendRequests.outgoing.length})
+                            </Text>
+                            {friendRequests.outgoing.map(item => 
+                                <View key={item.id}>
+                                    {renderFriendRequest({ item, type: 'outgoing' })}
+                                </View>
+                            )}
+                        </View>
+                    )}
+
+                    {(!friendRequests.incoming?.length && !friendRequests.outgoing?.length) && (
+                        <View style={styles.emptyContainer}>
+                            <Icon 
+                                name="account-clock-outline" 
+                                size={64} 
+                                color={isLightTheme ? '#1a73e8' : '#64B5F6'} 
+                            />
+                            <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                                No pending invitations
+                            </Text>
+                        </View>
+                    )}
+                </ScrollView>
+            )}
         </View>
     );
 };
@@ -373,5 +530,61 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        marginBottom: 8,
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 12,
+        marginHorizontal: 4,
+        borderBottomWidth: 2,
+        borderColor: 'transparent',
+    },
+    activeTab: {
+        borderBottomWidth: 2,
+    },
+    tabText: {
+        textAlign: 'center',
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    activeTabText: {
+        fontWeight: '600',
+    },
+    invitationsContainer: {
+        flex: 1,
+        padding: 16,
+    },
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        justifyContent: 'center',
+    },
+    acceptButton: {
+        backgroundColor: '#22c55e',
+        marginRight: 8,
+    },
+    declineButton: {
+        backgroundColor: '#dc2626',
+    },
+    cancelButton: {
+        backgroundColor: '#dc2626',
+    },
+    actionButtonText: {
+        color: '#fff',
+        marginLeft: 4,
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    requestStatus: {
+        fontSize: 12,
+        marginTop: 4,
+        fontStyle: 'italic',
     },
 }); 
