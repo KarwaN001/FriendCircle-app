@@ -207,34 +207,6 @@ export const EditProfileScreen = () => {
         }
     };
 
-    const InputField = ({ label, value, onChangeText, multiline = false, keyboardType }) => (
-        <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
-                {label}
-            </Text>
-            <TextInput
-                style={[
-                    styles.input,
-                    multiline && styles.multilineInput,
-                    {
-                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
-                        color: isLightTheme ? '#000' : '#fff',
-                        borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                    },
-                ]}
-                value={value}
-                onChangeText={(text) => {
-                    // Only allow numbers
-                    const numericValue = text.replace(/[^0-9]/g, '');
-                    onChangeText(numericValue);
-                }}
-                multiline={multiline}
-                placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
-                keyboardType={keyboardType}
-            />
-        </View>
-    );
-
     return (
         <ScrollView
             style={[
@@ -290,11 +262,24 @@ export const EditProfileScreen = () => {
                 </View>
 
                 <View style={styles.form}>
-                    <InputField
-                        label="Full Name"
-                        value={formData.name}
-                        onChangeText={(text) => setFormData({ ...formData, name: text })}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Full Name
+                        </Text>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    color: isLightTheme ? '#000' : '#fff',
+                                    borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                },
+                            ]}
+                            value={formData.name}
+                            onChangeText={(text) => setFormData({ ...formData, name: text })}
+                            placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                        />
+                    </View>
                     
                     <View style={styles.inputContainer}>
                         <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
@@ -315,29 +300,67 @@ export const EditProfileScreen = () => {
                         />
                     </View>
 
-                    <InputField
-                        label="Phone Number"
-                        value={formData.phone_number}
-                        onChangeText={(text) => {
-                            // Only allow numbers and limit to 10 digits
-                            const numericValue = text.replace(/[^0-9]/g, '');
-                            if (numericValue.length <= 10) {
-                                setFormData({ ...formData, phone_number: numericValue });
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Phone Number
+                        </Text>
+                        <View style={[
+                            styles.phoneInputContainer,
+                            {
+                                backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
                             }
-                        }}
-                        keyboardType="numeric"
-                    />
+                        ]}>
+                            <Text style={[
+                                styles.phonePrefix,
+                                { color: isLightTheme ? '#000' : '#fff' }
+                            ]}>+964</Text>
+                            <TextInput
+                                style={[
+                                    styles.phoneInput,
+                                    {
+                                        color: isLightTheme ? '#000' : '#fff',
+                                    },
+                                ]}
+                                value={formData.phone_number}
+                                onChangeText={(text) => {
+                                    const numericValue = text.replace(/[^0-9]/g, '');
+                                    if (numericValue.length <= 10) {
+                                        setFormData({ ...formData, phone_number: numericValue });
+                                    }
+                                }}
+                                maxLength={10}
+                                keyboardType="numeric"
+                                placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                            />
+                        </View>
+                    </View>
 
-                    <InputField
-                        label="Age"
-                        value={formData.age}
-                        onChangeText={(text) => {
-                            // Only allow numbers
-                            const numericValue = text.replace(/[^0-9]/g, '');
-                            setFormData({ ...formData, age: numericValue });
-                        }}
-                        keyboardType="numeric"
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Age
+                        </Text>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    color: isLightTheme ? '#000' : '#fff',
+                                    borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                },
+                            ]}
+                            value={formData.age}
+                            onChangeText={(text) => {
+                                const numericValue = text.replace(/[^0-9]/g, '');
+                                if (numericValue.length <= 2) {
+                                    setFormData({ ...formData, age: numericValue });
+                                }
+                            }}
+                            maxLength={2}
+                            keyboardType="numeric"
+                            placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                        />
+                    </View>
 
                     <View style={styles.inputContainer}>
                         <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
@@ -533,5 +556,33 @@ const styles = StyleSheet.create({
     },
     genderButtonTextActive: {
         color: '#fff',
+    },
+    phoneInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderRadius: 15,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.41,
+        elevation: 2,
+    },
+    phonePrefix: {
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        fontSize: 16,
+        fontWeight: '500',
+        borderRightWidth: 1,
+        borderRightColor: 'rgba(0,0,0,0.1)',
+    },
+    phoneInput: {
+        flex: 1,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        fontSize: 16,
     },
 }); 
