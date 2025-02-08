@@ -80,7 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(User::class, 'friendships', 'sender_id', 'recipient_id')
             ->where('status', 'accepted')
             ->orWhere(function ($query) {
-                $query->where('recipient_id', $this->id)
+                $query->where('friendships.recipient_id', $this->id)
                     ->where('status', 'accepted');
             })->withTimestamps();
     }

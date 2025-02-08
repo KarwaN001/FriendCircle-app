@@ -14,8 +14,20 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $suggestions = User::whereNotIn('id', $user->friends()->pluck('id')->push($user->id))
-            ->paginate(10);
+        $suggestions = User::whereNotIn('users.id', function($query) use ($user) {
+            $query->select('users.id')
+                ->from('users')
+                ->join('friendships', function($join) use ($user) {
+                    $join->on('users.id', '=', 'friendships.recipient_id')
+                        ->where('friendships.sender_id', $user->id)
+                        ->where('friendships.status', 'accepted')
+                        ->orWhere(function($query) use ($user) {
+                            $query->where('friendships.recipient_id', $user->id)
+                                ->where('friendships.status', 'accepted');
+                        });
+                })
+                ->union(User::select('users.id')->where('users.id', $user->id));
+        })->paginate(10);
 
         return response()->json($suggestions);
     }
