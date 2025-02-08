@@ -28,12 +28,16 @@ export const EditProfileScreen = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        phone: '',
-        bio: '',
+        phone_number: '',
+        age: '',
+        gender: '',
+        location: '',
         profile_photo: null,
     });
 
     const [newPhoto, setNewPhoto] = useState(null);
+
+    const [userData, setUserData] = useState(null);
 
     useEffect(() => {
         loadUserData();
@@ -53,11 +57,14 @@ export const EditProfileScreen = () => {
         try {
             const userData = await getUser();
             if (userData) {
+                setUserData(userData);
                 setFormData({
                     name: userData.name || '',
                     email: userData.email || '',
-                    phone: userData.phone || '',
-                    bio: userData.bio || '',
+                    phone_number: userData.phone_number || '',
+                    age: userData.age ? userData.age.toString() : '',
+                    gender: userData.gender || '',
+                    location: userData.location || '',
                     profile_photo: userData.profile_photo || null,
                 });
             }
@@ -106,12 +113,36 @@ export const EditProfileScreen = () => {
     const handleSave = async () => {
         setLoading(true);
         try {
+            // Validate required fields
+            if (!formData.name?.trim()) {
+                Alert.alert('Error', 'Name is required');
+                return;
+            }
+
+            if (!formData.age || parseInt(formData.age) < 13) {
+                Alert.alert('Error', 'Age must be at least 13');
+                return;
+            }
+
+            if (!formData.gender) {
+                Alert.alert('Error', 'Please select your gender');
+                return;
+            }
+
             const formDataToSend = new FormData();
             
             // Append text fields
-            formDataToSend.append('name', formData.name);
-            formDataToSend.append('phone', formData.phone);
-            formDataToSend.append('bio', formData.bio);
+            formDataToSend.append('name', formData.name.trim());
+            // Only send email if it has changed
+            if (formData.email !== userData?.email) {
+                formDataToSend.append('email', formData.email.trim());
+            }
+            formDataToSend.append('phone_number', formData.phone_number?.trim() || '');
+            formDataToSend.append('age', parseInt(formData.age));
+            formDataToSend.append('gender', formData.gender);
+            if (formData.location?.trim()) {
+                formDataToSend.append('location', formData.location.trim());
+            }
 
             // Append photo if new one selected
             if (newPhoto) {
@@ -126,7 +157,7 @@ export const EditProfileScreen = () => {
                 });
             }
 
-            const response = await axiosInstance.post('/profile/update', formDataToSend, {
+            const response = await axiosInstance.put('/profile', formDataToSend, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -139,7 +170,10 @@ export const EditProfileScreen = () => {
             }
         } catch (error) {
             console.error('Error updating profile:', error);
-            Alert.alert('Error', 'Failed to update profile');
+            const errorMessage = error.response?.data?.message || 
+                               error.response?.data?.error || 
+                               'Failed to update profile';
+            Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -237,16 +271,70 @@ export const EditProfileScreen = () => {
 
                     <InputField
                         label="Phone Number"
-                        value={formData.phone}
-                        onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                        value={formData.phone_number}
+                        onChangeText={(text) => setFormData({ ...formData, phone_number: text })}
                     />
 
                     <InputField
-                        label="Bio"
-                        value={formData.bio}
-                        onChangeText={(text) => setFormData({ ...formData, bio: text })}
-                        multiline={true}
+                        label="Age"
+                        value={formData.age}
+                        onChangeText={(text) => setFormData({ ...formData, age: text })}
                     />
+
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Gender
+                        </Text>
+                        <View style={styles.genderContainer}>
+                            <Pressable
+                                style={[
+                                    styles.genderButton,
+                                    formData.gender === 'male' && styles.genderButtonActive,
+                                    {
+                                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    }
+                                ]}
+                                onPress={() => setFormData({ ...formData, gender: 'male' })}
+                            >
+                                <Text
+                                    style={[
+                                        styles.genderButtonText,
+                                        formData.gender === 'male' && styles.genderButtonTextActive,
+                                        { color: isLightTheme ? '#000' : '#fff' }
+                                    ]}
+                                >
+                                    Male
+                                </Text>
+                            </Pressable>
+                            <Pressable
+                                style={[
+                                    styles.genderButton,
+                                    formData.gender === 'female' && styles.genderButtonActive,
+                                    {
+                                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                    }
+                                ]}
+                                onPress={() => setFormData({ ...formData, gender: 'female' })}
+                            >
+                                <Text
+                                    style={[
+                                        styles.genderButtonText,
+                                        formData.gender === 'female' && styles.genderButtonTextActive,
+                                        { color: isLightTheme ? '#000' : '#fff' }
+                                    ]}
+                                >
+                                    Female
+                                </Text>
+                            </Pressable>
+                        </View>
+                    </View>
+
+                    <InputField
+                        label="Location"
+                        value={formData.location}
+                        onChangeText={(text) => setFormData({ ...formData, location: text })}
+                    />
+                    <View style={{ height: 50 }}></View>
                 </View>
             </View>
         </ScrollView>
@@ -256,7 +344,7 @@ export const EditProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: Platform.OS === 'ios' ? 40 : 20,
+        paddingTop: Platform.OS === 'ios' ? 40 : 20,
     },
     contentContainer: {
         flex: 1,
@@ -323,7 +411,7 @@ const styles = StyleSheet.create({
         width: 140,
         height: 140,
         borderRadius: 70,
-        borderWidth: 3,
+        borderWidth: 1.5,
         borderColor: '#fff',
     },
     editIconContainer: {
@@ -337,15 +425,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
     form: {
         marginTop: 10,
@@ -379,5 +458,29 @@ const styles = StyleSheet.create({
         height: 120,
         textAlignVertical: 'top',
         paddingTop: 15,
+    },
+    genderContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+    },
+    genderButton: {
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 15,
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderColor: 'rgba(0,0,0,0.1)',
+    },
+    genderButtonActive: {
+        backgroundColor: '#2196F3',
+        borderColor: '#2196F3',
+    },
+    genderButtonText: {
+        fontSize: 16,
+        fontWeight: '500',
+    },
+    genderButtonTextActive: {
+        color: '#fff',
     },
 }); 
