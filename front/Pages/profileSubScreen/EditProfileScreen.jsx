@@ -31,7 +31,6 @@ export const EditProfileScreen = () => {
         phone_number: '',
         age: '',
         gender: '',
-        location: '',
         profile_photo: null,
     });
 
@@ -46,9 +45,11 @@ export const EditProfileScreen = () => {
 
     const requestPermissions = async () => {
         if (Platform.OS !== 'web') {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission needed', 'Sorry, we need camera roll permissions to upload photos.');
+            const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+            
+            if (mediaStatus !== 'granted' && cameraStatus !== 'granted') {
+                Alert.alert('Permission needed', 'Sorry, we need camera and gallery permissions to upload photos.');
             }
         }
     };
@@ -64,7 +65,6 @@ export const EditProfileScreen = () => {
                     phone_number: userData.phone_number || '',
                     age: userData.age ? userData.age.toString() : '',
                     gender: userData.gender || '',
-                    location: userData.location || '',
                     profile_photo: userData.profile_photo || null,
                 });
             }
@@ -76,30 +76,47 @@ export const EditProfileScreen = () => {
 
     const pickImage = async () => {
         try {
-            // Request permission
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert(
-                        'Permission Needed',
-                        'Sorry, we need camera roll permissions to upload photos.',
-                        [{ text: 'OK' }]
-                    );
-                    return;
-                }
-            }
+            // Show action sheet for image source selection
+            Alert.alert(
+                'Select Photo',
+                'Choose a photo from gallery or take a new one',
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel'
+                    },
+                    {
+                        text: 'Take Photo',
+                        onPress: async () => {
+                            const result = await ImagePicker.launchCameraAsync({
+                                mediaTypes: ['image'],
+                                allowsEditing: true,
+                                aspect: [1, 1],
+                                quality: 0.8,
+                            });
 
-            // Launch image picker
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 0.8,
-            });
+                            if (!result.canceled && result.assets && result.assets.length > 0) {
+                                setNewPhoto(result.assets[0].uri);
+                            }
+                        }
+                    },
+                    {
+                        text: 'Choose from Gallery',
+                        onPress: async () => {
+                            const result = await ImagePicker.launchImageLibraryAsync({
+                                mediaTypes: ['image'],
+                                allowsEditing: true,
+                                aspect: [1, 1],
+                                quality: 0.8,
+                            });
 
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-                setNewPhoto(result.assets[0].uri);
-            }
+                            if (!result.canceled && result.assets && result.assets.length > 0) {
+                                setNewPhoto(result.assets[0].uri);
+                            }
+                        }
+                    }
+                ]
+            );
         } catch (error) {
             console.error('Error picking image:', error);
             Alert.alert(
@@ -129,23 +146,19 @@ export const EditProfileScreen = () => {
                 return;
             }
 
-            const formDataToSend = new FormData();
-            
-            // Append text fields
-            formDataToSend.append('name', formData.name.trim());
-            // Only send email if it has changed
-            if (formData.email !== userData?.email) {
-                formDataToSend.append('email', formData.email.trim());
-            }
-            formDataToSend.append('phone_number', formData.phone_number?.trim() || '');
-            formDataToSend.append('age', parseInt(formData.age));
-            formDataToSend.append('gender', formData.gender);
-            if (formData.location?.trim()) {
-                formDataToSend.append('location', formData.location.trim());
-            }
+            let requestData;
+            let headers = {
+                'Accept': 'application/json'
+            };
 
-            // Append photo if new one selected
+            // If we have a new photo, use FormData
             if (newPhoto) {
+                const formDataToSend = new FormData();
+                formDataToSend.append('name', formData.name.trim());
+                formDataToSend.append('phone_number', formData.phone_number?.trim() || '');
+                formDataToSend.append('age', formData.age.toString());
+                formDataToSend.append('gender', formData.gender);
+
                 const filename = newPhoto.split('/').pop();
                 const match = /\.(\w+)$/.exec(filename);
                 const type = match ? `image/${match[1]}` : 'image';
@@ -155,13 +168,27 @@ export const EditProfileScreen = () => {
                     name: filename,
                     type,
                 });
+
+                requestData = formDataToSend;
+                headers['Content-Type'] = 'multipart/form-data';
+                console.log('Sending profile update with FormData:', Object.fromEntries(formDataToSend));
+            } else {
+                // If no new photo, send as JSON
+                requestData = {
+                    name: formData.name.trim(),
+                    age: parseInt(formData.age),
+                    gender: formData.gender,
+                    phone_number: formData.phone_number?.trim() || '',
+                };
+
+                headers['Content-Type'] = 'application/json';
+                console.log('Sending profile update with JSON:', requestData);
             }
 
-            const response = await axiosInstance.put('/profile', formDataToSend, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            console.log('Making PATCH request to /profile...');
+            const response = await axiosInstance.patch('/profile', requestData, { headers });
+
+            console.log('Profile update response:', response.data);
 
             if (response.data) {
                 await setUser(response.data);
@@ -170,6 +197,7 @@ export const EditProfileScreen = () => {
             }
         } catch (error) {
             console.error('Error updating profile:', error);
+            console.error('Error details:', error.response?.data);
             const errorMessage = error.response?.data?.message || 
                                error.response?.data?.error || 
                                'Failed to update profile';
@@ -263,11 +291,24 @@ export const EditProfileScreen = () => {
                         onChangeText={(text) => setFormData({ ...formData, name: text })}
                     />
                     
-                    <InputField
-                        label="Email"
-                        value={formData.email}
-                        onChangeText={(text) => setFormData({ ...formData, email: text })}
-                    />
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.label, { color: isLightTheme ? '#333' : '#fff' }]}>
+                            Email
+                        </Text>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    backgroundColor: isLightTheme ? '#f5f5f5' : '#1a1a1a',
+                                    color: isLightTheme ? '#666' : '#888',
+                                    borderColor: isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                                },
+                            ]}
+                            value={formData.email}
+                            editable={false}
+                            placeholderTextColor={isLightTheme ? '#666' : '#aaa'}
+                        />
+                    </View>
 
                     <InputField
                         label="Phone Number"
@@ -328,13 +369,6 @@ export const EditProfileScreen = () => {
                             </Pressable>
                         </View>
                     </View>
-
-                    <InputField
-                        label="Location"
-                        value={formData.location}
-                        onChangeText={(text) => setFormData({ ...formData, location: text })}
-                    />
-                    <View style={{ height: 50 }}></View>
                 </View>
             </View>
         </ScrollView>

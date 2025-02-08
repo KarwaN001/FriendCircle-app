@@ -1,9 +1,9 @@
 import { View, Text, Switch, StyleSheet, ScrollView, Image, Pressable, Platform, StatusBar, Alert } from 'react-native';
 import { useTheme } from '../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { clearAuthData, getUser, setUser } from '../services/storage';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../services/api.config';
 
 export const ProfileScreen = () => {
@@ -12,31 +12,34 @@ export const ProfileScreen = () => {
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
 
-    // Fetch user data when component mounts
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // First try to get from storage
-                const storedUser = await getUser();
-                if (storedUser) {
-                    setUserData(storedUser);
-                }
-                
-                // Then fetch fresh data from API
-                const response = await axiosInstance.get('/profile');
-                const freshUserData = response.data;
-                setUserData(freshUserData);
-                console.log('Logged in User Information:', freshUserData);
-                
-                // Update storage with fresh data
-                await setUser(freshUserData);
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                Alert.alert('Error', 'Failed to load profile data. Please try again.');
+    const fetchUserData = async () => {
+        try {
+            // First try to get from storage
+            const storedUser = await getUser();
+            if (storedUser) {
+                setUserData(storedUser);
             }
-        };
-        fetchUserData();
-    }, []);
+            
+            // Then fetch fresh data from API
+            const response = await axiosInstance.get('/profile');
+            const freshUserData = response.data;
+            setUserData(freshUserData);
+            console.log('Logged in User Information:', freshUserData);
+            
+            // Update storage with fresh data
+            await setUser(freshUserData);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            Alert.alert('Error', 'Failed to load profile data. Please try again.');
+        }
+    };
+
+    // Use useFocusEffect to refresh data when screen comes into focus
+    useFocusEffect(
+        useCallback(() => {
+            fetchUserData();
+        }, [])
+    );
 
     const handleLogout = async () => {
         Alert.alert(
