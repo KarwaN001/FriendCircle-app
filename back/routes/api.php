@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/friend-requests/{friendship}/accept', [FriendshipController::class, 'accept']);
         Route::put('/friend-requests/{friendship}/decline', [FriendshipController::class, 'decline']);
         Route::delete('/friend-requests/{friendship}', [FriendshipController::class, 'cancel']);  // Cancel a sent friend request
+        Route::get('/friends', [FriendshipController::class, 'friends']);  // List all friends
 
         // Group routes
         Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
