@@ -20,6 +20,7 @@ return new class extends Migration
 
             // Prevent duplicate friend requests
             $table->unique(['sender_id', 'recipient_id']);
+            $table->unique(['recipient_id', 'sender_id']);
         });
 
     }
