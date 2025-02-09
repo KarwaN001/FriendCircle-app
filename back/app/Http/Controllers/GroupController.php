@@ -11,16 +11,16 @@ class GroupController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'group_photo' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
-            'initial_members' => 'sometimes|json',
+            'initial_members' => 'sometimes|json|unique:user_id',
         ]);
 
         $user = $request->user();
 
-        if($user->friends()->count() < 1) {
+        if ($user->friends()->count() < 1) {
             return response()->json(['message' => 'You need to have friends to create a group.'], 400);
         }
 
-        if($user->groups()->where('name', $validated['name'])->exists()) {
+        if ($user->groups()->where('name', $validated['name'])->exists()) {
             return response()->json(['message' => 'You already have a group with this name.'], 400);
         }
 
@@ -36,6 +36,7 @@ class GroupController extends Controller
 
         if ($request->has('initial_members')) {
             $initialMembers = json_decode($request->initial_members, true);
+
             $group->members()->attach($initialMembers);
         }
 

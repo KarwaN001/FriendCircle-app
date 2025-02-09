@@ -80,13 +80,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Friendship::class, 'sender_id')
             ->where('status', 'accepted')
             ->with('recipient')
-            ->union(
-                $this->hasMany(Friendship::class, 'recipient_id')
+            ->orWhere(function ($query) {
+                $query->where('recipient_id', $this->id)
                     ->where('status', 'accepted')
-                    ->with('sender')
-            );
+                    ->with('sender');
+            });
     }
-
 
     public function sentFriendRequests(): HasMany
     {
@@ -111,5 +110,17 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function friendIds(): array
+    {
+        return $this->sentFriendRequests()
+            ->where('status', 'accepted')
+            ->pluck('recipient_id')
+            ->orWhere(function ($query) {
+                $query->where('recipient_id', $this->id)
+                    ->where('status', 'accepted')
+                    ->pluck('sender_id');
+            });
     }
 }
