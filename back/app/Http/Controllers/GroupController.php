@@ -64,6 +64,35 @@ class GroupController extends Controller
         return response()->json($group);
     }
 
+    // PUT /api/groups/{group}
+    public function update(Request $request, Group $group)
+    {
+        $user = $request->user();
+
+        if ($user->id !== $group->groupAdmin->id) {
+            return response()->json(['message' => 'You are not the admin of this group.'], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string',
+            'group_photo' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($request->hasFile('group_photo')) {
+            if ($group->group_photo) {
+                unlink(public_path('group-photos/'.$group->group_photo));
+            }
+
+            $groupPhoto = $request->file('group_photo');
+            $groupPhoto->move(public_path('group-photos'));
+            $validated['group_photo'] = $groupPhoto->hashName();
+        }
+
+        $group->update($validated);
+
+        return response()->json($group);
+    }
+
     // DELETE /api/groups/{group}
     public function destroy(Request $request, Group $group)
     {
