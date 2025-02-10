@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Group;
 use Illuminate\Http\Request;
 
 class GroupController extends Controller
@@ -61,5 +62,19 @@ class GroupController extends Controller
         }
 
         return response()->json($group);
+    }
+
+    // DELETE /api/groups/{group}
+    public function destroy(Request $request, Group $group)
+    {
+        $user = $request->user();
+
+        if ($user->id !== $group->groupAdmin->id) {
+            return response()->json(['message' => 'You are not the admin of this group.'], 403);
+        }
+
+        $group->delete();
+
+        return response()->json(['message' => 'Group deleted.']);
     }
 }
