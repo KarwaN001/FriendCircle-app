@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Collection;
 use Laravel\Sanctum\HasApiTokens;
 use RuntimeException;
 
@@ -43,6 +42,19 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
     // Relationships
     public function adminGroups(): HasMany
     {
@@ -53,22 +65,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Group::class, 'user_groups', 'user_id', 'group_id')
             ->withTimestamps();
-    }
-
-    public function generateNewOtp()
-    {
-        $this->otps()->delete();
-
-        try {
-            $otp = $this->otps()->create([
-                'code' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
-                'expires_at' => now()->addMinutes(10)
-            ]);
-        } catch (Exception $e) {
-            throw new RuntimeException($e->getMessage());
-        }
-
-        return $otp;
     }
 
     public function otps(): morphMany
@@ -96,35 +92,30 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Friendship::class, 'recipient_id');
     }
 
-    public function friendIds(): array
-    {
-        return $this->sentFriendRequests()
-            ->where('status', 'accepted')
-            ->pluck('recipient_id')
-            ->orWhere(function ($query) {
-                $query->where('recipient_id', $this->id)
-                    ->where('status', 'accepted')
-                    ->pluck('sender_id');
-            });
-    }
-
-    // Helper methods
-
     public function sentFriendRequests(): HasMany
     {
         return $this->hasMany(Friendship::class, 'sender_id');
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    // Helper methods
+    public function generateNewOtp()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        $this->otps()->delete();
+
+        try {
+            $otp = $this->otps()->create([
+                'code' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
+                'expires_at' => now()->addMinutes(10)
+            ]);
+        } catch (Exception $e) {
+            throw new RuntimeException($e->getMessage());
+        }
+
+        return $otp;
+    }
+
+    public function isFriendWith(User $user)
+    {
+        return $this->friends()->where('users.id', $user->id)->exists();
     }
 }

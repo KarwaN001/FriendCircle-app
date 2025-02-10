@@ -13,9 +13,8 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $friendsIds = $user->friends()->get()->pluck('sender_id')->merge($user->friends()->get()->pluck('recipient_id'))->unique();
-
-        $suggestions = User::whereNotIn('id', $friendsIds)->paginate(10);
+        $suggestions = User::whereNotIn('id', $user->friends()->pluck('id')->push($user->id))
+            ->paginate(10);
 
         return response()->json($suggestions);
     }
