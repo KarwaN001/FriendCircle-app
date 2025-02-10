@@ -19,8 +19,7 @@ class FriendshipController extends Controller
         return response()->json($suggestions);
     }
 
-    // GET /api/friend-requests
-
+    // GET /api/friends
     public function friends(Request $request)
     {
         $user = $request->user();
@@ -30,21 +29,18 @@ class FriendshipController extends Controller
         return response()->json($friends);
     }
 
-    // POST /api/friend-requests
-    // Send a friend request
-
-    public function index(Request $request)
+    // GET /api/friend-requests
+    public function friendRequests (Request $request)
     {
         $user = $request->user();
-        $status = $request->get('include', 'pending');
 
         $incoming = $user->receivedFriendRequests()
-            ->where('status', $status)
+            ->where('status', 'pending')
             ->with('sender')
             ->paginate(5);
 
         $outgoing = $user->sentFriendRequests()
-            ->where('status', $status)
+            ->where('status', 'pending')
             ->with('recipient')
             ->paginate(5);
 
@@ -53,8 +49,6 @@ class FriendshipController extends Controller
             'outgoing' => $outgoing
         ]);
     }
-
-    // PUT /api/friend-requests/{friendship}/accept
 
     public function store(Request $request)
     {
