@@ -79,7 +79,7 @@ class GroupController extends Controller
         ]);
 
         if ($request->hasFile('group_photo')) {
-            if ($group->group_photo) {
+            if ($group->group_photo && file_exists(public_path('group-photos/'.$group->group_photo))) {
                 unlink(public_path('group-photos/'.$group->group_photo));
             }
 
