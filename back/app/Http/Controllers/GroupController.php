@@ -26,7 +26,7 @@ class GroupController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'group_photo' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
-            'initial_members' => 'sometimes|json',
+            'initial_members' => 'sometimes|array|exists:users,id',
         ]);
 
         $user = $request->user();
@@ -50,12 +50,14 @@ class GroupController extends Controller
         $group->members()->attach($user->id);
 
         if ($request->has('initial_members')) {
-            $initialMembers = json_decode($request->initial_members, true);
+            $initialMembers = $validated['initial_members'];
 
-            if ($user->friends()->whereIn('users.id', $initialMembers)->count() !== count($initialMembers)) {
+            $friends = $user->friends()->pluck('users.id');
+
+            if ($friends->intersect($validated['members'])->count() !== count($validated['members'])) {
                 $group->delete();
-                return response()->json(['message' => 'One or more of the initial members are not friends with you.'],
-                    400);
+
+                return response()->json(['message' => 'One or more members are not your friends.'], 400);
             }
 
             $group->members()->attach($initialMembers);
@@ -105,5 +107,30 @@ class GroupController extends Controller
         $group->delete();
 
         return response()->json(['message' => 'Group deleted.']);
+    }
+
+    // Group members management
+    // POST /api/groups/{group}/members
+    public function addMembers(Request $request, Group $group) {
+        $user = $request->user();
+
+        if ($user->id !== $group->groupAdmin->id) {
+            return response()->json(['message' => 'You are not the admin of this group.'], 403);
+        }
+
+        $validated = $request->validate([
+            'members' => 'required|array',
+            'members.*' => 'exists:users,id',
+        ]);
+
+        $friends = $user->friends()->pluck('users.id');
+
+        if ($friends->intersect($validated['members'])->count() !== count($validated['members'])) {
+            return response()->json(['message' => 'One or more members are not your friends.'], 400);
+        }
+
+        $group->members()->syncWithoutDetaching($validated['members']);
+
+        return response()->json(['message' => 'Members added successfully.']);
     }
 }

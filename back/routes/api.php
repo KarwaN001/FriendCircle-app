@@ -52,5 +52,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
         Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
         Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+        Route::post('/groups/{group}/members', [GroupController::class, 'addMembers']);
     });
 });
