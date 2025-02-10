@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class GroupController extends Controller
@@ -115,7 +116,7 @@ class GroupController extends Controller
         $user = $request->user();
 
         if ($user->id !== $group->groupAdmin->id) {
-            return response()->json(['message' => 'You are not the admin of this group.'], 403);
+            return response()->json(['message' => 'Only the group admin can add members.'], 403);
         }
 
         $validated = $request->validate([
@@ -132,5 +133,27 @@ class GroupController extends Controller
         $group->members()->syncWithoutDetaching($validated['members']);
 
         return response()->json(['message' => 'Members added successfully.']);
+    }
+
+    // DELETE /api/groups/{group}/members/{member}
+    public function removeMember(Request $request, Group $group, User $member)
+    {
+        $user = $request->user();
+
+        if ($user->id !== $group->groupAdmin->id) {
+            return response()->json(['message' => 'Only the group admin can remove members.'], 403);
+        }
+
+        if ($user->id === $member->id) {
+            return response()->json(['message' => 'Admins cannot remove themselves.'], 400);
+        }
+
+        if (!$group->members()->where('users.id', $member->id)->exists()) {
+            return response()->json(['message' => 'User is not in this group.'], 400);
+        }
+
+        $group->members()->detach($member->id);
+
+        return response()->json(['message' => 'Member removed successfully.']);
     }
 }
