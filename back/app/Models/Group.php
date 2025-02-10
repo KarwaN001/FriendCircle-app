@@ -16,6 +16,8 @@ class Group extends Model
 
     protected $appends = ['members_count'];
 
+    protected $hidden = ['pivot'];
+
     // Relationships
     public function groupAdmin(): BelongsTo
     {

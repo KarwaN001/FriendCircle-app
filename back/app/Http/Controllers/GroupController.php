@@ -6,6 +6,20 @@ use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {
+    // GET /api/groups
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        $groups = $user->groups()->with([
+            'members:id,name,profile_photo',
+            'groupAdmin:id,name,profile_photo'
+        ])->paginate(10);
+
+        return response()->json($groups);
+    }
+
+    // POST /api/groups
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -38,7 +52,9 @@ class GroupController extends Controller
             $initialMembers = json_decode($request->initial_members, true);
 
             if ($user->friends()->whereIn('users.id', $initialMembers)->count() !== count($initialMembers)) {
-                return response()->json(['message' => 'One or more of the initial members are not friends with you.'], 400);
+                $group->delete();
+                return response()->json(['message' => 'One or more of the initial members are not friends with you.'],
+                    400);
             }
 
             $group->members()->attach($initialMembers);
