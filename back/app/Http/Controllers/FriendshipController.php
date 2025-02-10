@@ -13,15 +13,13 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $friendsIds = $user->friends()->get()->pluck('sender_id')->merge($user->friends()->get()->pluck('recipient_id'))->unique();
-
-        $suggestions = User::whereNotIn('id', $friendsIds)->paginate(10);
+        $suggestions = User::whereNotIn('id', $user->friends()->pluck('id')->push($user->id))
+            ->paginate(10);
 
         return response()->json($suggestions);
     }
 
-    // GET /api/friend-requests
-
+    // GET /api/friends
     public function friends(Request $request)
     {
         $user = $request->user();
@@ -31,21 +29,18 @@ class FriendshipController extends Controller
         return response()->json($friends);
     }
 
-    // POST /api/friend-requests
-    // Send a friend request
-
-    public function index(Request $request)
+    // GET /api/friend-requests
+    public function friendRequests (Request $request)
     {
         $user = $request->user();
-        $status = $request->get('include', 'pending');
 
         $incoming = $user->receivedFriendRequests()
-            ->where('status', $status)
+            ->where('status', 'pending')
             ->with('sender')
             ->paginate(5);
 
         $outgoing = $user->sentFriendRequests()
-            ->where('status', $status)
+            ->where('status', 'pending')
             ->with('recipient')
             ->paginate(5);
 
@@ -55,8 +50,7 @@ class FriendshipController extends Controller
         ]);
     }
 
-    // PUT /api/friend-requests/{friendship}/accept
-
+    // POST /api/friend-requests
     public function store(Request $request)
     {
         $user = $request->user();
@@ -82,13 +76,12 @@ class FriendshipController extends Controller
             'sender_id' => $user->id,
             'recipient_id' => $request->recipient_id,
             // Status is pending by default
-        ]);
+        ])->load('recipient');
 
         return response()->json($friendRequest, 201);
     }
 
-    // PUT /api/friend-requests/{friendship}/decline
-
+    // PUT /api/friend-requests/{friendship}/accept
     public function accept(Request $request, Friendship $friendship)
     {
         $user = $request->user();
@@ -109,9 +102,7 @@ class FriendshipController extends Controller
         return response()->json($friendship);
     }
 
-    // DELETE /api/friend-requests/{friendship}
-    // Cancel a sent friend request
-
+    // PUT /api/friend-requests/{friendship}/decline
     public function decline(Request $request, Friendship $friendship)
     {
         $user = $request->user();
@@ -131,8 +122,8 @@ class FriendshipController extends Controller
         return response()->json($friendship);
     }
 
-    // GET /api/friends
-
+    // DELETE /api/friend-requests/{friendship}
+    // Cancel a sent friend request
     public function cancel(Request $request, Friendship $friendship)
     {
         $user = $request->user();
