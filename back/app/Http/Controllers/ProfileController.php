@@ -8,7 +8,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request)
     {
-        $user = $request->user()->loadCount('groups', 'friends');
+        $user = $request->user()->loadCount(['groups'])->append('friends_count');
 
         return response()->json($user);
     }
