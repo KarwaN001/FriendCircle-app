@@ -112,7 +112,8 @@ class GroupController extends Controller
 
     // Group members management
     // POST /api/groups/{group}/members
-    public function addMembers(Request $request, Group $group) {
+    public function addMembers(Request $request, Group $group)
+    {
         $user = $request->user();
 
         if ($user->id !== $group->groupAdmin->id) {
@@ -155,5 +156,45 @@ class GroupController extends Controller
         $group->members()->detach($member->id);
 
         return response()->json(['message' => 'Member removed successfully.']);
+    }
+
+    // DELETE /api/groups/{group}/leave
+    public function leaveGroup(Request $request, Group $group)
+    {
+        $user = $request->user();
+
+        if ($user->id === $group->groupAdmin->id) {
+            $group->delete();
+
+            return response()->json(['message' => 'Group deleted.']);
+        }
+
+        if (!$group->members()->where('users.id', $user->id)->exists()) {
+            return response()->json(['message' => 'You are not a member of this group.'], 400);
+        } else {
+            $group->members()->detach($user->id);
+
+            if ($group->members()->count() === 0) {
+                $group->delete();
+
+                return response()->json(['message' => 'You have left the group. Group deleted.']);
+            }
+
+            return response()->json(['message' => 'You have left the group.']);
+        }
+    }
+
+    // GET /api/groups/{group}/members
+    public function listMembers(Request $request, Group $group)
+    {
+        $user = $request->user();
+
+        if (!$group->members()->where('users.id', $user->id)->exists()) {
+            return response()->json(['message' => 'You are not a member of this group.'], 400);
+        }
+
+        $members = $group->members()->paginate(10, ['users.id', 'users.name', 'users.profile_photo']);
+
+        return response()->json($members);
     }
 }

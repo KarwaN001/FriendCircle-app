@@ -54,5 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
         Route::post('/groups/{group}/members', [GroupController::class, 'addMembers']);
         Route::delete('/groups/{group}/members/{member}', [GroupController::class, 'removeMember']);
+        Route::delete('/groups/{group}/leave', [GroupController::class, 'leaveGroup']);
+        Route::get('/groups/{group}/members', [GroupController::class, 'listMembers']);
     });
 });

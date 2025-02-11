@@ -35,6 +35,9 @@ class OtpNotification extends Notification
             ? "Thanks for signing up! Please verify your email address to get started."
             : "We received a request to reset your password.";
 
+        \Log::info('Sending email with OTP code: ' . $this->otp);
+        \Log::info('Is email verification: ' . $this->isEmailVerification);
+
         return (new MailMessage)
             ->subject(config('app.name').' - '.$subject)
             ->view('mail.otp', [
