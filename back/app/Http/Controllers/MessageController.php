@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageSent;
 use App\Models\Group;
 use App\Models\Message;
 use Illuminate\Http\Request;
@@ -32,6 +33,9 @@ class MessageController extends Controller
             'user_id' => $user->id,
             'content' => $request->input('content'),
         ]);
+
+        // Broadcast the message to the group
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json($message, 201);
     }
