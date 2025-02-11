@@ -7,6 +7,7 @@ import { Platform } from 'react-native';
 //php artisan serve --host=192.168.1.200
 const API_URL = Platform.select({
     android: "http://192.168.1.200:8000/api",
+    // android: "http://192.168.174.51:8000/api",
     ios: "http://localhost:8000/api",
 });
 
