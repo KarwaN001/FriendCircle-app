@@ -43,6 +43,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'pivot',
     ];
 
+    protected $appends = [
+        'friends_count'
+    ];
+
     /**
      * Get the attributes that should be cast.
      *
@@ -54,6 +58,11 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getFriendsCountAttribute()
+    {
+        return $this->friends()->count();
     }
 
     // Relationships
