@@ -4,6 +4,7 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -21,7 +22,7 @@ class MessageDeleted implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('group.'.$this->groupId)
+            new PresenceChannel('group.'.$this->groupId)
         ];
     }
 
