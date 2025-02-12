@@ -38,7 +38,7 @@ class MessageController extends Controller
         $message->load('user:id,name,profile_photo');
 
         // Broadcast the new message
-        MessageSent::dispatch($message);
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json($message, 201);
     }

@@ -25,4 +25,9 @@ class MessageUpdated implements ShouldBroadcast
             new Channel('group.'.$this->message->group_id)
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'message.updated';
+    }
 }

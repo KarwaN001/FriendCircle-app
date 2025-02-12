@@ -24,4 +24,9 @@ class MessageDeleted implements ShouldBroadcast
             new Channel('group.'.$this->groupId)
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'message.deleted';
+    }
 }

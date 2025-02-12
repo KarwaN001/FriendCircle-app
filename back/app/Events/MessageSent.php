@@ -19,8 +19,14 @@ class MessageSent implements ShouldBroadcast
 
     public function broadcastOn(): array
     {
+        \Log::info('Broadcasting message to group.' . $this->message->group_id);
         return [
             new Channel('group.' . $this->message->group_id)
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'message.sent';
     }
 }
