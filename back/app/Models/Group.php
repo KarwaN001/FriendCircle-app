@@ -30,6 +30,11 @@ class Group extends Model
             ->withTimestamps();
     }
 
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
     // Accessors
     public function getMembersCountAttribute(): int
     {
