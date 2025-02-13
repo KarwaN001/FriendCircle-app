@@ -19,7 +19,6 @@ class MessageSent implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        \Log::info('Broadcasting message to group ID: ' . $this->message->group_id);
         return [
             new PresenceChannel('group.' . $this->message->group_id)
         ];
