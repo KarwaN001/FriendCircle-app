@@ -71,7 +71,7 @@ export const ProfileScreen = () => {
             ]
         );
     };
-
+    //menu items
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
         { icon: 'account-plus', title: 'Add Friend', subtitle: 'Find and add new friends' },
