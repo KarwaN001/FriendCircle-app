@@ -46,34 +46,11 @@ export const FriendsScreen = () => {
             // Get friend requests for the Invitations tab
             await fetchFriendRequests();
             
-            // Get profile data which includes friends
-            const response = await axiosInstance.get('/profile');
-            console.log('Profile response:', response.data);
+            // Get friends using the new endpoint
+            const response = await axiosInstance.get('/friends');
+            console.log('Friends response:', response.data);
             
-            // Get all friendships including accepted ones
-            const friendshipsResponse = await axiosInstance.get('/friend-requests', {
-                params: { include: 'accepted' }
-            });
-            console.log('Friendships response:', friendshipsResponse.data);
-            
-            // Get friends from accepted friendships
-            const acceptedFriends = [];
-            
-            // Add friends where we were the sender and they accepted
-            friendshipsResponse.data.outgoing?.data.forEach(friendship => {
-                if (friendship.status === 'accepted') {
-                    acceptedFriends.push(friendship.recipient);
-                }
-            });
-            
-            // Add friends where they were the sender and we accepted
-            friendshipsResponse.data.incoming?.data.forEach(friendship => {
-                if (friendship.status === 'accepted') {
-                    acceptedFriends.push(friendship.sender);
-                }
-            });
-            
-            setFriends(acceptedFriends);
+            setFriends(response.data.data || []);
         } catch (error) {
             console.error('Error fetching friends:', error);
             Alert.alert('Error', 'Failed to load friends. Please try again.');
