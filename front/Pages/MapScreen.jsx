@@ -6,14 +6,7 @@ import { darkMapStyle } from '../styles/mapStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import axiosInstance from '../services/api.config';
-
-const filterOptions = [
-    { id: 'all', label: 'All', icon: 'people' },
-    { id: 'family', label: 'Family', icon: 'home' },
-    { id: 'friends', label: 'Friends', icon: 'heart' },
-    { id: 'work', label: 'Work', icon: 'briefcase' },
-    { id: 'school', label: 'School', icon: 'school' },
-];
+import { chatList } from './ChatsScreen';
 
 export const MapScreen = () => {
     const { theme } = useTheme();
@@ -252,36 +245,36 @@ export const MapScreen = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.filterScroll}
                 >
-                    {filterOptions.map((filter) => (
+                    {chatList.map((group) => (
                         <TouchableOpacity
-                            key={filter.id}
+                            key={group.id}
                             style={[
                                 styles.filterButton,
-                                activeFilter === filter.id && styles.filterButtonActive,
+                                activeFilter === group.id && styles.filterButtonActive,
                                 { 
                                     borderColor: isLightTheme ? '#007AFF' : '#0A84FF',
-                                    backgroundColor: activeFilter === filter.id 
+                                    backgroundColor: activeFilter === group.id 
                                         ? (isLightTheme ? 'rgba(255, 255, 255, 0.9)' : 'rgba(40, 40, 40, 0.9)')
                                         : (isLightTheme ? 'rgba(255, 255, 255, 0.7)' : 'rgba(40, 40, 40, 0.7)')
                                 }
                             ]}
-                            onPress={() => setActiveFilter(filter.id)}
+                            onPress={() => setActiveFilter(group.id)}
                         >
-                            <Ionicons 
-                                name={filter.icon} 
-                                size={18} 
-                                color={activeFilter === filter.id 
-                                    ? (isLightTheme ? '#007AFF' : '#0A84FF')
-                                    : (isLightTheme ? '#666' : '#fff')
-                                } 
-                            />
+                            <View style={styles.avatar}>
+                                <Text style={styles.avatarText}>{group.initial}</Text>
+                            </View>
                             <Text style={[
                                 styles.filterText,
-                                activeFilter === filter.id && styles.filterTextActive,
+                                activeFilter === group.id && styles.filterTextActive,
                                 { color: isLightTheme ? '#333' : '#fff' }
                             ]}>
-                                {filter.label}
+                                {group.name}
                             </Text>
+                            {group.unread > 0 && (
+                                <View style={styles.unreadBadge}>
+                                    <Text style={styles.unreadText}>{group.unread}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -466,5 +459,34 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    avatar: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: '#007AFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    avatarText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    unreadBadge: {
+        backgroundColor: '#FF3B30',
+        borderRadius: 10,
+        minWidth: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+        paddingHorizontal: 6,
+    },
+    unreadText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '600',
     },
 }); 
