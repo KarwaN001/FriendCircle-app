@@ -66,7 +66,7 @@ class MessageController extends Controller
         $message->load('user:id,name,profile_photo');
 
         // Broadcast the message update
-        MessageUpdated::dispatch($message);
+        broadcast(new MessageUpdated($message))->toOthers();
 
         return response()->json($message);
     }
@@ -87,7 +87,7 @@ class MessageController extends Controller
         $message->delete();
 
         // Broadcast the message deletion
-        MessageDeleted::dispatch($messageId, $groupId);
+        broadcast(new MessageDeleted($messageId, $groupId))->toOthers();
 
         return response()->json(['message' => 'Message deleted.']);
     }
