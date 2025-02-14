@@ -61,28 +61,7 @@ export const FriendsScreen = () => {
         }
     };
 
-    const findFriendshipId = async (friendId) => {
-        try {
-            // Get all friendships
-            const response = await axiosInstance.get('/friend-requests');
-            
-            // Look in both incoming and outgoing accepted friendships
-            const friendship = 
-                response.data.incoming?.data.find(fr => 
-                    fr.sender.id === friendId && fr.status === 'accepted'
-                ) ||
-                response.data.outgoing?.data.find(fr => 
-                    fr.recipient.id === friendId && fr.status === 'accepted'
-                );
-            
-            return friendship?.id;
-        } catch (error) {
-            console.error('Error finding friendship:', error);
-            return null;
-        }
-    };
-
-    const handleRemoveFriend = async (friendId) => {
+    const handleRemoveFriend = async (friendId, friendshipId) => {
         Alert.alert(
             'Remove Friend',
             'Are you sure you want to remove this friend?',
@@ -96,11 +75,6 @@ export const FriendsScreen = () => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            const friendshipId = await findFriendshipId(friendId);
-                            if (!friendshipId) {
-                                throw new Error('Friendship not found');
-                            }
-                            
                             await axiosInstance.delete(`/friend-requests/${friendshipId}`);
                             setFriends(friends.filter(friend => friend.id !== friendId));
                             Alert.alert('Success', 'Friend removed successfully');
@@ -180,7 +154,7 @@ export const FriendsScreen = () => {
                 </Text>
             </View>
             <Pressable
-                onPress={() => handleRemoveFriend(item.id)}
+                onPress={() => handleRemoveFriend(item.id, item.friendship_id)}
                 style={({ pressed }) => [
                     styles.removeButton,
                     { opacity: pressed ? 0.7 : 1 }
