@@ -46,34 +46,11 @@ export const FriendsScreen = () => {
             // Get friend requests for the Invitations tab
             await fetchFriendRequests();
             
-            // Get profile data which includes friends
-            const response = await axiosInstance.get('/profile');
-            console.log('Profile response:', response.data);
+            // Get friends using the new endpoint
+            const response = await axiosInstance.get('/friends');
+            console.log('Friends response:', response.data);
             
-            // Get all friendships including accepted ones
-            const friendshipsResponse = await axiosInstance.get('/friend-requests', {
-                params: { include: 'accepted' }
-            });
-            console.log('Friendships response:', friendshipsResponse.data);
-            
-            // Get friends from accepted friendships
-            const acceptedFriends = [];
-            
-            // Add friends where we were the sender and they accepted
-            friendshipsResponse.data.outgoing?.data.forEach(friendship => {
-                if (friendship.status === 'accepted') {
-                    acceptedFriends.push(friendship.recipient);
-                }
-            });
-            
-            // Add friends where they were the sender and we accepted
-            friendshipsResponse.data.incoming?.data.forEach(friendship => {
-                if (friendship.status === 'accepted') {
-                    acceptedFriends.push(friendship.sender);
-                }
-            });
-            
-            setFriends(acceptedFriends);
+            setFriends(response.data.data || []);
         } catch (error) {
             console.error('Error fetching friends:', error);
             Alert.alert('Error', 'Failed to load friends. Please try again.');
@@ -84,28 +61,7 @@ export const FriendsScreen = () => {
         }
     };
 
-    const findFriendshipId = async (friendId) => {
-        try {
-            // Get all friendships
-            const response = await axiosInstance.get('/friend-requests');
-            
-            // Look in both incoming and outgoing accepted friendships
-            const friendship = 
-                response.data.incoming?.data.find(fr => 
-                    fr.sender.id === friendId && fr.status === 'accepted'
-                ) ||
-                response.data.outgoing?.data.find(fr => 
-                    fr.recipient.id === friendId && fr.status === 'accepted'
-                );
-            
-            return friendship?.id;
-        } catch (error) {
-            console.error('Error finding friendship:', error);
-            return null;
-        }
-    };
-
-    const handleRemoveFriend = async (friendId) => {
+    const handleRemoveFriend = async (friendId, friendshipId) => {
         Alert.alert(
             'Remove Friend',
             'Are you sure you want to remove this friend?',
@@ -119,11 +75,6 @@ export const FriendsScreen = () => {
                     style: 'destructive',
                     onPress: async () => {
                         try {
-                            const friendshipId = await findFriendshipId(friendId);
-                            if (!friendshipId) {
-                                throw new Error('Friendship not found');
-                            }
-                            
                             await axiosInstance.delete(`/friend-requests/${friendshipId}`);
                             setFriends(friends.filter(friend => friend.id !== friendId));
                             Alert.alert('Success', 'Friend removed successfully');
@@ -203,7 +154,7 @@ export const FriendsScreen = () => {
                 </Text>
             </View>
             <Pressable
-                onPress={() => handleRemoveFriend(item.id)}
+                onPress={() => handleRemoveFriend(item.id, item.friendship_id)}
                 style={({ pressed }) => [
                     styles.removeButton,
                     { opacity: pressed ? 0.7 : 1 }

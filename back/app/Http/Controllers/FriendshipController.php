@@ -24,7 +24,9 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        $friends = $user->friends()->paginate(10);
+        $friends = $user->friends()
+            ->select('users.*', 'f.id as friendship_id')
+            ->paginate(10);
 
         return response()->json($friends);
     }
@@ -128,19 +130,24 @@ class FriendshipController extends Controller
     {
         $user = $request->user();
 
-        // Ensure the authenticated user is the sender
-        if ($friendship->sender_id !== $user->id) {
+        // Check if the authenticated user is either the sender or recipient
+        if ($friendship->sender_id !== $user->id && $friendship->recipient_id !== $user->id) {
             return response()->json(['message' => 'Unauthorized action.'], 403);
         }
 
-        // Allow cancellation only if still pending
-        if ($friendship->status !== 'pending') {
-            return response()->json(['message' => 'Friend request cannot be cancelled.'], 422);
+        // If the friendship is accepted, allow either user to remove it
+        if ($friendship->status === 'accepted') {
+            $friendship->delete();
+            return response()->json(['message' => 'Friend removed successfully.']);
         }
 
-        $friendship->delete();
+        // For pending requests, only allow the sender to cancel
+        if ($friendship->status === 'pending' && $friendship->sender_id === $user->id) {
+            $friendship->delete();
+            return response()->json(['message' => 'Friend request cancelled.']);
+        }
 
-        return response()->json(['message' => 'Friend request cancelled.']);
+        return response()->json(['message' => 'This action is not allowed.'], 422);
     }
 }
 

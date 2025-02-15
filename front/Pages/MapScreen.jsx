@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Text, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
+import { View, StyleSheet, StatusBar, Text, TouchableOpacity, ScrollView, Platform, Alert, Image } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { useTheme } from "../DarkMode/ThemeContext";
 import { darkMapStyle } from '../styles/mapStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
-
-const filterOptions = [
-    { id: 'all', label: 'All', icon: 'people' },
-    { id: 'family', label: 'Family', icon: 'home' },
-    { id: 'friends', label: 'Friends', icon: 'heart' },
-    { id: 'work', label: 'Work', icon: 'briefcase' },
-    { id: 'school', label: 'School', icon: 'school' },
-];
+import axiosInstance from '../services/api.config';
+import { chatList } from './ChatsScreen';
 
 export const MapScreen = () => {
     const { theme } = useTheme();
@@ -20,6 +14,30 @@ export const MapScreen = () => {
     const [activeFilter, setActiveFilter] = useState('all');
     const [initialRegion, setInitialRegion] = useState(null);
     const [hasPermission, setHasPermission] = useState(false);
+    const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
+    const [friends, setFriends] = useState([]);
+
+    // Fetch friends data
+    const fetchFriends = async () => {
+        try {
+            const response = await axiosInstance.get('/friends');
+            setFriends(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching friends:', error);
+            Alert.alert(
+                "Error",
+                "Failed to fetch friends' locations",
+                [{ text: "OK" }]
+            );
+        }
+    };
+
+    useEffect(() => {
+        fetchFriends();
+        // Set up periodic refresh of friend locations (every 30 seconds)
+        const interval = setInterval(fetchFriends, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         (async () => {
@@ -98,6 +116,54 @@ export const MapScreen = () => {
         }
     };
 
+    const updateMyLocation = async () => {
+        if (!hasPermission) {
+            Alert.alert(
+                "Permission Required",
+                "Location permission is required to update your location.",
+                [{ text: "OK" }]
+            );
+            return;
+        }
+
+        try {
+            setIsUpdatingLocation(true);
+            const location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High
+            });
+
+            // Update location on the server
+            await axiosInstance.patch('/profile', {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude
+            });
+
+            Alert.alert(
+                "Success",
+                "Your location has been updated successfully!",
+                [{ text: "OK" }]
+            );
+
+            // Update the map view
+            const newRegion = {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            };
+            setInitialRegion(newRegion);
+        } catch (error) {
+            console.error('Error updating location:', error);
+            Alert.alert(
+                "Error",
+                "Failed to update your location. Please try again.",
+                [{ text: "OK" }]
+            );
+        } finally {
+            setIsUpdatingLocation(false);
+        }
+    };
+
     if (!initialRegion) {
         return (
             <View style={[
@@ -139,7 +205,36 @@ export const MapScreen = () => {
                 rotateEnabled={true}
                 compassOffset={{ x: -10, y: 100 }}
                 mapPadding={{ top: 15, right: 15, bottom: 0, left: 15 }}
-            />
+            >
+                {friends.map((friend) => (
+                    friend.latitude && friend.longitude && (
+                        <Marker
+                            key={friend.id}
+                            coordinate={{
+                                latitude: parseFloat(friend.latitude),
+                                longitude: parseFloat(friend.longitude),
+                            }}
+                            title={friend.name}
+                            description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
+                        >
+                            <View style={styles.markerContainer}>
+                                {friend.profile_photo_url ? (
+                                    <Image
+                                        source={{ uri: friend.profile_photo_url }}
+                                        style={styles.markerImage}
+                                    />
+                                ) : (
+                                    <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
+                                        <Text style={styles.markerFallbackText}>
+                                            {friend.name.charAt(0).toUpperCase()}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        </Marker>
+                    )
+                ))}
+            </MapView>
             
             <View style={[
                 styles.filterContainer,
@@ -150,36 +245,36 @@ export const MapScreen = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.filterScroll}
                 >
-                    {filterOptions.map((filter) => (
+                    {chatList.map((group) => (
                         <TouchableOpacity
-                            key={filter.id}
+                            key={group.id}
                             style={[
                                 styles.filterButton,
-                                activeFilter === filter.id && styles.filterButtonActive,
+                                activeFilter === group.id && styles.filterButtonActive,
                                 { 
                                     borderColor: isLightTheme ? '#007AFF' : '#0A84FF',
-                                    backgroundColor: activeFilter === filter.id 
+                                    backgroundColor: activeFilter === group.id 
                                         ? (isLightTheme ? 'rgba(255, 255, 255, 0.9)' : 'rgba(40, 40, 40, 0.9)')
                                         : (isLightTheme ? 'rgba(255, 255, 255, 0.7)' : 'rgba(40, 40, 40, 0.7)')
                                 }
                             ]}
-                            onPress={() => setActiveFilter(filter.id)}
+                            onPress={() => setActiveFilter(group.id)}
                         >
-                            <Ionicons 
-                                name={filter.icon} 
-                                size={18} 
-                                color={activeFilter === filter.id 
-                                    ? (isLightTheme ? '#007AFF' : '#0A84FF')
-                                    : (isLightTheme ? '#666' : '#fff')
-                                } 
-                            />
+                            <View style={styles.avatar}>
+                                <Text style={styles.avatarText}>{group.initial}</Text>
+                            </View>
                             <Text style={[
                                 styles.filterText,
-                                activeFilter === filter.id && styles.filterTextActive,
+                                activeFilter === group.id && styles.filterTextActive,
                                 { color: isLightTheme ? '#333' : '#fff' }
                             ]}>
-                                {filter.label}
+                                {group.name}
                             </Text>
+                            {group.unread > 0 && (
+                                <View style={styles.unreadBadge}>
+                                    <Text style={styles.unreadText}>{group.unread}</Text>
+                                </View>
+                            )}
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -203,6 +298,29 @@ export const MapScreen = () => {
                         { color: isLightTheme ? '#333' : '#fff' }
                     ]}>
                         Enable Location
+                    </Text>
+                </TouchableOpacity>
+            )}
+
+            {hasPermission && (
+                <TouchableOpacity
+                    style={[
+                        styles.updateLocationButton,
+                        { backgroundColor: isLightTheme ? 'rgba(255, 255, 255, 0.9)' : 'rgba(40, 40, 40, 0.9)' }
+                    ]}
+                    onPress={updateMyLocation}
+                    disabled={isUpdatingLocation}
+                >
+                    <Ionicons 
+                        name="refresh" 
+                        size={24} 
+                        color={isLightTheme ? '#007AFF' : '#0A84FF'} 
+                    />
+                    <Text style={[
+                        styles.locationButtonText,
+                        { color: isLightTheme ? '#333' : '#fff' }
+                    ]}>
+                        {isUpdatingLocation ? 'Updating...' : 'Update My Location'}
                     </Text>
                 </TouchableOpacity>
             )}
@@ -276,6 +394,24 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5,
     },
+    updateLocationButton: {
+        position: 'absolute',
+        bottom: 30,
+        alignSelf: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
     locationButtonText: {
         marginLeft: 8,
         fontSize: 16,
@@ -290,5 +426,67 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '600',
         textAlign: 'center',
+    },
+    markerContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        overflow: 'hidden',
+        borderWidth: 2,
+        borderColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    markerImage: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+    },
+    markerFallback: {
+        width: '100%',
+        height: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    markerFallbackText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    avatar: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        backgroundColor: '#007AFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
+    avatarText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    unreadBadge: {
+        backgroundColor: '#FF3B30',
+        borderRadius: 10,
+        minWidth: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+        paddingHorizontal: 6,
+    },
+    unreadText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '600',
     },
 }); 

@@ -22,7 +22,8 @@ class ProfileController extends Controller
             'gender' => ['string', 'max:255', 'in:male,female'],
             'phone_number' => ['string', 'max:255'],
             'profile_photo' => ['sometimes', 'nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg'],
-            'location' => ['sometimes', 'nullable', 'string', 'max:255']
+            'latitude' => ['numeric', 'between:-90,90'],
+            'longitude' => ['numeric', 'between:-180,180']
         ]);
 
         $user = $request->user();
@@ -39,7 +40,7 @@ class ProfileController extends Controller
 
         $user->update($validatedData);
 
-        $user->loadCount('groups', 'friends');
+        //$user->loadCount('groups', 'friends');
 
         return response()->json($user);
     }
