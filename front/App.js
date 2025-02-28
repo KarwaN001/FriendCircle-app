@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ThemeProvider } from './DarkMode/ThemeContext';
 import LoginScreen from './Pages/LoginScreen';
@@ -32,6 +32,20 @@ const App = () => {
         checkToken();
     }, []);
 
+    const handleLogout = (navigation) => {
+        setUserToken(null); // Clear the user token
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+            })
+        );
+    };
+
+    const handleLogin = (token) => {
+        setUserToken(token); // Set the user token on successful login
+    };
+
     if (isLoading) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -50,6 +64,7 @@ const App = () => {
                             name="Main"
                             component={Navigations}
                             options={{ headerShown: false }}
+                            initialParams={{ handleLogout }}
                         />
                     ) : (
                         // Non-authenticated stack
@@ -58,6 +73,7 @@ const App = () => {
                                 name="Login"
                                 component={LoginScreen}
                                 options={{ headerShown: false }}
+                                initialParams={{ handleLogin }}
                             />
                             <Stack.Screen
                                 name="SignUp"
