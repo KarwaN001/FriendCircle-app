@@ -17,7 +17,6 @@ export const CreateGroupScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark';
     const [groupName, setGroupName] = useState('');
-    const [groupDescription, setGroupDescription] = useState('');
     const [friends, setFriends] = useState([]);
     const [loading, setLoading] = useState(true);
 
