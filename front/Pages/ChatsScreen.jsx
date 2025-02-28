@@ -20,7 +20,7 @@ export const chatList = [
     { id: 'w2', name: 'Work Team', lastMessage: 'Mike: Updated my location for ', time: '1h ago', unread: 0, initial: 'W' },
 ];
 
-const ChatsScreen = () => {
+const ChatsScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark';
     const [isNotificationPopupVisible, setIsNotificationPopupVisible] = React.useState(false);
@@ -193,8 +193,11 @@ const ChatsScreen = () => {
                     <Ionicons name="notifications-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Messages</Text>
-                <TouchableOpacity style={styles.iconButton}>
-                    <Ionicons name="people-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
+                <TouchableOpacity 
+                    style={styles.iconButton}
+                    onPress={() => navigation.navigate('CreateGroup')}
+                >
+                    <Ionicons name="people-circle-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
             </View>
 
