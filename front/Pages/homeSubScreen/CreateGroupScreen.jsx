@@ -30,6 +30,7 @@ export const CreateGroupScreen = ({ navigation }) => {
         { name: 'Friend 5', profilePicture: require('../../assets/images/2.jpg') },
   
     ]);
+    const [selectedFriends, setSelectedFriends] = useState([]);
 
     const styles = StyleSheet.create({
         container: {
@@ -154,10 +155,21 @@ export const CreateGroupScreen = ({ navigation }) => {
                     <Text style={styles.label}>Friends</Text>
                     <View style={styles.friendsList}>
                         {friends.map((friend, index) => (
-                            <View key={index} style={styles.friendCard}>
-                                <Image source={friend.profilePicture} style={styles.friendImage} />
-                                <Text style={styles.friendName}>{friend.name}</Text>
-                            </View>
+                            <TouchableOpacity key={index} style={styles.friendCard} onPress={() => {
+                                if (selectedFriends.includes(friend.name)) {
+                                    setSelectedFriends(selectedFriends.filter(name => name !== friend.name));
+                                } else {
+                                    setSelectedFriends([...selectedFriends, friend.name]);
+                                }
+                            }}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Image source={friend.profilePicture} style={styles.friendImage} />
+                                        <Text style={styles.friendName}>{friend.name}</Text>
+                                    </View>
+                                    {selectedFriends.includes(friend.name) && <Ionicons name="checkmark-circle" size={24} color="green" />}
+                                </View>
+                            </TouchableOpacity>
                         ))}
                     </View>
                 </View>
