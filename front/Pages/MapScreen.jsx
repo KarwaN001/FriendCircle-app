@@ -16,6 +16,21 @@ export const MapScreen = () => {
     const [hasPermission, setHasPermission] = useState(false);
     const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
     const [friends, setFriends] = useState([]);
+    const [isFirstTimeSharing, setIsFirstTimeSharing] = useState(true);
+
+    // Check if user has previously shared location
+    useEffect(() => {
+        const checkLocationHistory = async () => {
+            try {
+                const response = await axiosInstance.get('/profile');
+                const userData = response.data;
+                setIsFirstTimeSharing(!userData.latitude && !userData.longitude);
+            } catch (error) {
+                console.error('Error checking location history:', error);
+            }
+        };
+        checkLocationHistory();
+    }, []);
 
     // Fetch friends data
     const fetchFriends = async () => {
@@ -312,7 +327,7 @@ export const MapScreen = () => {
                     disabled={isUpdatingLocation}
                 >
                     <Ionicons 
-                        name="refresh" 
+                        name={isFirstTimeSharing ? "location" : "refresh"} 
                         size={24} 
                         color={isLightTheme ? '#007AFF' : '#0A84FF'} 
                     />
@@ -320,7 +335,7 @@ export const MapScreen = () => {
                         styles.locationButtonText,
                         { color: isLightTheme ? '#333' : '#fff' }
                     ]}>
-                        {isUpdatingLocation ? 'Updating...' : 'Update My Location'}
+                        {isUpdatingLocation ? 'Updating...' : (isFirstTimeSharing ? 'Share My Location' : 'Update My Location')}
                     </Text>
                 </TouchableOpacity>
             )}
