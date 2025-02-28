@@ -57,14 +57,33 @@ export const ProfileScreen = () => {
                     text: 'Logout',
                     onPress: async () => {
                         try {
+                            // First try to logout from the server
+                            try {
+                                await axiosInstance.post('/logout', {
+                                    device_name: `${Platform.OS}-${Platform.Version}`
+                                });
+                            } catch (error) {
+                                console.warn('Server logout failed:', error);
+                                // Continue with local logout even if server logout fails
+                            }
+
+                            // Clear all local data
                             await clearAuthData();
-                            navigation.getParent()?.reset({
+                            setUserData(null);
+
+                            // Reset navigation state to Login screen
+                            navigation.reset({
                                 index: 0,
                                 routes: [{ name: 'Login' }],
                             });
+
                         } catch (error) {
                             console.error('Logout error:', error);
-                            Alert.alert('Error', 'Failed to logout. Please try again.');
+                            Alert.alert(
+                                'Error',
+                                'Failed to logout. Please force close the app and try again.',
+                                [{ text: 'OK' }]
+                            );
                         }
                     }
                 }
