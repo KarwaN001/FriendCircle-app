@@ -9,6 +9,7 @@ import {ProfileScreen} from './ProfileScreen';
 import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
 import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
 import {FriendsScreen} from './profileSubScreen/FriendsScreen';
+import {CreateGroupScreen} from './homeSubScreen/CreateGroupScreen';
 
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
@@ -36,6 +37,24 @@ const getTabBarIcon = (routeName, focused) => {
     }
 
     return <Ionicons name={iconName} size={24} color={focused ? 'blue' : 'gray'} />;
+};
+
+// Chat Stack Navigator
+const ChatStack = () => {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen 
+                name="ChatsList"
+                component={ChatsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+                name="CreateGroup"
+                component={CreateGroupScreen}
+                options={{ headerShown: false }}
+            />
+        </Stack.Navigator>
+    );
 };
 
 // Profile Stack Navigator
@@ -100,7 +119,7 @@ const TabNavigator = () => {
         >
             <Tab.Screen 
                 name="Chats" 
-                component={ChatsScreen}
+                component={ChatStack}
                 options={({ route }) => ({
                     tabBarStyle: {
                         display: getTabBarVisibility(route),
@@ -157,7 +176,7 @@ const TabNavigator = () => {
 // Function to handle tab bar visibility
 const getTabBarVisibility = (route) => {
     const routeName = getFocusedRouteNameFromRoute(route) ?? '';
-    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends'];
+    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends', 'CreateGroup'];
     return hideOnScreens.includes(routeName) ? 'none' : 'flex';
 };
 
