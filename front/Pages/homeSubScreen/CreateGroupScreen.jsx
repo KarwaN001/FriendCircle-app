@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -11,25 +11,34 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../../DarkMode/ThemeContext";
+import axiosInstance from '../../services/api.config';
 
 export const CreateGroupScreen = ({ navigation }) => {
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark';
     const [groupName, setGroupName] = useState('');
     const [groupDescription, setGroupDescription] = useState('');
-    const [friends, setFriends] = useState([
-        { name: 'Friend 1', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 2', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 3', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 4', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 5', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 1', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 2', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 3', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 4', profilePicture: require('../../assets/images/2.jpg') },
-        { name: 'Friend 5', profilePicture: require('../../assets/images/2.jpg') },
-  
-    ]);
+    const [friends, setFriends] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const response = await axiosInstance.get('/friends');
+                if (Array.isArray(response.data.data)) {
+                    setFriends(response.data.data);
+                } else {
+                    console.error('Expected an array but got:', response.data.data);
+                }
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching friends:', error);
+                setLoading(false);
+            }
+        };
+        fetchFriends();
+    }, []);
+
     const [selectedFriends, setSelectedFriends] = useState([]);
 
     const styles = StyleSheet.create({
@@ -153,25 +162,27 @@ export const CreateGroupScreen = ({ navigation }) => {
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Friends</Text>
-                    <View style={styles.friendsList}>
-                        {friends.map((friend, index) => (
-                            <TouchableOpacity key={index} style={styles.friendCard} onPress={() => {
-                                if (selectedFriends.includes(friend.name)) {
-                                    setSelectedFriends(selectedFriends.filter(name => name !== friend.name));
-                                } else {
-                                    setSelectedFriends([...selectedFriends, friend.name]);
-                                }
-                            }}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                        <Image source={friend.profilePicture} style={styles.friendImage} />
-                                        <Text style={styles.friendName}>{friend.name}</Text>
+                    {loading ? <Text>Loading friends...</Text> : (
+                        <View style={styles.friendsList}>
+                            {friends.map((friend, index) => (
+                                <TouchableOpacity key={index} style={styles.friendCard} onPress={() => {
+                                    if (selectedFriends.includes(friend.name)) {
+                                        setSelectedFriends(selectedFriends.filter(name => name !== friend.name));
+                                    } else {
+                                        setSelectedFriends([...selectedFriends, friend.name]);
+                                    }
+                                }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Image source={friend.profilePicture} style={styles.friendImage} />
+                                            <Text style={styles.friendName}>{friend.name}</Text>
+                                        </View>
+                                        {selectedFriends.includes(friend.name) && <Ionicons name="checkmark-circle" size={24} color="green" />}
                                     </View>
-                                    {selectedFriends.includes(friend.name) && <Ionicons name="checkmark-circle" size={24} color="green" />}
-                                </View>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
                 </View>
             </ScrollView>
             <TouchableOpacity 
