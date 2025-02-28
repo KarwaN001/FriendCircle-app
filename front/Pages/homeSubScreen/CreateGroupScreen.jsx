@@ -7,6 +7,7 @@ import {
     StyleSheet,
     Platform,
     ScrollView,
+    Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../../DarkMode/ThemeContext";
@@ -16,6 +17,19 @@ export const CreateGroupScreen = ({ navigation }) => {
     const isDarkMode = theme === 'dark';
     const [groupName, setGroupName] = useState('');
     const [groupDescription, setGroupDescription] = useState('');
+    const [friends, setFriends] = useState([
+        { name: 'Friend 1', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 2', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 3', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 4', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 5', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 1', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 2', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 3', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 4', profilePicture: require('../../assets/images/2.jpg') },
+        { name: 'Friend 5', profilePicture: require('../../assets/images/2.jpg') },
+  
+    ]);
 
     const styles = StyleSheet.create({
         container: {
@@ -71,11 +85,40 @@ export const CreateGroupScreen = ({ navigation }) => {
             padding: 16,
             alignItems: 'center',
             marginTop: 20,
+            marginBottom: 20,
+            marginHorizontal: 20,
         },
         createButtonText: {
             color: '#FFFFFF',
             fontSize: 16,
             fontWeight: '600',
+        },
+        friendsList: {
+            flex: 1,
+            marginBottom: 20,
+        },
+        friendCard: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: 10,
+            marginBottom: 10,
+            borderRadius: 10,
+            backgroundColor: isDarkMode ? '#333333' : '#FFFFFF',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.2,
+            shadowRadius: 1,
+            elevation: 2,
+        },
+        friendImage: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            marginRight: 10,
+        },
+        friendName: {
+            color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
+            fontSize: 16,
         },
     });
 
@@ -95,7 +138,7 @@ export const CreateGroupScreen = ({ navigation }) => {
                 <Text style={styles.headerTitle}>Create New Group</Text>
             </View>
             
-            <ScrollView style={styles.content}>
+            <ScrollView style={styles.content} contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Group Name</Text>
                     <TextInput
@@ -108,28 +151,26 @@ export const CreateGroupScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Description</Text>
-                    <TextInput
-                        style={[styles.input, styles.descriptionInput]}
-                        placeholder="Enter group description"
-                        placeholderTextColor={isDarkMode ? '#888888' : '#999999'}
-                        value={groupDescription}
-                        onChangeText={setGroupDescription}
-                        multiline
-                        numberOfLines={4}
-                    />
+                    <Text style={styles.label}>Friends</Text>
+                    <View style={styles.friendsList}>
+                        {friends.map((friend, index) => (
+                            <View key={index} style={styles.friendCard}>
+                                <Image source={friend.profilePicture} style={styles.friendImage} />
+                                <Text style={styles.friendName}>{friend.name}</Text>
+                            </View>
+                        ))}
+                    </View>
                 </View>
-
-                <TouchableOpacity 
-                    style={styles.createButton}
-                    onPress={() => {
-                        // Handle group creation logic here
-                        navigation.goBack();
-                    }}
-                >
-                    <Text style={styles.createButtonText}>Create Group</Text>
-                </TouchableOpacity>
             </ScrollView>
+            <TouchableOpacity 
+                style={styles.createButton}
+                onPress={() => {
+                    // Handle group creation logic here
+                    navigation.goBack();
+                }}
+            >
+                <Text style={styles.createButtonText}>Create Group</Text>
+            </TouchableOpacity>
         </View>
     );
 }; 
