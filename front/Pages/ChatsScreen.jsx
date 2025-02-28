@@ -17,7 +17,7 @@ export const chatList = [
     { id: 'f1', name: 'Family', lastMessage: 'Mom: Where are you? Dinner\'s ready!', time: '2m ago', unread: 1, initial: 'F' },
     { id: 't1', name: 'Trip Planning', lastMessage: 'Sarah: Let\'s meet at the park!', time: '15m ago', unread: 0, initial: 'T' },
     { id: 'w1', name: 'Work Team', lastMessage: 'Mike: Updated my location for meeting', time: '1h ago', unread: 0, initial: 'W' },
-    { id: 'w1', name: 'Work Team', lastMessage: 'Mike: Updated my location for ', time: '1h ago', unread: 0, initial: 'W' },
+    { id: 'w2', name: 'Work Team', lastMessage: 'Mike: Updated my location for ', time: '1h ago', unread: 0, initial: 'W' },
 ];
 
 const ChatsScreen = () => {
