@@ -9,8 +9,8 @@ import {ProfileScreen} from './ProfileScreen';
 import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
 import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
 import {FriendsScreen} from './profileSubScreen/FriendsScreen';
-import {CreateGroupScreen} from './homeSubScreen/CreateGroupScreen';
-import {GroupChatScreen} from './homeSubScreen/GroupChatScreen';
+import {CreateGroupScreen} from './HomeSubScreen/CreateGroupScreen';
+import {GroupChatScreen} from './HomeSubScreen/GroupChatScreen';
 
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
