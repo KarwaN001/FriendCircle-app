@@ -132,14 +132,19 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: 1,
             borderBottomColor: isDarkMode ? '#333333' : '#F0F0F0',
+            justifyContent: 'space-between',
         },
         headerTitle: {
             fontSize: 20,
             fontWeight: '600',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
-            marginLeft: 16,
+            flex: 1,
+            textAlign: 'center',
         },
         backButton: {
+            padding: 8,
+        },
+        infoButton: {
             padding: 8,
         },
         chatContainer: {
@@ -253,6 +258,16 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
                     />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>{groupName}</Text>
+                <TouchableOpacity 
+                    style={styles.infoButton}
+                    onPress={() => navigation.navigate('GroupInfo', { groupId, groupName })}
+                >
+                    <Ionicons 
+                        name="information-circle-outline" 
+                        size={24} 
+                        color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} 
+                    />
+                </TouchableOpacity>
             </View>
 
             <KeyboardAvoidingView 
