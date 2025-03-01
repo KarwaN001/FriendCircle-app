@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Text, TouchableOpacity, ScrollView, Platform, Alert, Image } from 'react-native';
+import { View, StyleSheet, StatusBar, Text, TouchableOpacity, ScrollView, Platform, Alert, Image, ActivityIndicator } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { useTheme } from "../DarkMode/ThemeContext";
 import { darkMapStyle } from '../styles/mapStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import axiosInstance from '../services/api.config';
-import { chatList } from './ChatsScreen';
 
 export const MapScreen = () => {
     const { theme } = useTheme();
@@ -16,6 +15,9 @@ export const MapScreen = () => {
     const [hasPermission, setHasPermission] = useState(false);
     const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
     const [friends, setFriends] = useState([]);
+    const [groups, setGroups] = useState([]);
+    const [isLoadingFriends, setIsLoadingFriends] = useState(true);
+    const [isLoadingGroups, setIsLoadingGroups] = useState(true);
     const [isFirstTimeSharing, setIsFirstTimeSharing] = useState(true);
 
     // Check if user has previously shared location
@@ -32,26 +34,23 @@ export const MapScreen = () => {
         checkLocationHistory();
     }, []);
 
-    // Fetch friends data
-    const fetchFriends = async () => {
+    // Fetch groups data
+    const fetchGroups = async () => {
         try {
-            const response = await axiosInstance.get('/friends');
-            setFriends(response.data.data || []);
+            setIsLoadingGroups(true);
+            const response = await axiosInstance.get('/groups');
+            if (response.data && Array.isArray(response.data.data)) {
+                setGroups(response.data.data);
+            }
         } catch (error) {
-            console.error('Error fetching friends:', error);
-            Alert.alert(
-                "Error",
-                "Failed to fetch friends' locations",
-                [{ text: "OK" }]
-            );
+            console.error('Error fetching groups:', error);
+        } finally {
+            setIsLoadingGroups(false);
         }
     };
 
     useEffect(() => {
-        fetchFriends();
-        // Set up periodic refresh of friend locations (every 30 seconds)
-        const interval = setInterval(fetchFriends, 30000);
-        return () => clearInterval(interval);
+        fetchGroups();
     }, []);
 
     useEffect(() => {
@@ -221,32 +220,34 @@ export const MapScreen = () => {
                 compassOffset={{ x: -10, y: 100 }}
                 mapPadding={{ top: 15, right: 15, bottom: 0, left: 15 }}
             >
-                {friends.map((friend) => (
-                    friend.latitude && friend.longitude && (
-                        <Marker
-                            key={friend.id}
-                            coordinate={{
-                                latitude: parseFloat(friend.latitude),
-                                longitude: parseFloat(friend.longitude),
-                            }}
-                            title={friend.name}
-                            description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
-                        >
-                            <View style={styles.markerContainer}>
-                                {friend.profile_photo_url ? (
-                                    <Image
-                                        source={{ uri: friend.profile_photo_url }}
-                                        style={styles.markerImage}
-                                    />
-                                ) : (
-                                    <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
-                                        <Text style={styles.markerFallbackText}>
-                                            {friend.name.charAt(0).toUpperCase()}
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        </Marker>
+                {Array.isArray(friends) && friends.map((friend) => (
+                    friend && friend.latitude && friend.longitude && (
+                        activeFilter === 'all' || groups.find(g => g.id === activeFilter)?.members?.includes(friend.id) ? (
+                            <Marker
+                                key={friend.id}
+                                coordinate={{
+                                    latitude: parseFloat(friend.latitude),
+                                    longitude: parseFloat(friend.longitude),
+                                }}
+                                title={friend.name}
+                                description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
+                            >
+                                <View style={styles.markerContainer}>
+                                    {friend.profile_photo_url ? (
+                                        <Image
+                                            source={{ uri: friend.profile_photo_url }}
+                                            style={styles.markerImage}
+                                        />
+                                    ) : (
+                                        <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
+                                            <Text style={styles.markerFallbackText}>
+                                                {friend.name.charAt(0).toUpperCase()}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Marker>
+                        ) : null
                     )
                 ))}
             </MapView>
@@ -260,7 +261,33 @@ export const MapScreen = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.filterScroll}
                 >
-                    {chatList.map((group) => (
+                    <TouchableOpacity
+                        key="all"
+                        style={[
+                            styles.filterButton,
+                            activeFilter === 'all' && styles.filterButtonActive,
+                            { 
+                                borderColor: isLightTheme ? '#007AFF' : '#0A84FF',
+                                backgroundColor: activeFilter === 'all' 
+                                    ? (isLightTheme ? 'rgba(255, 255, 255, 0.9)' : 'rgba(40, 40, 40, 0.9)')
+                                    : (isLightTheme ? 'rgba(255, 255, 255, 0.7)' : 'rgba(40, 40, 40, 0.7)')
+                            }
+                        ]}
+                        onPress={() => setActiveFilter('all')}
+                    >
+                        <View style={styles.avatar}>
+                            <Text style={styles.avatarText}>A</Text>
+                        </View>
+                        <Text style={[
+                            styles.filterText,
+                            activeFilter === 'all' && styles.filterTextActive,
+                            { color: isLightTheme ? '#333' : '#fff' }
+                        ]}>
+                            All Friends
+                        </Text>
+                    </TouchableOpacity>
+
+                    {groups.map((group) => (
                         <TouchableOpacity
                             key={group.id}
                             style={[
@@ -276,7 +303,7 @@ export const MapScreen = () => {
                             onPress={() => setActiveFilter(group.id)}
                         >
                             <View style={styles.avatar}>
-                                <Text style={styles.avatarText}>{group.initial}</Text>
+                                <Text style={styles.avatarText}>{group.name.charAt(0)}</Text>
                             </View>
                             <Text style={[
                                 styles.filterText,
@@ -285,11 +312,6 @@ export const MapScreen = () => {
                             ]}>
                                 {group.name}
                             </Text>
-                            {group.unread > 0 && (
-                                <View style={styles.unreadBadge}>
-                                    <Text style={styles.unreadText}>{group.unread}</Text>
-                                </View>
-                            )}
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -485,21 +507,6 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     avatarText: {
-        color: '#FFFFFF',
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    unreadBadge: {
-        backgroundColor: '#FF3B30',
-        borderRadius: 10,
-        minWidth: 20,
-        height: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 8,
-        paddingHorizontal: 6,
-    },
-    unreadText: {
         color: '#FFFFFF',
         fontSize: 12,
         fontWeight: '600',
