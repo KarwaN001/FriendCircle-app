@@ -23,20 +23,44 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentUserId, setCurrentUserId] = useState(null);
     const flatListRef = useRef(null);
 
+    // Estimate item height for getItemLayout
+    const MESSAGE_ITEM_HEIGHT = 80; // Estimated average height of a message item
+
+    const getItemLayout = (data, index) => ({
+        length: MESSAGE_ITEM_HEIGHT,
+        offset: MESSAGE_ITEM_HEIGHT * index,
+        index,
+    });
+
     useEffect(() => {
+        fetchCurrentUser();
         fetchMessages();
         const messageInterval = setInterval(fetchMessages, 5000); // Poll for new messages every 5 seconds
 
         return () => clearInterval(messageInterval);
     }, [groupId]);
 
+    const fetchCurrentUser = async () => {
+        try {
+            const response = await axiosInstance.get('/profile');
+            setCurrentUserId(response.data.id);
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+        }
+    };
+
     const fetchMessages = async () => {
         try {
             const response = await axiosInstance.get(`/groups/${groupId}/messages`);
             if (response.data && Array.isArray(response.data.data)) {
-                setMessages(response.data.data);
+                // Sort messages by created_at in ascending order (oldest to newest)
+                const sortedMessages = response.data.data.sort((a, b) => 
+                    new Date(a.created_at) - new Date(b.created_at)
+                );
+                setMessages(sortedMessages);
             }
             setLoading(false);
         } catch (error) {
@@ -62,16 +86,19 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
     };
 
     const renderMessage = ({ item }) => {
-        const isOwnMessage = item.sender_id === 'current_user_id'; // Replace with actual user ID check
+        const isOwnMessage = item.user.id === currentUserId;
 
         return (
             <View style={[
                 styles.messageContainer,
                 isOwnMessage ? styles.ownMessageContainer : styles.otherMessageContainer
             ]}>
-                {!isOwnMessage && (
-                    <Text style={styles.senderName}>{item.sender_name}</Text>
-                )}
+                <Text style={[
+                    styles.senderName,
+                    isOwnMessage ? styles.ownSenderName : styles.otherSenderName
+                ]}>
+                    {item.user.name}
+                </Text>
                 <View style={[
                     styles.messageBubble,
                     isOwnMessage ? styles.ownMessageBubble : styles.otherMessageBubble
@@ -130,8 +157,15 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
         },
         senderName: {
             fontSize: 12,
-            color: isDarkMode ? '#999999' : '#666666',
             marginBottom: 2,
+            fontWeight: '500',
+        },
+        ownSenderName: {
+            color: isDarkMode ? '#007AFF' : '#0056b3',
+            marginRight: 12,
+        },
+        otherSenderName: {
+            color: isDarkMode ? '#999999' : '#666666',
             marginLeft: 12,
         },
         messageBubble: {
@@ -232,8 +266,14 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
                     renderItem={renderMessage}
                     keyExtractor={(item) => item.id.toString()}
                     contentContainerStyle={{ paddingVertical: 16 }}
-                    onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-                    onLayout={() => flatListRef.current?.scrollToEnd()}
+                    onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                    onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+                    getItemLayout={getItemLayout}
+                    showsVerticalScrollIndicator={true}
+                    maintainVisibleContentPosition={{
+                        minIndexForVisible: 0,
+                        autoscrollToTopThreshold: 10
+                    }}
                 />
 
                 <View style={styles.inputContainer}>

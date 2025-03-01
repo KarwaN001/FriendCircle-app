@@ -57,25 +57,19 @@ export const CreateGroupScreen = ({ navigation }) => {
 
         setIsCreating(true);
         try {
-            // Send group creation request with members in a single request
             const createGroupResponse = await axiosInstance.post('/groups', {
                 name: groupName.trim(),
-                members: selectedFriends // Send selected friend IDs as members
+                members: selectedFriends
             });
 
-            console.log('Group creation response:', createGroupResponse.data);
-
-            Alert.alert('Success', 'Group created successfully', [
-                { text: 'OK', onPress: () => navigation.goBack() }
-            ]);
+            // Navigate back to the chat screen with the new group
+            navigation.navigate('GroupChat', {
+                groupId: createGroupResponse.data.id,
+                groupName: createGroupResponse.data.name
+            });
         } catch (error) {
             console.error('API error:', error.response?.data);
             console.error('Error creating group:', error);
-            console.error('Error details:', {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status
-            });
             
             // Show the specific error message from the API if available
             const errorMessage = error.response?.data?.message 
