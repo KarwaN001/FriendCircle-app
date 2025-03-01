@@ -10,6 +10,7 @@ import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
 import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
 import {FriendsScreen} from './profileSubScreen/FriendsScreen';
 import {CreateGroupScreen} from './homeSubScreen/CreateGroupScreen';
+import {GroupChatScreen} from './homeSubScreen/GroupChatScreen';
 
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
@@ -51,6 +52,11 @@ const ChatStack = () => {
             <Stack.Screen 
                 name="CreateGroup"
                 component={CreateGroupScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+                name="GroupChat"
+                component={GroupChatScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
@@ -176,7 +182,7 @@ const TabNavigator = () => {
 // Function to handle tab bar visibility
 const getTabBarVisibility = (route) => {
     const routeName = getFocusedRouteNameFromRoute(route) ?? '';
-    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends', 'CreateGroup'];
+    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends', 'CreateGroup', 'GroupChat'];
     return hideOnScreens.includes(routeName) ? 'none' : 'flex';
 };
 

@@ -48,7 +48,10 @@ const ChatsScreen = ({ navigation }) => {
         <TouchableOpacity 
             style={styles.chatItem}
             activeOpacity={0.7}
-            onPress={() => navigation.navigate('GroupChat', { groupId: item.id, groupName: item.name })}
+            onPress={() => navigation.navigate('GroupChat', { 
+                groupId: item.id, 
+                groupName: item.name 
+            })}
         >
             <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{item.name.charAt(0)}</Text>
