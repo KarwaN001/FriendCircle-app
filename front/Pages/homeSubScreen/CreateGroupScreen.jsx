@@ -8,6 +8,7 @@ import {
     Platform,
     ScrollView,
     Image,
+    Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../../DarkMode/ThemeContext";
@@ -19,26 +20,74 @@ export const CreateGroupScreen = ({ navigation }) => {
     const [groupName, setGroupName] = useState('');
     const [friends, setFriends] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isCreating, setIsCreating] = useState(false);
 
     useEffect(() => {
-        const fetchFriends = async () => {
-            try {
-                const response = await axiosInstance.get('/friends');
-                if (Array.isArray(response.data.data)) {
-                    setFriends(response.data.data);
-                } else {
-                    console.error('Expected an array but got:', response.data.data);
-                }
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching friends:', error);
-                setLoading(false);
-            }
-        };
         fetchFriends();
     }, []);
 
+    const fetchFriends = async () => {
+        try {
+            const response = await axiosInstance.get('/friends');
+            if (Array.isArray(response.data.data)) {
+                setFriends(response.data.data);
+            } else {
+                console.error('Expected an array but got:', response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching friends:', error);
+            Alert.alert('Error', 'Failed to load friends list');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const [selectedFriends, setSelectedFriends] = useState([]);
+
+    const handleCreateGroup = async () => {
+        if (!groupName.trim()) {
+            Alert.alert('Error', 'Please enter a group name');
+            return;
+        }
+
+        if (selectedFriends.length === 0) {
+            Alert.alert('Error', 'Please select at least one friend');
+            return;
+        }
+
+        setIsCreating(true);
+        try {
+            // Send group creation request with members in a single request
+            const createGroupResponse = await axiosInstance.post('/groups', {
+                name: groupName.trim(),
+                members: selectedFriends // Send selected friend IDs as members
+            });
+
+            console.log('Group creation response:', createGroupResponse.data);
+
+            Alert.alert('Success', 'Group created successfully', [
+                { text: 'OK', onPress: () => navigation.goBack() }
+            ]);
+        } catch (error) {
+            console.error('API error:', error.response?.data);
+            console.error('Error creating group:', error);
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+            
+            // Show the specific error message from the API if available
+            const errorMessage = error.response?.data?.message 
+                || error.response?.data?.errors?.members?.[0]
+                || error.message 
+                || 'Failed to create group';
+            
+            Alert.alert('Error', errorMessage);
+        } finally {
+            setIsCreating(false);
+        }
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -160,23 +209,54 @@ export const CreateGroupScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Friends</Text>
-                    {loading ? <Text>Loading friends...</Text> : (
+                    <Text style={styles.label}>Select Friends</Text>
+                    {loading ? (
+                        <Text style={[styles.friendName, { textAlign: 'center', padding: 20 }]}>
+                            Loading friends...
+                        </Text>
+                    ) : friends.length === 0 ? (
+                        <Text style={[styles.friendName, { textAlign: 'center', padding: 20 }]}>
+                            No friends found. Add some friends first!
+                        </Text>
+                    ) : (
                         <View style={styles.friendsList}>
-                            {friends.map((friend, index) => (
-                                <TouchableOpacity key={index} style={styles.friendCard} onPress={() => {
-                                    if (selectedFriends.includes(friend.name)) {
-                                        setSelectedFriends(selectedFriends.filter(name => name !== friend.name));
-                                    } else {
-                                        setSelectedFriends([...selectedFriends, friend.name]);
-                                    }
-                                }}>
+                            {friends.map((friend) => (
+                                <TouchableOpacity 
+                                    key={friend.id} 
+                                    style={[
+                                        styles.friendCard,
+                                        selectedFriends.includes(friend.id) && {
+                                            borderColor: '#007AFF',
+                                            borderWidth: 2
+                                        }
+                                    ]} 
+                                    onPress={() => {
+                                        if (selectedFriends.includes(friend.id)) {
+                                            setSelectedFriends(selectedFriends.filter(id => id !== friend.id));
+                                        } else {
+                                            setSelectedFriends([...selectedFriends, friend.id]);
+                                        }
+                                    }}
+                                >
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                            <Image source={friend.profilePicture} style={styles.friendImage} />
+                                            {friend.profile_picture ? (
+                                                <Image 
+                                                    source={{ uri: friend.profile_picture }} 
+                                                    style={styles.friendImage} 
+                                                />
+                                            ) : (
+                                                <View style={[styles.friendImage, { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center' }]}>
+                                                    <Text style={{ color: '#FFFFFF', fontSize: 16 }}>
+                                                        {friend.name.charAt(0)}
+                                                    </Text>
+                                                </View>
+                                            )}
                                             <Text style={styles.friendName}>{friend.name}</Text>
                                         </View>
-                                        {selectedFriends.includes(friend.name) && <Ionicons name="checkmark-circle" size={24} color="green" />}
+                                        {selectedFriends.includes(friend.id) && (
+                                            <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+                                        )}
                                     </View>
                                 </TouchableOpacity>
                             ))}
@@ -184,14 +264,20 @@ export const CreateGroupScreen = ({ navigation }) => {
                     )}
                 </View>
             </ScrollView>
+            
             <TouchableOpacity 
-                style={styles.createButton}
-                onPress={() => {
-                    // Handle group creation logic here
-                    navigation.goBack();
-                }}
+                style={[
+                    styles.createButton,
+                    (isCreating || !groupName.trim() || selectedFriends.length === 0) && {
+                        opacity: 0.6
+                    }
+                ]}
+                onPress={handleCreateGroup}
+                disabled={isCreating || !groupName.trim() || selectedFriends.length === 0}
             >
-                <Text style={styles.createButtonText}>Create Group</Text>
+                <Text style={styles.createButtonText}>
+                    {isCreating ? 'Creating Group...' : 'Create Group'}
+                </Text>
             </TouchableOpacity>
         </View>
     );
