@@ -17,6 +17,7 @@ import GroupInfoScreen from './HomeSubScreen/GroupInfoScreen';
 import {SafeAreaView, StatusBar} from "react-native";
 import {useTheme} from "../DarkMode/ThemeContext";
 import React from "react";
+import Sizing from '../utils/Sizing';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -39,7 +40,7 @@ const getTabBarIcon = (routeName, focused) => {
             iconName = 'chatbubbles-outline';
     }
 
-    return <Ionicons name={iconName} size={24} color={focused ? 'blue' : 'gray'} />;
+    return <Ionicons name={iconName} size={Sizing.deviceWidth * 0.06} color={focused ? '#4A55A2' : '#8E8E93'} />;
 };
 
 // Chat Stack Navigator
@@ -113,25 +114,22 @@ const TabNavigator = () => {
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarIcon: ({ focused }) => getTabBarIcon(route.name, focused),
-                tabBarActiveTintColor: isLightTheme ? 'blue' : 'lightblue',
-                tabBarInactiveTintColor: isLightTheme ? 'red' : 'darkgray',
+                tabBarActiveTintColor: '#4A55A2',
+                tabBarInactiveTintColor: '#8E8E93',
                 tabBarStyle: {
-                    backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
-                    borderTopWidth: 0,
-                    elevation: 5,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 2,
-                    height: 70,
+                    backgroundColor: isLightTheme ? '#FFFFFF' : '#1A1A1A',
+                    borderTopWidth: 0.5,
+                    borderTopColor: isLightTheme ? '#E5E5EA' : '#2C2C2E',
+                    height: Sizing.deviceHeight * 0.08,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 12,
-                    paddingBottom: 7,
-                    color: isLightTheme ? 'black' : 'white',
+                    fontSize: Sizing.deviceWidth * 0.028,
+                    fontWeight: '500',
+                    marginTop: -Sizing.deviceHeight * 0.005,
+                    marginBottom: Sizing.deviceHeight * 0.008,
                 },
                 tabBarItemStyle: {
-                    padding: 5,
+                    paddingTop: Sizing.deviceHeight * 0.01,
                 },
             })}
         >
@@ -141,14 +139,10 @@ const TabNavigator = () => {
                 options={({ route }) => ({
                     tabBarStyle: {
                         display: getTabBarVisibility(route),
-                        backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
-                        borderTopWidth: 0,
-                        elevation: 5,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 2,
-                        height: 70,
+                        backgroundColor: isLightTheme ? '#FFFFFF' : '#1A1A1A',
+                        borderTopWidth: 0.5,
+                        borderTopColor: isLightTheme ? '#E5E5EA' : '#2C2C2E',
+                        height: Sizing.deviceHeight * 0.08,
                     }
                 })}
             />
@@ -158,14 +152,10 @@ const TabNavigator = () => {
                 options={({ route }) => ({
                     tabBarStyle: {
                         display: getTabBarVisibility(route),
-                        backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
-                        borderTopWidth: 0,
-                        elevation: 5,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 2,
-                        height: 70,
+                        backgroundColor: isLightTheme ? '#FFFFFF' : '#1A1A1A',
+                        borderTopWidth: 0.5,
+                        borderTopColor: isLightTheme ? '#E5E5EA' : '#2C2C2E',
+                        height: Sizing.deviceHeight * 0.08,
                     }
                 })}
             />
@@ -176,14 +166,10 @@ const TabNavigator = () => {
                     tabBarLabel: 'Profile',
                     tabBarStyle: {
                         display: getTabBarVisibility(route),
-                        backgroundColor: isLightTheme ? '#f3f3f3' : '#333',
-                        borderTopWidth: 0,
-                        elevation: 5,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.1,
-                        shadowRadius: 2,
-                        height: 70,
+                        backgroundColor: isLightTheme ? '#FFFFFF' : '#1A1A1A',
+                        borderTopWidth: 0.5,
+                        borderTopColor: isLightTheme ? '#E5E5EA' : '#2C2C2E',
+                        height: Sizing.deviceHeight * 0.08,
                     }
                 })}
             />
