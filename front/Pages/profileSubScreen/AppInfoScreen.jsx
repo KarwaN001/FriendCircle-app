@@ -113,7 +113,7 @@ export const AppInfoScreen = () => {
                         <TeamMember
                             name="Rezdar"
                             role="Backend Developer"
-                            email="rezdar@gmail.com"
+                            email="rezdar.00166214@gmail.com"
                             primaryColor={primaryColor}
                             textPrimary={textPrimary}
                             textSecondary={textSecondary}
