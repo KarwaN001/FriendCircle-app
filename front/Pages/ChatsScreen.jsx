@@ -105,28 +105,19 @@ const ChatsScreen = ({ navigation }) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: Sizing.deviceWidth * 0.04,
-            paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.06 : Sizing.deviceHeight * 0.02,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            paddingTop: Platform.OS === 'ios' ? 48 : 12,
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: 1,
             borderBottomColor: isDarkMode ? '#333333' : '#F0F0F0',
-            ...Platform.select({
-                ios: {
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 4,
-                },
-                android: {
-                    elevation: 4,
-                },
-            }),
         },
         headerTitle: {
-            fontSize: Sizing.deviceWidth * 0.055,
-            fontWeight: '700',
+            fontSize: 20,
+            fontWeight: '600',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
-            letterSpacing: 0.5,
+            textAlign: 'center',
+            flex: 1,
         },
         chatList: {
             flex: 1,
@@ -191,9 +182,11 @@ const ChatsScreen = ({ navigation }) => {
             lineHeight: Sizing.deviceHeight * 0.024,
         },
         iconButton: {
-            padding: Sizing.deviceWidth * 0.02,
-            borderRadius: Sizing.deviceWidth * 0.03,
-            backgroundColor: isDarkMode ? '#333333' : '#F0F2F5',
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 20,
         },
         emptyContainer: {
             flex: 1,
@@ -219,14 +212,14 @@ const ChatsScreen = ({ navigation }) => {
                     style={styles.iconButton}
                     onPress={() => setIsNotificationPopupVisible(true)}
                 >
-                    <Ionicons name="notifications-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
+                    <Ionicons name="notifications-outline" size={22} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Groups</Text>
                 <TouchableOpacity 
                     style={styles.iconButton}
                     onPress={() => navigation.navigate('CreateGroup')}
                 >
-                    <Ionicons name="people-circle-outline" size={24} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
+                    <Ionicons name="people-circle-outline" size={22} color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} />
                 </TouchableOpacity>
             </View>
 
