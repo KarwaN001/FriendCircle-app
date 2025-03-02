@@ -96,10 +96,7 @@ export const ProfileScreen = () => {
         { icon: 'account-plus', title: 'Add Friend', subtitle: 'Find and add new friends' },
         { icon: 'account-group', title: 'Friends', subtitle: 'View and manage your friends' },
         { icon: 'bell-outline', title: 'Notifications', subtitle: 'Manage your alerts' },
-        { icon: 'shield-lock-outline', title: 'Privacy Settings', subtitle: 'Control your privacy settings' },
-        { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
-        { icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance' },
-        { icon: 'cog-outline', title: 'Settings', subtitle: 'App preferences' },
+        { icon: 'information', title: 'About App', subtitle: 'Learn more about FriendCircle' },
     ];
 
     const MenuItem = ({ icon, title, subtitle, onPress }) => (
@@ -115,6 +112,8 @@ export const ProfileScreen = () => {
                     navigation.navigate('AddFriend');
                 } else if (title === 'Friends') {
                     navigation.navigate('Friends');
+                } else if (title === 'About App') {
+                    navigation.navigate('AppInfo');
                 }
             }}
         >

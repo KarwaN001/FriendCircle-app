@@ -9,6 +9,7 @@ import {ProfileScreen} from './ProfileScreen';
 import {EditProfileScreen} from './profileSubScreen/EditProfileScreen';
 import {AddFriendScreen} from './profileSubScreen/AddFriendScreen';
 import {FriendsScreen} from './profileSubScreen/FriendsScreen';
+import {AppInfoScreen} from './profileSubScreen/AppInfoScreen';
 import {CreateGroupScreen} from './HomeSubScreen/CreateGroupScreen';
 import {GroupChatScreen} from './HomeSubScreen/GroupChatScreen';
 import GroupInfoScreen from './HomeSubScreen/GroupInfoScreen';
@@ -91,6 +92,11 @@ const ProfileStack = () => {
             <Stack.Screen 
                 name="Friends"
                 component={FriendsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+                name="AppInfo"
+                component={AppInfoScreen}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>
@@ -188,7 +194,7 @@ const TabNavigator = () => {
 // Function to handle tab bar visibility
 const getTabBarVisibility = (route) => {
     const routeName = getFocusedRouteNameFromRoute(route) ?? '';
-    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends', 'CreateGroup', 'GroupChat', 'GroupInfo'];
+    const hideOnScreens = ['EditProfile', 'AddFriend', 'Friends', 'CreateGroup', 'GroupChat', 'GroupInfo', 'AppInfo'];
     return hideOnScreens.includes(routeName) ? 'none' : 'flex';
 };
 
