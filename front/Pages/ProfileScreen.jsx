@@ -5,6 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { clearAuthData, getUser, setUser } from '../services/storage';
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../services/api.config';
+import Sizing from '../utils/Sizing';
 
 export const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -96,10 +97,7 @@ export const ProfileScreen = () => {
         { icon: 'account-plus', title: 'Add Friend', subtitle: 'Find and add new friends' },
         { icon: 'account-group', title: 'Friends', subtitle: 'View and manage your friends' },
         { icon: 'bell-outline', title: 'Notifications', subtitle: 'Manage your alerts' },
-        { icon: 'shield-lock-outline', title: 'Privacy Settings', subtitle: 'Control your privacy settings' },
-        { icon: 'map-marker-outline', title: 'Location History', subtitle: 'View your location history' },
-        { icon: 'help-circle-outline', title: 'Help & Support', subtitle: 'Get assistance' },
-        { icon: 'cog-outline', title: 'Settings', subtitle: 'App preferences' },
+        { icon: 'information', title: 'About App', subtitle: 'Learn more about FriendCircle' },
     ];
 
     const MenuItem = ({ icon, title, subtitle, onPress }) => (
@@ -115,6 +113,8 @@ export const ProfileScreen = () => {
                     navigation.navigate('AddFriend');
                 } else if (title === 'Friends') {
                     navigation.navigate('Friends');
+                } else if (title === 'About App') {
+                    navigation.navigate('AppInfo');
                 }
             }}
         >
@@ -196,8 +196,9 @@ export const ProfileScreen = () => {
             {/* Stats Card */}
             <View style={[styles.card, styles.statsCard, { 
                 backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
-                marginTop: -30,
-                marginHorizontal: 24,
+                marginTop: -Sizing.deviceHeight * 0.03,
+                marginHorizontal: Sizing.deviceWidth * 0.04,
+                marginBottom: Sizing.deviceHeight * 0.015,
             }]}>
                 <View style={styles.statsContainer}>
                     <View style={styles.statItem}>
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         right: 0,
-        height: 280,
+        height: Sizing.deviceHeight * 0.27,
         zIndex: -1,
         overflow: 'hidden',
     },
@@ -308,53 +309,52 @@ const styles = StyleSheet.create({
     },
     profileSection: {
         alignItems: 'center',
-        paddingTop: 45,
-        paddingBottom: 60,
+        paddingTop: Sizing.deviceHeight * 0.06,
+        paddingBottom: Sizing.deviceHeight * 0.08,
     },
     profileImageContainer: {
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.01,
         position: 'relative',
     },
     profileImage: {
-        width: 125,
-        height: 125,
+        width: Sizing.deviceWidth * 0.25,
+        height: Sizing.deviceWidth * 0.25,
         borderRadius: 100,
-        borderWidth: 3,
+        borderWidth: 2,
     },
-  
     profileInfo: {
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: Sizing.deviceHeight * 0.003,
     },
     name: {
-        fontSize: 24,
+        fontSize: Sizing.deviceWidth * 0.04,
         fontWeight: '700',
-        marginBottom: 6,
+        marginBottom: Sizing.deviceHeight * 0.004,
         letterSpacing: 0.3,
     },
     emailContainer: {
-        marginBottom: 25,
+        marginBottom: Sizing.deviceHeight * 0.015,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.02,
+        paddingVertical: Sizing.deviceHeight * 0.004,
+        borderRadius: 12,
     },
     emailIcon: {
-        marginRight: 6,
+        marginRight: Sizing.deviceWidth * 0.01,
     },
     username: {
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.025,
         letterSpacing: 0.3,
         fontWeight: '500',
     },
     menuSection: {
-        paddingHorizontal: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
     },
     card: {
-        borderRadius: 24,
-        marginBottom: 16,
+        borderRadius: 16,
+        marginBottom: Sizing.deviceHeight * 0.015,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.05)',
@@ -371,108 +371,103 @@ const styles = StyleSheet.create({
         }),
     },
     statsCard: {
-        padding: 16,
-        elevation: 8,
+        padding: Sizing.deviceWidth * 0.035,
+        elevation: 4,
+        marginHorizontal: Sizing.deviceWidth * 0.04,
+        marginTop: -Sizing.deviceHeight * 0.03,
+        marginBottom: Sizing.deviceHeight * 0.015,
     },
     statsContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
+        paddingHorizontal: Sizing.deviceWidth * 0.02,
     },
     statItem: {
         alignItems: 'center',
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: Sizing.deviceHeight * 0.008,
     },
     statDivider: {
         width: 1,
-        height: 36,
-        marginHorizontal: 16,
+        height: Sizing.deviceHeight * 0.03,
+        marginHorizontal: Sizing.deviceWidth * 0.02,
     },
     statNumber: {
-        fontSize: 22,
-        fontWeight: '700',
-        marginBottom: 2,
+        fontSize: Sizing.deviceWidth * 0.035,
+        fontWeight: '600',
+        marginBottom: Sizing.deviceHeight * 0.002,
     },
     statLabel: {
-        fontSize: 13,
-        fontWeight: '600',
+        fontSize: Sizing.deviceWidth * 0.03,
+        fontWeight: '500',
         letterSpacing: 0.3,
     },
     iconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: Sizing.deviceWidth * 0.07,
+        height: Sizing.deviceWidth * 0.07,
+        borderRadius: Sizing.deviceWidth * 0.035,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: Sizing.deviceWidth * 0.03,
     },
     themeRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.035,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
     },
     themeText: {
         flex: 1,
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 18,
+        padding: Sizing.deviceWidth * 0.035,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.05)',
     },
     menuIcon: {
-        marginRight: 16,
+        marginRight: Sizing.deviceWidth * 0.03,
     },
     menuTextContainer: {
         flex: 1,
     },
     menuTitle: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     menuSubtitle: {
-        fontSize: 14,
-        marginTop: 2,
+        fontSize: Sizing.deviceWidth * 0.03,
+        marginTop: Sizing.deviceHeight * 0.002,
         opacity: 0.7,
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 18,
-        borderRadius: 24,
-        marginBottom: 16,
-        ...Platform.select({
-            ios: {
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-            },
-            android: {
-                elevation: 6,
-            },
-        }),
+        padding: Sizing.deviceWidth * 0.035,
+        borderRadius: 16,
+        marginBottom: Sizing.deviceHeight * 0.015,
     },
     logoutIcon: {
-        marginRight: 8,
+        marginRight: Sizing.deviceWidth * 0.015,
     },
     logoutText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.04,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     version: {
         textAlign: 'center',
-        padding: 16,
-        fontSize: 12,
+        padding: Sizing.deviceWidth * 0.04,
+        fontSize: Sizing.deviceWidth * 0.03,
         opacity: 0.6,
         fontWeight: '500',
         letterSpacing: 0.5,
