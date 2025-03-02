@@ -18,6 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import axiosInstance from '../../services/api.config';
 import { getUser, setUser } from '../../services/storage';
+import Sizing from '../../utils/Sizing';
 
 export const EditProfileScreen = () => {
     const { theme } = useTheme();
@@ -418,39 +419,39 @@ export const EditProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: Platform.OS === 'ios' ? 40 : 20,
+        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.04 : Sizing.deviceHeight * 0.02,
     },
     contentContainer: {
         flex: 1,
-        paddingHorizontal: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingTop: Platform.OS === 'ios' ? 20 : 10,
-        paddingBottom: 15,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.02 : Sizing.deviceHeight * 0.01,
+        paddingBottom: Sizing.deviceHeight * 0.012,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.1)',
-        marginBottom: 20,
+        marginBottom: Sizing.deviceHeight * 0.015,
     },
     backButton: {
-        padding: 8,
-        borderRadius: 20,
+        padding: Sizing.deviceWidth * 0.015,
+        borderRadius: Sizing.deviceWidth * 0.04,
         backgroundColor: 'rgba(0,0,0,0.05)',
     },
     headerTitle: {
-        fontSize: 22,
+        fontSize: Sizing.deviceWidth * 0.045,
         fontWeight: '700',
         letterSpacing: 0.5,
     },
     saveButton: {
         backgroundColor: '#2196F3',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 25,
-        minWidth: 80,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingVertical: Sizing.deviceHeight * 0.01,
+        borderRadius: Sizing.deviceWidth * 0.05,
+        minWidth: Sizing.deviceWidth * 0.18,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
@@ -464,11 +465,11 @@ const styles = StyleSheet.create({
     saveButtonText: {
         color: '#fff',
         fontWeight: '600',
-        fontSize: 15,
+        fontSize: Sizing.deviceWidth * 0.032,
     },
     photoSection: {
         alignItems: 'center',
-        marginVertical: 25,
+        marginVertical: Sizing.deviceHeight * 0.025,
     },
     photoContainer: {
         position: 'relative',
@@ -482,9 +483,9 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     profilePhoto: {
-        width: 140,
-        height: 140,
-        borderRadius: 70,
+        width: Sizing.deviceWidth * 0.28,
+        height: Sizing.deviceWidth * 0.28,
+        borderRadius: Sizing.deviceWidth * 0.14,
         borderWidth: 1.5,
         borderColor: '#fff',
     },
@@ -493,32 +494,32 @@ const styles = StyleSheet.create({
         right: 5,
         bottom: 5,
         backgroundColor: '#2196F3',
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: Sizing.deviceWidth * 0.08,
+        height: Sizing.deviceWidth * 0.08,
+        borderRadius: Sizing.deviceWidth * 0.04,
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
     },
     form: {
-        marginTop: 10,
+        marginTop: Sizing.deviceHeight * 0.01,
     },
     inputContainer: {
-        marginBottom: 25,
+        marginBottom: Sizing.deviceHeight * 0.022,
     },
     label: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
-        marginBottom: 10,
-        marginLeft: 5,
+        marginBottom: Sizing.deviceHeight * 0.008,
+        marginLeft: Sizing.deviceWidth * 0.01,
         letterSpacing: 0.5,
     },
     input: {
         borderWidth: 1,
-        borderRadius: 15,
-        paddingHorizontal: 20,
-        paddingVertical: 15,
-        fontSize: 16,
+        borderRadius: Sizing.deviceWidth * 0.03,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingVertical: Sizing.deviceHeight * 0.015,
+        fontSize: Sizing.deviceWidth * 0.035,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -529,20 +530,20 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     multilineInput: {
-        height: 120,
+        height: Sizing.deviceHeight * 0.12,
         textAlignVertical: 'top',
-        paddingTop: 15,
+        paddingTop: Sizing.deviceHeight * 0.015,
     },
     genderContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 10,
+        gap: Sizing.deviceWidth * 0.02,
     },
     genderButton: {
         flex: 1,
         borderWidth: 1,
-        borderRadius: 15,
-        paddingVertical: 15,
+        borderRadius: Sizing.deviceWidth * 0.03,
+        paddingVertical: Sizing.deviceHeight * 0.015,
         alignItems: 'center',
         borderColor: 'rgba(0,0,0,0.1)',
     },
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
         borderColor: '#2196F3',
     },
     genderButtonText: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '500',
     },
     genderButtonTextActive: {
@@ -561,7 +562,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderRadius: 15,
+        borderRadius: Sizing.deviceWidth * 0.03,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -572,17 +573,17 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     phonePrefix: {
-        paddingHorizontal: 15,
-        paddingVertical: 15,
-        fontSize: 16,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        paddingVertical: Sizing.deviceHeight * 0.015,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '500',
         borderRightWidth: 1,
         borderRightColor: 'rgba(0,0,0,0.1)',
     },
     phoneInput: {
         flex: 1,
-        paddingHorizontal: 15,
-        paddingVertical: 15,
-        fontSize: 16,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        paddingVertical: Sizing.deviceHeight * 0.015,
+        fontSize: Sizing.deviceWidth * 0.035,
     },
 }); 
