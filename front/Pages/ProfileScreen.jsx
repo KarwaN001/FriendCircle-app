@@ -5,6 +5,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { clearAuthData, getUser, setUser } from '../services/storage';
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../services/api.config';
+import Sizing from '../utils/Sizing';
 
 export const ProfileScreen = () => {
     const { theme, toggleTheme } = useTheme();
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         right: 0,
-        height: 280,
+        height: Sizing.deviceHeight * 0.35,
         zIndex: -1,
         overflow: 'hidden',
     },
@@ -307,53 +308,52 @@ const styles = StyleSheet.create({
     },
     profileSection: {
         alignItems: 'center',
-        paddingTop: 45,
-        paddingBottom: 60,
+        paddingTop: Sizing.deviceHeight * 0.06,
+        paddingBottom: Sizing.deviceHeight * 0.08,
     },
     profileImageContainer: {
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.02,
         position: 'relative',
     },
     profileImage: {
-        width: 125,
-        height: 125,
-        borderRadius: 100,
+        width: Sizing.deviceWidth * 0.3,
+        height: Sizing.deviceWidth * 0.3,
+        borderRadius: Sizing.deviceWidth * 0.15,
         borderWidth: 3,
     },
-  
     profileInfo: {
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: Sizing.deviceHeight * 0.005,
     },
     name: {
-        fontSize: 24,
+        fontSize: Sizing.deviceWidth * 0.06,
         fontWeight: '700',
-        marginBottom: 6,
+        marginBottom: Sizing.deviceHeight * 0.008,
         letterSpacing: 0.3,
     },
     emailContainer: {
-        marginBottom: 25,
+        marginBottom: Sizing.deviceHeight * 0.03,
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        paddingVertical: Sizing.deviceHeight * 0.008,
         borderRadius: 20,
     },
     emailIcon: {
-        marginRight: 6,
+        marginRight: Sizing.deviceWidth * 0.015,
     },
     username: {
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.035,
         letterSpacing: 0.3,
         fontWeight: '500',
     },
     menuSection: {
-        paddingHorizontal: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.05,
     },
     card: {
         borderRadius: 24,
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.02,
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.05)',
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
         }),
     },
     statsCard: {
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.04,
         elevation: 8,
     },
     statsContainer: {
@@ -381,72 +381,72 @@ const styles = StyleSheet.create({
     statItem: {
         alignItems: 'center',
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: Sizing.deviceHeight * 0.01,
     },
     statDivider: {
         width: 1,
-        height: 36,
-        marginHorizontal: 16,
+        height: Sizing.deviceHeight * 0.045,
+        marginHorizontal: Sizing.deviceWidth * 0.04,
     },
     statNumber: {
-        fontSize: 22,
+        fontSize: Sizing.deviceWidth * 0.055,
         fontWeight: '700',
-        marginBottom: 2,
+        marginBottom: Sizing.deviceHeight * 0.003,
     },
     statLabel: {
-        fontSize: 13,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
         letterSpacing: 0.3,
     },
     iconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: Sizing.deviceWidth * 0.11,
+        height: Sizing.deviceWidth * 0.11,
+        borderRadius: Sizing.deviceWidth * 0.055,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: Sizing.deviceWidth * 0.04,
     },
     themeRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.04,
     },
     themeText: {
         flex: 1,
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.04,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 18,
+        padding: Sizing.deviceWidth * 0.045,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.05)',
     },
     menuIcon: {
-        marginRight: 16,
+        marginRight: Sizing.deviceWidth * 0.04,
     },
     menuTextContainer: {
         flex: 1,
     },
     menuTitle: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.04,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     menuSubtitle: {
-        fontSize: 14,
-        marginTop: 2,
+        fontSize: Sizing.deviceWidth * 0.035,
+        marginTop: Sizing.deviceHeight * 0.003,
         opacity: 0.7,
     },
     logoutButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 18,
+        padding: Sizing.deviceWidth * 0.045,
         borderRadius: 24,
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.02,
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -460,18 +460,18 @@ const styles = StyleSheet.create({
         }),
     },
     logoutIcon: {
-        marginRight: 8,
+        marginRight: Sizing.deviceWidth * 0.02,
     },
     logoutText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.04,
         fontWeight: '600',
         letterSpacing: 0.5,
     },
     version: {
         textAlign: 'center',
-        padding: 16,
-        fontSize: 12,
+        padding: Sizing.deviceWidth * 0.04,
+        fontSize: Sizing.deviceWidth * 0.03,
         opacity: 0.6,
         fontWeight: '500',
         letterSpacing: 0.5,
