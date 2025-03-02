@@ -14,6 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../DarkMode/ThemeContext";
 import { NotificationPopup } from './Popups/NotificationPopup';
 import axiosInstance from '../services/api.config';
+import Sizing from '../utils/Sizing';
 
 const ChatsScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -104,8 +105,8 @@ const ChatsScreen = ({ navigation }) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            padding: 20,
-            paddingTop: Platform.OS === 'ios' ? 50 : 20,
+            padding: Sizing.deviceWidth * 0.04,
+            paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.06 : Sizing.deviceHeight * 0.02,
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: 1,
             borderBottomColor: isDarkMode ? '#333333' : '#F0F0F0',
@@ -122,22 +123,22 @@ const ChatsScreen = ({ navigation }) => {
             }),
         },
         headerTitle: {
-            fontSize: 24,
+            fontSize: Sizing.deviceWidth * 0.055,
             fontWeight: '700',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
             letterSpacing: 0.5,
         },
         chatList: {
             flex: 1,
-            paddingHorizontal: 16,
+            paddingHorizontal: Sizing.deviceWidth * 0.03,
         },
         chatItem: {
             flexDirection: 'row',
-            padding: 16,
+            padding: Sizing.deviceWidth * 0.035,
             alignItems: 'center',
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
-            borderRadius: 16,
-            marginVertical: 6,
+            borderRadius: Sizing.deviceWidth * 0.04,
+            marginVertical: Sizing.deviceHeight * 0.006,
             ...Platform.select({
                 ios: {
                     shadowColor: '#000',
@@ -151,17 +152,17 @@ const ChatsScreen = ({ navigation }) => {
             }),
         },
         avatar: {
-            width: 56,
-            height: 56,
-            borderRadius: 28,
+            width: Sizing.deviceWidth * 0.12,
+            height: Sizing.deviceWidth * 0.12,
+            borderRadius: Sizing.deviceWidth * 0.06,
             backgroundColor: '#007AFF',
             justifyContent: 'center',
             alignItems: 'center',
-            marginRight: 16,
+            marginRight: Sizing.deviceWidth * 0.035,
         },
         avatarText: {
             color: '#FFFFFF',
-            fontSize: 20,
+            fontSize: Sizing.deviceWidth * 0.045,
             fontWeight: '600',
         },
         chatInfo: {
@@ -171,41 +172,42 @@ const ChatsScreen = ({ navigation }) => {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 6,
+            marginBottom: Sizing.deviceHeight * 0.006,
         },
         chatName: {
-            fontSize: 17,
+            fontSize: Sizing.deviceWidth * 0.04,
             fontWeight: '600',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
             letterSpacing: 0.3,
         },
         chatTime: {
-            fontSize: 13,
+            fontSize: Sizing.deviceWidth * 0.032,
             color: isDarkMode ? '#999999' : '#666666',
             fontWeight: '500',
         },
         lastMessage: {
-            fontSize: 15,
+            fontSize: Sizing.deviceWidth * 0.035,
             color: isDarkMode ? '#BBBBBB' : '#666666',
-            lineHeight: 20,
+            lineHeight: Sizing.deviceHeight * 0.024,
         },
         iconButton: {
-            padding: 8,
-            borderRadius: 12,
+            padding: Sizing.deviceWidth * 0.02,
+            borderRadius: Sizing.deviceWidth * 0.03,
             backgroundColor: isDarkMode ? '#333333' : '#F0F2F5',
         },
         emptyContainer: {
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop: 40,
+            paddingTop: Sizing.deviceHeight * 0.04,
         },
         emptyText: {
-            fontSize: 16,
+            fontSize: Sizing.deviceWidth * 0.04,
             fontWeight: '500',
             opacity: 0.7,
             textAlign: 'center',
-            paddingHorizontal: 20,
+            paddingHorizontal: Sizing.deviceWidth * 0.04,
+            color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
         },
     });
 
