@@ -6,6 +6,7 @@ import { darkMapStyle } from '../styles/mapStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import axiosInstance from '../services/api.config';
+import Sizing from '../utils/Sizing';
 
 export const MapScreen = () => {
     const { theme } = useTheme();
@@ -432,22 +433,22 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         position: 'absolute',
-        top: 70,
-        left: 5,
-        right: 5,
-        padding: 5,
-        borderRadius: 15,
+        top: Sizing.deviceHeight * 0.07,
+        left: Sizing.deviceWidth * 0.01,
+        right: Sizing.deviceWidth * 0.01,
+        padding: Sizing.deviceWidth * 0.008,
+        borderRadius: 12,
     },
     filterScroll: {
-        paddingHorizontal: 2,
+        paddingHorizontal: Sizing.deviceWidth * 0.003,
     },
     filterButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        marginHorizontal: 3,
-        borderRadius: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.02,
+        paddingVertical: Sizing.deviceHeight * 0.008,
+        marginHorizontal: Sizing.deviceWidth * 0.005,
+        borderRadius: 16,
         borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: {
@@ -462,8 +463,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 122, 255, 0.1)',
     },
     filterText: {
-        marginLeft: 5,
-        fontSize: 14,
+        marginLeft: Sizing.deviceWidth * 0.008,
+        fontSize: Sizing.deviceWidth * 0.028,
         fontWeight: '500',
     },
     filterTextActive: {
@@ -471,13 +472,13 @@ const styles = StyleSheet.create({
     },
     locationButton: {
         position: 'absolute',
-        bottom: 30,
+        bottom: Sizing.deviceHeight * 0.03,
         alignSelf: 'center',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 25,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -489,13 +490,13 @@ const styles = StyleSheet.create({
     },
     updateLocationButton: {
         position: 'absolute',
-        bottom: 30,
+        bottom: Sizing.deviceHeight * 0.03,
         alignSelf: 'center',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 25,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -506,24 +507,24 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     locationButtonText: {
-        marginLeft: 8,
-        fontSize: 16,
+        marginLeft: Sizing.deviceWidth * 0.015,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
     },
     loadingContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 15,
+        gap: Sizing.deviceHeight * 0.015,
     },
     loadingText: {
-        fontSize: 18,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
         textAlign: 'center',
     },
     markerContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: Sizing.deviceWidth * 0.08,
+        height: Sizing.deviceWidth * 0.08,
+        borderRadius: Sizing.deviceWidth * 0.04,
         overflow: 'hidden',
         borderWidth: 2,
         borderColor: '#fff',
@@ -550,21 +551,21 @@ const styles = StyleSheet.create({
     },
     markerFallbackText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: 'bold',
     },
     avatar: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: Sizing.deviceWidth * 0.045,
+        height: Sizing.deviceWidth * 0.045,
+        borderRadius: Sizing.deviceWidth * 0.0225,
         backgroundColor: '#007AFF',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 8,
+        marginRight: Sizing.deviceWidth * 0.015,
     },
     avatarText: {
         color: '#FFFFFF',
-        fontSize: 12,
+        fontSize: Sizing.deviceWidth * 0.025,
         fontWeight: '600',
     },
 }); 
