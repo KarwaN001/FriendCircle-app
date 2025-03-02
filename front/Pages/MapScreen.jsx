@@ -20,20 +20,6 @@ export const MapScreen = () => {
     const [isLoadingGroups, setIsLoadingGroups] = useState(true);
     const [isFirstTimeSharing, setIsFirstTimeSharing] = useState(true);
 
-    // Check if user has previously shared location
-    useEffect(() => {
-        const checkLocationHistory = async () => {
-            try {
-                const response = await axiosInstance.get('/profile');
-                const userData = response.data;
-                setIsFirstTimeSharing(!userData.latitude && !userData.longitude);
-            } catch (error) {
-                console.error('Error checking location history:', error);
-            }
-        };
-        checkLocationHistory();
-    }, []);
-
     // Fetch groups data
     const fetchGroups = async () => {
         try {
@@ -51,6 +37,39 @@ export const MapScreen = () => {
 
     useEffect(() => {
         fetchGroups();
+    }, []);
+
+    // Fetch friends data
+    const fetchFriends = async () => {
+        try {
+            setIsLoadingFriends(true);
+            const response = await axiosInstance.get('/friends');
+            if (response.data && Array.isArray(response.data.data)) {
+                setFriends(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching friends:', error);
+        } finally {
+            setIsLoadingFriends(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFriends();
+    }, []);
+
+    // Check if user has previously shared location
+    useEffect(() => {
+        const checkLocationHistory = async () => {
+            try {
+                const response = await axiosInstance.get('/profile');
+                const userData = response.data;
+                setIsFirstTimeSharing(!userData.latitude && !userData.longitude);
+            } catch (error) {
+                console.error('Error checking location history:', error);
+            }
+        };
+        checkLocationHistory();
     }, []);
 
     useEffect(() => {
@@ -220,9 +239,13 @@ export const MapScreen = () => {
                 compassOffset={{ x: -10, y: 100 }}
                 mapPadding={{ top: 15, right: 15, bottom: 0, left: 15 }}
             >
-                {Array.isArray(friends) && friends.map((friend) => (
-                    friend && friend.latitude && friend.longitude && (
-                        activeFilter === 'all' || groups.find(g => g.id === activeFilter)?.members?.includes(friend.id) ? (
+                {!isLoadingFriends && Array.isArray(friends) && friends.map((friend) => {
+                    // Skip friends without location data
+                    if (!friend || !friend.latitude || !friend.longitude) return null;
+
+                    // For 'all' filter, show all friends
+                    if (activeFilter === 'all') {
+                        return (
                             <Marker
                                 key={friend.id}
                                 coordinate={{
@@ -233,9 +256,9 @@ export const MapScreen = () => {
                                 description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
                             >
                                 <View style={styles.markerContainer}>
-                                    {friend.profile_photo_url ? (
+                                    {friend.profile_photo ? (
                                         <Image
-                                            source={{ uri: friend.profile_photo_url }}
+                                            source={{ uri: friend.profile_photo }}
                                             style={styles.markerImage}
                                         />
                                     ) : (
@@ -247,9 +270,42 @@ export const MapScreen = () => {
                                     )}
                                 </View>
                             </Marker>
-                        ) : null
-                    )
-                ))}
+                        );
+                    }
+
+                    // For group filter, check if friend is in the selected group
+                    const selectedGroup = groups.find(g => g.id === activeFilter);
+                    if (selectedGroup && selectedGroup.members && selectedGroup.members.some(member => member.id === friend.id)) {
+                        return (
+                            <Marker
+                                key={friend.id}
+                                coordinate={{
+                                    latitude: parseFloat(friend.latitude),
+                                    longitude: parseFloat(friend.longitude),
+                                }}
+                                title={friend.name}
+                                description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
+                            >
+                                <View style={styles.markerContainer}>
+                                    {friend.profile_photo ? (
+                                        <Image
+                                            source={{ uri: friend.profile_photo }}
+                                            style={styles.markerImage}
+                                        />
+                                    ) : (
+                                        <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
+                                            <Text style={styles.markerFallbackText}>
+                                                {friend.name.charAt(0).toUpperCase()}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Marker>
+                        );
+                    }
+
+                    return null;
+                })}
             </MapView>
             
             <View style={[
