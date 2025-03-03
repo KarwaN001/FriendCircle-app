@@ -13,6 +13,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../../DarkMode/ThemeContext";
 import axiosInstance from '../../services/api.config';
+import Sizing from '../../utils/Sizing';
 
 export const CreateGroupScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -91,87 +92,121 @@ export const CreateGroupScreen = ({ navigation }) => {
         header: {
             flexDirection: 'row',
             alignItems: 'center',
-            padding: 16,
-            paddingTop: Platform.OS === 'ios' ? 50 : 16,
+            paddingHorizontal: Sizing.deviceWidth * 0.04,
+            paddingVertical: Sizing.deviceHeight * 0.015,
+            paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.05 : Sizing.deviceHeight * 0.015,
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: 1,
             borderBottomColor: isDarkMode ? '#333333' : '#F0F0F0',
         },
         backButton: {
-            padding: 8,
+            padding: Sizing.deviceWidth * 0.02,
+            borderRadius: Sizing.deviceWidth * 0.01,
         },
         headerTitle: {
-            fontSize: 20,
+            fontSize: Sizing.deviceWidth * 0.042,
             fontWeight: '600',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
-            marginLeft: 16,
+            marginLeft: Sizing.deviceWidth * 0.03,
         },
         content: {
-            padding: 20,
+            padding: Sizing.deviceWidth * 0.04,
         },
         inputContainer: {
-            marginBottom: 20,
+            marginBottom: Sizing.deviceHeight * 0.02,
         },
         label: {
-            fontSize: 16,
+            fontSize: Sizing.deviceWidth * 0.034,
             fontWeight: '500',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
-            marginBottom: 8,
+            marginBottom: Sizing.deviceHeight * 0.008,
+            marginLeft: Sizing.deviceWidth * 0.01,
         },
         input: {
             backgroundColor: isDarkMode ? '#333333' : '#FFFFFF',
-            borderRadius: 12,
-            padding: 16,
-            fontSize: 16,
+            borderRadius: Sizing.deviceWidth * 0.02,
+            paddingHorizontal: Sizing.deviceWidth * 0.035,
+            paddingVertical: Sizing.deviceHeight * 0.015,
+            fontSize: Sizing.deviceWidth * 0.032,
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
             borderWidth: 1,
             borderColor: isDarkMode ? '#444444' : '#E0E0E0',
+            height: Sizing.deviceHeight * 0.052,
         },
         descriptionInput: {
-            height: 120,
+            height: Sizing.deviceHeight * 0.12,
             textAlignVertical: 'top',
         },
         createButton: {
             backgroundColor: '#007AFF',
-            borderRadius: 12,
-            padding: 16,
+            borderRadius: Sizing.deviceWidth * 0.02,
+            paddingVertical: Sizing.deviceHeight * 0.015,
             alignItems: 'center',
-            marginTop: 20,
-            marginBottom: 20,
-            marginHorizontal: 20,
+            marginTop: Sizing.deviceHeight * 0.02,
+            marginBottom: Sizing.deviceHeight * 0.02,
+            marginHorizontal: Sizing.deviceWidth * 0.04,
         },
         createButtonText: {
             color: '#FFFFFF',
-            fontSize: 16,
+            fontSize: Sizing.deviceWidth * 0.034,
             fontWeight: '600',
         },
         friendsList: {
             flex: 1,
-            marginBottom: 20,
+            marginBottom: Sizing.deviceHeight * 0.02,
         },
         friendCard: {
             flexDirection: 'row',
             alignItems: 'center',
-            padding: 10,
-            marginBottom: 10,
-            borderRadius: 10,
+            padding: Sizing.deviceWidth * 0.02,
+            marginBottom: Sizing.deviceHeight * 0.008,
+            borderRadius: Sizing.deviceWidth * 0.015,
             backgroundColor: isDarkMode ? '#333333' : '#FFFFFF',
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 1 },
+            shadowOffset: { 
+                width: 0, 
+                height: Sizing.deviceHeight * 0.001 
+            },
             shadowOpacity: 0.2,
-            shadowRadius: 1,
+            shadowRadius: Sizing.deviceWidth * 0.01,
             elevation: 2,
         },
         friendImage: {
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            marginRight: 10,
+            width: Sizing.deviceWidth * 0.085,
+            height: Sizing.deviceWidth * 0.085,
+            borderRadius: Sizing.deviceWidth * 0.0425,
+            marginRight: Sizing.deviceWidth * 0.02,
         },
         friendName: {
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
-            fontSize: 16,
+            fontSize: Sizing.deviceWidth * 0.032,
+            flex: 1,
         },
+        friendCardContent: {
+            flexDirection: 'row', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            width: '100%'
+        },
+        friendInfo: {
+            flexDirection: 'row', 
+            alignItems: 'center'
+        },
+        friendInitial: {
+            color: '#FFFFFF', 
+            fontSize: Sizing.deviceWidth * 0.034
+        },
+        loadingText: {
+            textAlign: 'center', 
+            padding: Sizing.deviceWidth * 0.04,
+            color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
+            fontSize: Sizing.deviceWidth * 0.032,
+        },
+        checkIcon: {
+            fontSize: Sizing.deviceWidth * 0.055,
+            color: '#007AFF',
+            marginLeft: -Sizing.deviceWidth * 0.07,
+        }
     });
 
     return (
@@ -183,7 +218,7 @@ export const CreateGroupScreen = ({ navigation }) => {
                 >
                     <Ionicons 
                         name="arrow-back" 
-                        size={24} 
+                        size={Sizing.deviceWidth * 0.055} 
                         color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} 
                     />
                 </TouchableOpacity>
@@ -205,13 +240,9 @@ export const CreateGroupScreen = ({ navigation }) => {
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Select Friends</Text>
                     {loading ? (
-                        <Text style={[styles.friendName, { textAlign: 'center', padding: 20 }]}>
-                            Loading friends...
-                        </Text>
+                        <Text style={styles.loadingText}>Loading friends...</Text>
                     ) : friends.length === 0 ? (
-                        <Text style={[styles.friendName, { textAlign: 'center', padding: 20 }]}>
-                            No friends found. Add some friends first!
-                        </Text>
+                        <Text style={styles.loadingText}>No friends found. Add some friends first!</Text>
                     ) : (
                         <View style={styles.friendsList}>
                             {friends.map((friend) => (
@@ -221,7 +252,7 @@ export const CreateGroupScreen = ({ navigation }) => {
                                         styles.friendCard,
                                         selectedFriends.includes(friend.id) && {
                                             borderColor: '#007AFF',
-                                            borderWidth: 2
+                                            borderWidth: 1.5
                                         }
                                     ]} 
                                     onPress={() => {
@@ -232,8 +263,8 @@ export const CreateGroupScreen = ({ navigation }) => {
                                         }
                                     }}
                                 >
-                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <View style={styles.friendCardContent}>
+                                        <View style={styles.friendInfo}>
                                             {friend.profile_picture ? (
                                                 <Image 
                                                     source={{ uri: friend.profile_picture }} 
@@ -241,7 +272,7 @@ export const CreateGroupScreen = ({ navigation }) => {
                                                 />
                                             ) : (
                                                 <View style={[styles.friendImage, { backgroundColor: '#007AFF', justifyContent: 'center', alignItems: 'center' }]}>
-                                                    <Text style={{ color: '#FFFFFF', fontSize: 16 }}>
+                                                    <Text style={styles.friendInitial}>
                                                         {friend.name.charAt(0)}
                                                     </Text>
                                                 </View>
@@ -249,7 +280,7 @@ export const CreateGroupScreen = ({ navigation }) => {
                                             <Text style={styles.friendName}>{friend.name}</Text>
                                         </View>
                                         {selectedFriends.includes(friend.id) && (
-                                            <Ionicons name="checkmark-circle" size={24} color="#007AFF" />
+                                            <Ionicons name="checkmark-circle" style={styles.checkIcon} />
                                         )}
                                     </View>
                                 </TouchableOpacity>
