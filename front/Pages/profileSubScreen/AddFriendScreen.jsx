@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ActivityIndicator, Platform, StatusBar } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axiosInstance from '../../services/api.config';
-import { Platform } from 'react-native';
+import Sizing from '../../utils/Sizing';
 
 export const AddFriendScreen = ({ navigation }) => {
     const { theme } = useTheme();
@@ -299,7 +299,7 @@ export const AddFriendScreen = ({ navigation }) => {
                 >
                     <Icon 
                         name="arrow-left" 
-                        size={24} 
+                        size={Sizing.deviceWidth * 0.06} 
                         color={isLightTheme ? '#000' : '#fff'} 
                     />
                 </TouchableOpacity>
@@ -354,7 +354,7 @@ export const AddFriendScreen = ({ navigation }) => {
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
+                    <ActivityIndicator size={Sizing.deviceWidth * 0.08} color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
                     <Text style={[styles.loadingText, { color: isLightTheme ? '#666' : '#aaa' }]}>
                         Loading...
                     </Text>
@@ -373,7 +373,7 @@ export const AddFriendScreen = ({ navigation }) => {
                                 ]}>
                                     <Icon 
                                         name="magnify" 
-                                        size={24} 
+                                        size={Sizing.deviceWidth * 0.06} 
                                         color={isLightTheme ? '#666' : '#aaa'} 
                                         style={styles.searchIcon}
                                     />
@@ -399,7 +399,7 @@ export const AddFriendScreen = ({ navigation }) => {
                                         >
                                             <Icon 
                                                 name="close-circle" 
-                                                size={20} 
+                                                size={Sizing.deviceWidth * 0.05} 
                                                 color={isLightTheme ? '#666' : '#aaa'} 
                                             />
                                         </TouchableOpacity>
@@ -409,7 +409,11 @@ export const AddFriendScreen = ({ navigation }) => {
 
                             {error ? (
                                 <View style={styles.errorContainer}>
-                                    <Icon name="alert-circle-outline" size={48} color={isLightTheme ? '#dc2626' : '#ef4444'} />
+                                    <Icon 
+                                        name="alert-circle-outline" 
+                                        size={Sizing.deviceWidth * 0.12} 
+                                        color={isLightTheme ? '#dc2626' : '#ef4444'} 
+                                    />
                                     <Text style={[styles.errorText, { color: isLightTheme ? '#dc2626' : '#ef4444' }]}>
                                         {error}
                                     </Text>
@@ -434,7 +438,10 @@ export const AddFriendScreen = ({ navigation }) => {
                                     ListFooterComponent={() => (
                                         loadingMore ? (
                                             <View style={styles.footerLoader}>
-                                                <ActivityIndicator size="small" color={isLightTheme ? '#1a73e8' : '#64B5F6'} />
+                                                <ActivityIndicator 
+                                                    size={Sizing.deviceWidth * 0.06} 
+                                                    color={isLightTheme ? '#1a73e8' : '#64B5F6'} 
+                                                />
                                             </View>
                                         ) : null
                                     )}
@@ -442,7 +449,7 @@ export const AddFriendScreen = ({ navigation }) => {
                                         <View style={styles.emptyContainer}>
                                             <Icon 
                                                 name={searchQuery ? "account-search-outline" : "account-group-outline"} 
-                                                size={48} 
+                                                size={Sizing.deviceWidth * 0.12} 
                                                 color={isLightTheme ? '#666' : '#aaa'} 
                                             />
                                             <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
@@ -468,7 +475,7 @@ export const AddFriendScreen = ({ navigation }) => {
                                 <View style={styles.emptyContainer}>
                                     <Icon 
                                         name="send-clock-outline" 
-                                        size={48} 
+                                        size={Sizing.deviceWidth * 0.12} 
                                         color={isLightTheme ? '#666' : '#aaa'} 
                                     />
                                     <Text style={[styles.emptyText, { color: isLightTheme ? '#666' : '#aaa' }]}>
@@ -487,49 +494,49 @@ export const AddFriendScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 20,
+        paddingTop: Platform.OS === 'ios' ? (StatusBar.currentHeight + Sizing.deviceHeight * 0.02) : Sizing.deviceHeight * 0.02,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingVertical: Sizing.deviceHeight * 0.015,
     },
     backButton: {
-        padding: 8,
+        padding: Sizing.deviceWidth * 0.02,
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: Sizing.deviceWidth * 0.045,
         fontWeight: 'bold',
-        marginLeft: 16,
+        marginLeft: Sizing.deviceWidth * 0.03,
     },
     searchContainer: {
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.04,
     },
     searchBox: {
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 12,
+        borderRadius: Sizing.deviceWidth * 0.03,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
     },
     searchIcon: {
-        marginRight: 8,
+        marginRight: Sizing.deviceWidth * 0.02,
     },
     searchInput: {
         flex: 1,
-        height: 48,
-        fontSize: 16,
+        height: Sizing.deviceHeight * 0.055,
+        fontSize: Sizing.deviceWidth * 0.035,
     },
     listContainer: {
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.04,
     },
     userCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 12,
+        padding: Sizing.deviceWidth * 0.035,
+        borderRadius: Sizing.deviceWidth * 0.03,
+        marginBottom: Sizing.deviceHeight * 0.012,
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -546,22 +553,22 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     userName: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: Sizing.deviceHeight * 0.004,
     },
     userEmail: {
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.03,
     },
     statusIndicator: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 16,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        paddingVertical: Sizing.deviceHeight * 0.006,
+        borderRadius: Sizing.deviceWidth * 0.04,
         justifyContent: 'center',
         alignItems: 'center',
     },
     statusText: {
-        fontSize: 12,
+        fontSize: Sizing.deviceWidth * 0.03,
         fontWeight: '500',
     },
     loadingContainer: {
@@ -570,63 +577,63 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     loadingText: {
-        marginTop: 12,
-        fontSize: 16,
+        marginTop: Sizing.deviceHeight * 0.012,
+        fontSize: Sizing.deviceWidth * 0.035,
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 32,
+        paddingHorizontal: Sizing.deviceWidth * 0.08,
     },
     errorText: {
-        marginTop: 12,
-        fontSize: 16,
+        marginTop: Sizing.deviceHeight * 0.012,
+        fontSize: Sizing.deviceWidth * 0.035,
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.016,
     },
     retryButton: {
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 8,
+        paddingHorizontal: Sizing.deviceWidth * 0.06,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        borderRadius: Sizing.deviceWidth * 0.02,
     },
     retryButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
     },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 48,
+        paddingTop: Sizing.deviceHeight * 0.06,
     },
     emptyText: {
-        marginTop: 12,
-        fontSize: 16,
+        marginTop: Sizing.deviceHeight * 0.012,
+        fontSize: Sizing.deviceWidth * 0.035,
     },
     addButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingVertical: Sizing.deviceHeight * 0.008,
+        borderRadius: Sizing.deviceWidth * 0.05,
         justifyContent: 'center',
         alignItems: 'center',
-        minWidth: 130,
+        minWidth: Sizing.deviceWidth * 0.25,
     },
     addButtonDisabled: {
         opacity: 0.7,
     },
     addButtonText: {
         color: '#fff',
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
     },
     footerLoader: {
-        paddingVertical: 16,
+        paddingVertical: Sizing.deviceHeight * 0.016,
         alignItems: 'center',
     },
     clearButton: {
-        padding: 8,
+        padding: Sizing.deviceWidth * 0.02,
     },
     buttonContent: {
         flexDirection: 'row',
@@ -634,17 +641,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     buttonIcon: {
-        marginRight: 4,
+        marginRight: Sizing.deviceWidth * 0.01,
     },
     tabContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 16,
-        marginBottom: 8,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        marginBottom: Sizing.deviceHeight * 0.008,
     },
     tab: {
         flex: 1,
-        paddingVertical: 12,
-        marginHorizontal: 4,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        marginHorizontal: Sizing.deviceWidth * 0.01,
         borderBottomWidth: 2,
         borderColor: 'transparent',
     },
@@ -653,14 +660,14 @@ const styles = StyleSheet.create({
     },
     tabText: {
         textAlign: 'center',
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '500',
     },
     activeTabText: {
         fontWeight: '600',
     },
     requestStatus: {
-        fontSize: 12,
-        marginTop: 4,
+        fontSize: Sizing.deviceWidth * 0.028,
+        marginTop: Sizing.deviceHeight * 0.004,
     },
 }); 
