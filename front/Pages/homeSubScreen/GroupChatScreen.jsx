@@ -14,6 +14,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../../DarkMode/ThemeContext";
 import axiosInstance from '../../services/api.config';
+import Sizing from '../../utils/Sizing';
 
 const GroupChatScreenComponent = ({ route, navigation }) => {
     const { groupId, groupName } = route.params;
@@ -128,31 +129,31 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
         header: {
             flexDirection: 'row',
             alignItems: 'center',
-            padding: 16,
+            padding: Sizing.deviceWidth * 0.04,
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderBottomWidth: 1,
             borderBottomColor: isDarkMode ? '#333333' : '#F0F0F0',
             justifyContent: 'space-between',
         },
         headerTitle: {
-            fontSize: 20,
+            fontSize: Sizing.deviceWidth * 0.045,
             fontWeight: '600',
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
             flex: 1,
             textAlign: 'center',
         },
         backButton: {
-            padding: 8,
+            padding: Sizing.deviceWidth * 0.02,
         },
         infoButton: {
-            padding: 8,
+            padding: Sizing.deviceWidth * 0.02,
         },
         chatContainer: {
             flex: 1,
         },
         messageContainer: {
-            marginVertical: 4,
-            marginHorizontal: 12,
+            marginVertical: Sizing.deviceHeight * 0.004,
+            marginHorizontal: Sizing.deviceWidth * 0.03,
         },
         ownMessageContainer: {
             alignItems: 'flex-end',
@@ -161,35 +162,35 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
             alignItems: 'flex-start',
         },
         senderName: {
-            fontSize: 12,
-            marginBottom: 2,
+            fontSize: Sizing.deviceWidth * 0.03,
+            marginBottom: Sizing.deviceHeight * 0.002,
             fontWeight: '500',
         },
         ownSenderName: {
             color: isDarkMode ? '#007AFF' : '#0056b3',
-            marginRight: 12,
+            marginRight: Sizing.deviceWidth * 0.03,
         },
         otherSenderName: {
             color: isDarkMode ? '#999999' : '#666666',
-            marginLeft: 12,
+            marginLeft: Sizing.deviceWidth * 0.03,
         },
         messageBubble: {
             maxWidth: '80%',
-            padding: 12,
-            borderRadius: 20,
-            marginBottom: 2,
+            padding: Sizing.deviceWidth * 0.03,
+            borderRadius: Sizing.deviceWidth * 0.05,
+            marginBottom: Sizing.deviceHeight * 0.002,
         },
         ownMessageBubble: {
             backgroundColor: '#007AFF',
-            borderBottomRightRadius: 4,
+            borderBottomRightRadius: Sizing.deviceWidth * 0.01,
         },
         otherMessageBubble: {
             backgroundColor: isDarkMode ? '#333333' : '#E9ECEF',
-            borderBottomLeftRadius: 4,
+            borderBottomLeftRadius: Sizing.deviceWidth * 0.01,
         },
         messageText: {
-            fontSize: 16,
-            marginBottom: 4,
+            fontSize: Sizing.deviceWidth * 0.04,
+            marginBottom: Sizing.deviceHeight * 0.004,
         },
         ownMessageText: {
             color: '#FFFFFF',
@@ -198,14 +199,14 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
         },
         messageTime: {
-            fontSize: 11,
+            fontSize: Sizing.deviceWidth * 0.028,
             color: isDarkMode ? '#999999' : '#666666',
             alignSelf: 'flex-end',
         },
         inputContainer: {
             flexDirection: 'row',
             alignItems: 'center',
-            padding: 12,
+            padding: Sizing.deviceWidth * 0.03,
             backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
             borderTopWidth: 1,
             borderTopColor: isDarkMode ? '#333333' : '#F0F0F0',
@@ -213,19 +214,19 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
         input: {
             flex: 1,
             backgroundColor: isDarkMode ? '#333333' : '#F8F9FA',
-            borderRadius: 20,
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            marginRight: 8,
+            borderRadius: Sizing.deviceWidth * 0.05,
+            paddingHorizontal: Sizing.deviceWidth * 0.04,
+            paddingVertical: Sizing.deviceHeight * 0.01,
+            marginRight: Sizing.deviceWidth * 0.02,
             color: isDarkMode ? '#FFFFFF' : '#1A1A1A',
-            fontSize: 16,
+            fontSize: Sizing.deviceWidth * 0.04,
         },
         sendButton: {
             backgroundColor: '#007AFF',
-            borderRadius: 20,
-            padding: 8,
-            width: 40,
-            height: 40,
+            borderRadius: Sizing.deviceWidth * 0.05,
+            padding: Sizing.deviceWidth * 0.02,
+            width: Sizing.deviceWidth * 0.1,
+            height: Sizing.deviceWidth * 0.1,
             justifyContent: 'center',
             alignItems: 'center',
         },
@@ -253,7 +254,7 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
                 >
                     <Ionicons 
                         name="chevron-back" 
-                        size={24} 
+                        size={Sizing.deviceWidth * 0.06} 
                         color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} 
                     />
                 </TouchableOpacity>
@@ -264,7 +265,7 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
                 >
                     <Ionicons 
                         name="information-circle-outline" 
-                        size={24} 
+                        size={Sizing.deviceWidth * 0.06} 
                         color={isDarkMode ? '#FFFFFF' : '#1A1A1A'} 
                     />
                 </TouchableOpacity>
@@ -305,7 +306,7 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
                         onPress={sendMessage}
                         disabled={!newMessage.trim()}
                     >
-                        <Ionicons name="send" size={20} color="#FFFFFF" />
+                        <Ionicons name="send" size={Sizing.deviceWidth * 0.05} color="#FFFFFF" />
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
