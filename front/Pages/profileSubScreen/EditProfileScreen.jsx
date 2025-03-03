@@ -223,7 +223,7 @@ export const EditProfileScreen = () => {
                 >
                     <Icon
                         name="arrow-left"
-                        size={24}
+                        size={Sizing.deviceWidth * 0.05}
                         color={isLightTheme ? '#000' : '#fff'}
                     />
                 </Pressable>
@@ -236,7 +236,7 @@ export const EditProfileScreen = () => {
                     disabled={loading}
                 >
                     {loading ? (
-                        <ActivityIndicator color="#fff" size="small" />
+                        <ActivityIndicator color="#fff" size={Sizing.deviceWidth * 0.035} />
                     ) : (
                         <Text style={styles.saveButtonText}>Save</Text>
                     )}
@@ -257,7 +257,11 @@ export const EditProfileScreen = () => {
                             style={styles.profilePhoto}
                         />
                         <View style={styles.editIconContainer}>
-                            <Icon name="camera" size={20} color="#fff" />
+                            <Icon 
+                                name="camera" 
+                                size={Sizing.deviceWidth * 0.04} 
+                                color="#fff" 
+                            />
                         </View>
                     </Pressable>
                 </View>
@@ -419,7 +423,7 @@ export const EditProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.04 : Sizing.deviceHeight * 0.02,
+        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.03 : Sizing.deviceHeight * 0.015,
     },
     contentContainer: {
         flex: 1,
@@ -430,37 +434,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: Sizing.deviceWidth * 0.035,
-        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.02 : Sizing.deviceHeight * 0.01,
-        paddingBottom: Sizing.deviceHeight * 0.012,
+        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.015 : Sizing.deviceHeight * 0.008,
+        paddingBottom: Sizing.deviceHeight * 0.01,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.1)',
-        marginBottom: Sizing.deviceHeight * 0.015,
+        marginBottom: Sizing.deviceHeight * 0.012,
     },
     backButton: {
         padding: Sizing.deviceWidth * 0.015,
-        borderRadius: Sizing.deviceWidth * 0.04,
+        borderRadius: Sizing.deviceWidth * 0.015,
         backgroundColor: 'rgba(0,0,0,0.05)',
     },
     headerTitle: {
-        fontSize: Sizing.deviceWidth * 0.045,
+        fontSize: Sizing.deviceWidth * 0.04,
         fontWeight: '700',
         letterSpacing: 0.5,
     },
     saveButton: {
         backgroundColor: '#2196F3',
-        paddingHorizontal: Sizing.deviceWidth * 0.04,
-        paddingVertical: Sizing.deviceHeight * 0.01,
-        borderRadius: Sizing.deviceWidth * 0.05,
-        minWidth: Sizing.deviceWidth * 0.18,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingVertical: Sizing.deviceHeight * 0.008,
+        borderRadius: Sizing.deviceWidth * 0.015,
+        minWidth: Sizing.deviceWidth * 0.16,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: Sizing.deviceHeight * 0.001,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        shadowOpacity: 0.2,
+        shadowRadius: Sizing.deviceWidth * 0.008,
+        elevation: 4,
     },
     saveButtonText: {
         color: '#fff',
@@ -469,81 +473,82 @@ const styles = StyleSheet.create({
     },
     photoSection: {
         alignItems: 'center',
-        marginVertical: Sizing.deviceHeight * 0.025,
+        marginVertical: Sizing.deviceHeight * 0.02,
     },
     photoContainer: {
         position: 'relative',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 4,
+            height: Sizing.deviceHeight * 0.003,
         },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
+        shadowOpacity: 0.25,
+        shadowRadius: Sizing.deviceWidth * 0.01,
+        elevation: 6,
     },
     profilePhoto: {
-        width: Sizing.deviceWidth * 0.28,
-        height: Sizing.deviceWidth * 0.28,
-        borderRadius: Sizing.deviceWidth * 0.14,
-        borderWidth: 1.5,
+        width: Sizing.deviceWidth * 0.24,
+        height: Sizing.deviceWidth * 0.24,
+        borderRadius: Sizing.deviceWidth * 0.12,
+        borderWidth: 1,
         borderColor: '#fff',
     },
     editIconContainer: {
         position: 'absolute',
-        right: 5,
-        bottom: 5,
+        right: Sizing.deviceWidth * 0.008,
+        bottom: Sizing.deviceWidth * 0.008,
         backgroundColor: '#2196F3',
-        width: Sizing.deviceWidth * 0.08,
-        height: Sizing.deviceWidth * 0.08,
-        borderRadius: Sizing.deviceWidth * 0.04,
+        width: Sizing.deviceWidth * 0.07,
+        height: Sizing.deviceWidth * 0.07,
+        borderRadius: Sizing.deviceWidth * 0.035,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 3,
+        borderWidth: Sizing.deviceWidth * 0.005,
+        borderColor: '#fff',
     },
     form: {
-        marginTop: Sizing.deviceHeight * 0.01,
+        marginTop: Sizing.deviceHeight * 0.008,
     },
     inputContainer: {
-        marginBottom: Sizing.deviceHeight * 0.022,
+        marginBottom: Sizing.deviceHeight * 0.018,
     },
     label: {
-        fontSize: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
-        marginBottom: Sizing.deviceHeight * 0.008,
-        marginLeft: Sizing.deviceWidth * 0.01,
+        marginBottom: Sizing.deviceHeight * 0.006,
+        marginLeft: Sizing.deviceWidth * 0.008,
         letterSpacing: 0.5,
     },
     input: {
         borderWidth: 1,
-        borderRadius: Sizing.deviceWidth * 0.03,
-        paddingHorizontal: Sizing.deviceWidth * 0.04,
-        paddingVertical: Sizing.deviceHeight * 0.015,
-        fontSize: Sizing.deviceWidth * 0.035,
+        borderRadius: Sizing.deviceWidth * 0.025,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        fontSize: Sizing.deviceWidth * 0.032,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 1,
+            height: Sizing.deviceHeight * 0.001,
         },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
+        shadowOpacity: 0.15,
+        shadowRadius: Sizing.deviceWidth * 0.003,
         elevation: 2,
     },
     multilineInput: {
-        height: Sizing.deviceHeight * 0.12,
+        height: Sizing.deviceHeight * 0.1,
         textAlignVertical: 'top',
-        paddingTop: Sizing.deviceHeight * 0.015,
+        paddingTop: Sizing.deviceHeight * 0.012,
     },
     genderContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: Sizing.deviceWidth * 0.02,
+        gap: Sizing.deviceWidth * 0.015,
     },
     genderButton: {
         flex: 1,
         borderWidth: 1,
-        borderRadius: Sizing.deviceWidth * 0.03,
-        paddingVertical: Sizing.deviceHeight * 0.015,
+        borderRadius: Sizing.deviceWidth * 0.025,
+        paddingVertical: Sizing.deviceHeight * 0.012,
         alignItems: 'center',
         borderColor: 'rgba(0,0,0,0.1)',
     },
@@ -552,7 +557,7 @@ const styles = StyleSheet.create({
         borderColor: '#2196F3',
     },
     genderButtonText: {
-        fontSize: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '500',
     },
     genderButtonTextActive: {
@@ -562,28 +567,28 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderRadius: Sizing.deviceWidth * 0.03,
+        borderRadius: Sizing.deviceWidth * 0.025,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 1,
+            height: Sizing.deviceHeight * 0.001,
         },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
+        shadowOpacity: 0.15,
+        shadowRadius: Sizing.deviceWidth * 0.003,
         elevation: 2,
     },
     phonePrefix: {
-        paddingHorizontal: Sizing.deviceWidth * 0.03,
-        paddingVertical: Sizing.deviceHeight * 0.015,
-        fontSize: Sizing.deviceWidth * 0.035,
+        paddingHorizontal: Sizing.deviceWidth * 0.025,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '500',
         borderRightWidth: 1,
         borderRightColor: 'rgba(0,0,0,0.1)',
     },
     phoneInput: {
         flex: 1,
-        paddingHorizontal: Sizing.deviceWidth * 0.03,
-        paddingVertical: Sizing.deviceHeight * 0.015,
-        fontSize: Sizing.deviceWidth * 0.035,
+        paddingHorizontal: Sizing.deviceWidth * 0.025,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        fontSize: Sizing.deviceWidth * 0.032,
     },
 }); 
