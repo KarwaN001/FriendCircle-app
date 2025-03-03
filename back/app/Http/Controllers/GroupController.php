@@ -8,15 +8,22 @@ use Illuminate\Http\Request;
 
 class GroupController extends Controller
 {
-    // GET /api/groups
+// GET /api/groups
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $groups = $user->groups()->with([
-            'members:id,name,profile_photo',
-            'groupAdmin:id,name,profile_photo'
-        ])->paginate(10);
+        $groups = $user->groups()
+            ->with([
+                'members:id,name,profile_photo',
+                'groupAdmin:id,name,profile_photo',
+                'messages' => function ($query) {
+                    $query->with('user:id,name,profile_photo')
+                        ->latest()
+                        ->limit(1);
+                }
+            ])
+            ->paginate(10);
 
         return response()->json($groups);
     }
@@ -41,7 +48,7 @@ class GroupController extends Controller
             $groupPhoto = $request->file('group_photo');
             $fileName = $groupPhoto->hashName();
             $groupPhoto->move(public_path('group-photos'), $fileName);
-            $validated['group_photo'] = 'group-photos/' . $fileName;
+            $validated['group_photo'] = 'group-photos/'.$fileName;
         }
 
         $group = $user->adminGroups()->create([
@@ -94,7 +101,7 @@ class GroupController extends Controller
             $groupPhoto = $request->file('group_photo');
             $fileName = $groupPhoto->hashName();
             $groupPhoto->move(public_path('group-photos'), $fileName);
-            $validated['group_photo'] = 'group-photos/' . $fileName;
+            $validated['group_photo'] = 'group-photos/'.$fileName;
         }
 
         $group->update($validated);
