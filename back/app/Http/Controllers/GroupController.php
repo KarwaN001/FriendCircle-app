@@ -27,7 +27,8 @@ class GroupController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'group_photo' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
-            'initial_members' => 'sometimes|array|exists:users,id',
+            'members' => 'required|array',
+            'members.*' => 'exists:users,id'
         ]);
 
         $user = $request->user();
@@ -46,25 +47,30 @@ class GroupController extends Controller
             $validated['group_photo'] = $groupPhoto->hashName();
         }
 
-        $group = $user->adminGroups()->create($validated);
+        $group = $user->adminGroups()->create([
+            'name' => $validated['name'],
+            'group_photo' => $validated['group_photo'] ?? null
+        ]);
 
+        // Add the creator to the group
         $group->members()->attach($user->id);
 
-        if ($request->has('initial_members')) {
-            $initialMembers = $validated['initial_members'];
+        // Verify all members are friends of the creator
+        $friends = $user->friends()->pluck('users.id');
+        $invalidMembers = collect($validated['members'])->diff($friends);
 
-            $friends = $user->friends()->pluck('users.id');
-
-            if ($friends->intersect($validated['members'])->count() !== count($validated['members'])) {
-                $group->delete();
-
-                return response()->json(['message' => 'One or more members are not your friends.'], 400);
-            }
-
-            $group->members()->attach($initialMembers);
+        if ($invalidMembers->isNotEmpty()) {
+            $group->delete();
+            return response()->json(['message' => 'One or more members are not your friends.'], 400);
         }
 
-        return response()->json($group);
+        // Add all members to the group
+        $group->members()->attach($validated['members']);
+
+        // Load the members relationship for the response
+        $group->load(['members:id,name,profile_photo', 'groupAdmin:id,name,profile_photo']);
+
+        return response()->json($group, 201);
     }
 
     // PUT /api/groups/{group}

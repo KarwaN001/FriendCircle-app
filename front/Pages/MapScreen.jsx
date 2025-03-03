@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Text, TouchableOpacity, ScrollView, Platform, Alert, Image } from 'react-native';
+import { View, StyleSheet, StatusBar, Text, TouchableOpacity, ScrollView, Platform, Alert, Image, ActivityIndicator } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import { useTheme } from "../DarkMode/ThemeContext";
 import { darkMapStyle } from '../styles/mapStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as Location from 'expo-location';
 import axiosInstance from '../services/api.config';
-import { chatList } from './ChatsScreen';
+import Sizing from '../utils/Sizing';
 
 export const MapScreen = () => {
     const { theme } = useTheme();
@@ -16,27 +16,61 @@ export const MapScreen = () => {
     const [hasPermission, setHasPermission] = useState(false);
     const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
     const [friends, setFriends] = useState([]);
+    const [groups, setGroups] = useState([]);
+    const [isLoadingFriends, setIsLoadingFriends] = useState(true);
+    const [isLoadingGroups, setIsLoadingGroups] = useState(true);
+    const [isFirstTimeSharing, setIsFirstTimeSharing] = useState(true);
+
+    // Fetch groups data
+    const fetchGroups = async () => {
+        try {
+            setIsLoadingGroups(true);
+            const response = await axiosInstance.get('/groups');
+            if (response.data && Array.isArray(response.data.data)) {
+                setGroups(response.data.data);
+            }
+        } catch (error) {
+            console.error('Error fetching groups:', error);
+        } finally {
+            setIsLoadingGroups(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchGroups();
+    }, []);
 
     // Fetch friends data
     const fetchFriends = async () => {
         try {
+            setIsLoadingFriends(true);
             const response = await axiosInstance.get('/friends');
-            setFriends(response.data.data || []);
+            if (response.data && Array.isArray(response.data.data)) {
+                setFriends(response.data.data);
+            }
         } catch (error) {
             console.error('Error fetching friends:', error);
-            Alert.alert(
-                "Error",
-                "Failed to fetch friends' locations",
-                [{ text: "OK" }]
-            );
+        } finally {
+            setIsLoadingFriends(false);
         }
     };
 
     useEffect(() => {
         fetchFriends();
-        // Set up periodic refresh of friend locations (every 30 seconds)
-        const interval = setInterval(fetchFriends, 30000);
-        return () => clearInterval(interval);
+    }, []);
+
+    // Check if user has previously shared location
+    useEffect(() => {
+        const checkLocationHistory = async () => {
+            try {
+                const response = await axiosInstance.get('/profile');
+                const userData = response.data;
+                setIsFirstTimeSharing(!userData.latitude && !userData.longitude);
+            } catch (error) {
+                console.error('Error checking location history:', error);
+            }
+        };
+        checkLocationHistory();
     }, []);
 
     useEffect(() => {
@@ -206,34 +240,73 @@ export const MapScreen = () => {
                 compassOffset={{ x: -10, y: 100 }}
                 mapPadding={{ top: 15, right: 15, bottom: 0, left: 15 }}
             >
-                {friends.map((friend) => (
-                    friend.latitude && friend.longitude && (
-                        <Marker
-                            key={friend.id}
-                            coordinate={{
-                                latitude: parseFloat(friend.latitude),
-                                longitude: parseFloat(friend.longitude),
-                            }}
-                            title={friend.name}
-                            description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
-                        >
-                            <View style={styles.markerContainer}>
-                                {friend.profile_photo_url ? (
-                                    <Image
-                                        source={{ uri: friend.profile_photo_url }}
-                                        style={styles.markerImage}
-                                    />
-                                ) : (
-                                    <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
-                                        <Text style={styles.markerFallbackText}>
-                                            {friend.name.charAt(0).toUpperCase()}
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        </Marker>
-                    )
-                ))}
+                {!isLoadingFriends && Array.isArray(friends) && friends.map((friend) => {
+                    // Skip friends without location data
+                    if (!friend || !friend.latitude || !friend.longitude) return null;
+
+                    // For 'all' filter, show all friends
+                    if (activeFilter === 'all') {
+                        return (
+                            <Marker
+                                key={friend.id}
+                                coordinate={{
+                                    latitude: parseFloat(friend.latitude),
+                                    longitude: parseFloat(friend.longitude),
+                                }}
+                                title={friend.name}
+                                description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
+                            >
+                                <View style={styles.markerContainer}>
+                                    {friend.profile_photo ? (
+                                        <Image
+                                            source={{ uri: friend.profile_photo }}
+                                            style={styles.markerImage}
+                                        />
+                                    ) : (
+                                        <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
+                                            <Text style={styles.markerFallbackText}>
+                                                {friend.name.charAt(0).toUpperCase()}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Marker>
+                        );
+                    }
+
+                    // For group filter, check if friend is in the selected group
+                    const selectedGroup = groups.find(g => g.id === activeFilter);
+                    if (selectedGroup && selectedGroup.members && selectedGroup.members.some(member => member.id === friend.id)) {
+                        return (
+                            <Marker
+                                key={friend.id}
+                                coordinate={{
+                                    latitude: parseFloat(friend.latitude),
+                                    longitude: parseFloat(friend.longitude),
+                                }}
+                                title={friend.name}
+                                description={`Last updated: ${new Date(friend.updated_at).toLocaleString()}`}
+                            >
+                                <View style={styles.markerContainer}>
+                                    {friend.profile_photo ? (
+                                        <Image
+                                            source={{ uri: friend.profile_photo }}
+                                            style={styles.markerImage}
+                                        />
+                                    ) : (
+                                        <View style={[styles.markerFallback, { backgroundColor: isLightTheme ? '#007AFF' : '#0A84FF' }]}>
+                                            <Text style={styles.markerFallbackText}>
+                                                {friend.name.charAt(0).toUpperCase()}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Marker>
+                        );
+                    }
+
+                    return null;
+                })}
             </MapView>
             
             <View style={[
@@ -245,7 +318,33 @@ export const MapScreen = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.filterScroll}
                 >
-                    {chatList.map((group) => (
+                    <TouchableOpacity
+                        key="all"
+                        style={[
+                            styles.filterButton,
+                            activeFilter === 'all' && styles.filterButtonActive,
+                            { 
+                                borderColor: isLightTheme ? '#007AFF' : '#0A84FF',
+                                backgroundColor: activeFilter === 'all' 
+                                    ? (isLightTheme ? 'rgba(255, 255, 255, 0.9)' : 'rgba(40, 40, 40, 0.9)')
+                                    : (isLightTheme ? 'rgba(255, 255, 255, 0.7)' : 'rgba(40, 40, 40, 0.7)')
+                            }
+                        ]}
+                        onPress={() => setActiveFilter('all')}
+                    >
+                        <View style={styles.avatar}>
+                            <Text style={styles.avatarText}>A</Text>
+                        </View>
+                        <Text style={[
+                            styles.filterText,
+                            activeFilter === 'all' && styles.filterTextActive,
+                            { color: isLightTheme ? '#333' : '#fff' }
+                        ]}>
+                            All Friends
+                        </Text>
+                    </TouchableOpacity>
+
+                    {groups.map((group) => (
                         <TouchableOpacity
                             key={group.id}
                             style={[
@@ -261,7 +360,7 @@ export const MapScreen = () => {
                             onPress={() => setActiveFilter(group.id)}
                         >
                             <View style={styles.avatar}>
-                                <Text style={styles.avatarText}>{group.initial}</Text>
+                                <Text style={styles.avatarText}>{group.name.charAt(0)}</Text>
                             </View>
                             <Text style={[
                                 styles.filterText,
@@ -270,11 +369,6 @@ export const MapScreen = () => {
                             ]}>
                                 {group.name}
                             </Text>
-                            {group.unread > 0 && (
-                                <View style={styles.unreadBadge}>
-                                    <Text style={styles.unreadText}>{group.unread}</Text>
-                                </View>
-                            )}
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
@@ -312,7 +406,7 @@ export const MapScreen = () => {
                     disabled={isUpdatingLocation}
                 >
                     <Ionicons 
-                        name="refresh" 
+                        name={isFirstTimeSharing ? "location" : "refresh"} 
                         size={24} 
                         color={isLightTheme ? '#007AFF' : '#0A84FF'} 
                     />
@@ -320,7 +414,7 @@ export const MapScreen = () => {
                         styles.locationButtonText,
                         { color: isLightTheme ? '#333' : '#fff' }
                     ]}>
-                        {isUpdatingLocation ? 'Updating...' : 'Update My Location'}
+                        {isUpdatingLocation ? 'Updating...' : (isFirstTimeSharing ? 'Share My Location' : 'Update My Location')}
                     </Text>
                 </TouchableOpacity>
             )}
@@ -339,22 +433,22 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         position: 'absolute',
-        top: 70,
-        left: 5,
-        right: 5,
-        padding: 5,
-        borderRadius: 15,
+        top: Sizing.deviceHeight * 0.07,
+        left: Sizing.deviceWidth * 0.01,
+        right: Sizing.deviceWidth * 0.01,
+        padding: Sizing.deviceWidth * 0.008,
+        borderRadius: 12,
     },
     filterScroll: {
-        paddingHorizontal: 2,
+        paddingHorizontal: Sizing.deviceWidth * 0.003,
     },
     filterButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        marginHorizontal: 3,
-        borderRadius: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.02,
+        paddingVertical: Sizing.deviceHeight * 0.008,
+        marginHorizontal: Sizing.deviceWidth * 0.005,
+        borderRadius: 16,
         borderWidth: 1,
         shadowColor: '#000',
         shadowOffset: {
@@ -369,8 +463,8 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0, 122, 255, 0.1)',
     },
     filterText: {
-        marginLeft: 5,
-        fontSize: 14,
+        marginLeft: Sizing.deviceWidth * 0.008,
+        fontSize: Sizing.deviceWidth * 0.028,
         fontWeight: '500',
     },
     filterTextActive: {
@@ -378,13 +472,13 @@ const styles = StyleSheet.create({
     },
     locationButton: {
         position: 'absolute',
-        bottom: 30,
+        bottom: Sizing.deviceHeight * 0.03,
         alignSelf: 'center',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 25,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -396,13 +490,13 @@ const styles = StyleSheet.create({
     },
     updateLocationButton: {
         position: 'absolute',
-        bottom: 30,
+        bottom: Sizing.deviceHeight * 0.03,
         alignSelf: 'center',
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 25,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -413,24 +507,24 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     locationButtonText: {
-        marginLeft: 8,
-        fontSize: 16,
+        marginLeft: Sizing.deviceWidth * 0.015,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
     },
     loadingContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 15,
+        gap: Sizing.deviceHeight * 0.015,
     },
     loadingText: {
-        fontSize: 18,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
         textAlign: 'center',
     },
     markerContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: Sizing.deviceWidth * 0.08,
+        height: Sizing.deviceWidth * 0.08,
+        borderRadius: Sizing.deviceWidth * 0.04,
         overflow: 'hidden',
         borderWidth: 2,
         borderColor: '#fff',
@@ -457,36 +551,21 @@ const styles = StyleSheet.create({
     },
     markerFallbackText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: 'bold',
     },
     avatar: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
+        width: Sizing.deviceWidth * 0.045,
+        height: Sizing.deviceWidth * 0.045,
+        borderRadius: Sizing.deviceWidth * 0.0225,
         backgroundColor: '#007AFF',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 8,
+        marginRight: Sizing.deviceWidth * 0.015,
     },
     avatarText: {
         color: '#FFFFFF',
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    unreadBadge: {
-        backgroundColor: '#FF3B30',
-        borderRadius: 10,
-        minWidth: 20,
-        height: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 8,
-        paddingHorizontal: 6,
-    },
-    unreadText: {
-        color: '#FFFFFF',
-        fontSize: 12,
+        fontSize: Sizing.deviceWidth * 0.025,
         fontWeight: '600',
     },
 }); 

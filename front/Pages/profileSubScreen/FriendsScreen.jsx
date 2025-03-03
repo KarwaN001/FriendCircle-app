@@ -16,6 +16,7 @@ import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import axiosInstance from '../../services/api.config';
+import Sizing from '../../utils/Sizing';
 
 export const FriendsScreen = () => {
     const { theme } = useTheme();
@@ -149,8 +150,8 @@ export const FriendsScreen = () => {
                 <Text style={[styles.friendName, { color: isLightTheme ? '#000' : '#fff' }]}>
                     {item.name}
                 </Text>
-                <Text style={[styles.friendEmail, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    {item.email}
+                <Text style={[styles.friendStatus, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                    <Icon name="account-check" size={14} color={isLightTheme ? '#22c55e' : '#4ade80'} /> Friend
                 </Text>
             </View>
             <Pressable
@@ -181,9 +182,6 @@ export const FriendsScreen = () => {
             <View style={styles.friendInfo}>
                 <Text style={[styles.friendName, { color: isLightTheme ? '#000' : '#fff' }]}>
                     {type === 'incoming' ? item.sender?.name : item.recipient?.name}
-                </Text>
-                <Text style={[styles.friendEmail, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    {type === 'incoming' ? item.sender?.email : item.recipient?.email}
                 </Text>
                 <Text style={[styles.requestStatus, { color: isLightTheme ? '#666' : '#aaa' }]}>
                     {type === 'incoming' ? 'Wants to be your friend' : 'Request sent'}
@@ -384,44 +382,44 @@ export const FriendsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 20,
+        paddingTop: Sizing.deviceHeight * 0.02,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.03,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(0,0,0,0.1)',
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: Sizing.deviceWidth * 0.042,
         fontWeight: '600',
     },
     backButton: {
-        padding: 8,
+        padding: Sizing.deviceWidth * 0.015,
     },
     addButton: {
-        padding: 8,
+        padding: Sizing.deviceWidth * 0.015,
     },
     section: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        paddingTop: Sizing.deviceHeight * 0.015,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: Sizing.deviceWidth * 0.038,
         fontWeight: '600',
-        marginBottom: 12,
+        marginBottom: Sizing.deviceHeight * 0.012,
     },
     listContainer: {
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.03,
     },
     friendCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        marginBottom: 12,
-        borderRadius: 12,
+        padding: Sizing.deviceWidth * 0.03,
+        marginBottom: Sizing.deviceHeight * 0.012,
+        borderRadius: Sizing.deviceWidth * 0.025,
         borderWidth: 1,
         elevation: 2,
         shadowColor: '#000',
@@ -430,67 +428,61 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
     },
     friendImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        width: Sizing.deviceWidth * 0.1,
+        height: Sizing.deviceWidth * 0.1,
+        borderRadius: Sizing.deviceWidth * 0.05,
     },
     friendInfo: {
         flex: 1,
-        marginLeft: 16,
+        marginLeft: Sizing.deviceWidth * 0.03,
     },
     friendName: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: Sizing.deviceHeight * 0.004,
     },
-    friendEmail: {
-        fontSize: 14,
+    friendStatus: {
+        fontSize: Sizing.deviceWidth * 0.03,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     removeButton: {
-        padding: 8,
+        padding: Sizing.deviceWidth * 0.015,
     },
     requestButtons: {
         flexDirection: 'row',
-        gap: 8,
-    },
-    acceptButton: {
-        padding: 8,
-        borderRadius: 20,
-    },
-    declineButton: {
-        padding: 8,
-        borderRadius: 20,
+        gap: Sizing.deviceWidth * 0.015,
     },
     emptyContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 32,
+        paddingVertical: Sizing.deviceHeight * 0.03,
     },
     emptyText: {
-        marginTop: 16,
-        fontSize: 16,
+        marginTop: Sizing.deviceHeight * 0.015,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '500',
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.015,
     },
     addFriendButton: {
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingVertical: Sizing.deviceHeight * 0.01,
+        borderRadius: Sizing.deviceWidth * 0.04,
     },
     addFriendButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
     },
     tabContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 16,
-        marginBottom: 8,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        marginBottom: Sizing.deviceHeight * 0.008,
     },
     tab: {
         flex: 1,
-        paddingVertical: 12,
-        marginHorizontal: 4,
+        paddingVertical: Sizing.deviceHeight * 0.012,
+        marginHorizontal: Sizing.deviceWidth * 0.008,
         borderBottomWidth: 2,
         borderColor: 'transparent',
     },
@@ -499,7 +491,7 @@ const styles = StyleSheet.create({
     },
     tabText: {
         textAlign: 'center',
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '500',
     },
     activeTabText: {
@@ -507,19 +499,19 @@ const styles = StyleSheet.create({
     },
     invitationsContainer: {
         flex: 1,
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.03,
     },
     actionButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        paddingVertical: Sizing.deviceHeight * 0.008,
+        borderRadius: Sizing.deviceWidth * 0.04,
         justifyContent: 'center',
     },
     acceptButton: {
         backgroundColor: '#22c55e',
-        marginRight: 8,
+        marginRight: Sizing.deviceWidth * 0.015,
     },
     declineButton: {
         backgroundColor: '#dc2626',
@@ -529,13 +521,13 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         color: '#fff',
-        marginLeft: 4,
-        fontSize: 14,
+        marginLeft: Sizing.deviceWidth * 0.008,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
     },
     requestStatus: {
-        fontSize: 12,
-        marginTop: 4,
+        fontSize: Sizing.deviceWidth * 0.028,
+        marginTop: Sizing.deviceHeight * 0.004,
         fontStyle: 'italic',
     },
 }); 
