@@ -150,8 +150,8 @@ export const FriendsScreen = () => {
                 <Text style={[styles.friendName, { color: isLightTheme ? '#000' : '#fff' }]}>
                     {item.name}
                 </Text>
-                <Text style={[styles.friendEmail, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    {item.email}
+                <Text style={[styles.friendStatus, { color: isLightTheme ? '#666' : '#aaa' }]}>
+                    <Icon name="account-check" size={14} color={isLightTheme ? '#22c55e' : '#4ade80'} /> Friend
                 </Text>
             </View>
             <Pressable
@@ -182,9 +182,6 @@ export const FriendsScreen = () => {
             <View style={styles.friendInfo}>
                 <Text style={[styles.friendName, { color: isLightTheme ? '#000' : '#fff' }]}>
                     {type === 'incoming' ? item.sender?.name : item.recipient?.name}
-                </Text>
-                <Text style={[styles.friendEmail, { color: isLightTheme ? '#666' : '#aaa' }]}>
-                    {type === 'incoming' ? item.sender?.email : item.recipient?.email}
                 </Text>
                 <Text style={[styles.requestStatus, { color: isLightTheme ? '#666' : '#aaa' }]}>
                     {type === 'incoming' ? 'Wants to be your friend' : 'Request sent'}
@@ -444,8 +441,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         marginBottom: Sizing.deviceHeight * 0.004,
     },
-    friendEmail: {
+    friendStatus: {
         fontSize: Sizing.deviceWidth * 0.03,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     removeButton: {
         padding: Sizing.deviceWidth * 0.015,
