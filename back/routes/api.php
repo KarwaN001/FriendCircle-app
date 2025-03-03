@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Profile routes
         Route::get('/profile', [ProfileController::class, 'show']);
-        Route::patch('/profile', [ProfileController::class, 'update']);
+        Route::patch('/profile/{user}', [ProfileController::class, 'update']);
 
         // Friendship routes
         Route::get('/friend-suggestions', [FriendshipController::class, 'suggestions']);
@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Group routes
         Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
         Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
+        Route::patch('/groups/{group}', [GroupController::class, 'update'])->name('groups.update');
         Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
         Route::post('/groups/{group}/members', [GroupController::class, 'addMembers']);
         Route::delete('/groups/{group}/members/{member}', [GroupController::class, 'removeMember']);
