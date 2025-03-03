@@ -3,6 +3,7 @@ import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
+import Sizing from '../../utils/Sizing';
 
 export const AppInfoScreen = () => {
     const { theme } = useTheme();
@@ -209,47 +210,47 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 30,
+        paddingBottom: Sizing.deviceHeight * 0.02,
     },
     header: {
-        paddingBottom: 32,
+        paddingBottom: Sizing.deviceHeight * 0.03,
         alignItems: 'center',
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
+        borderBottomLeftRadius: Sizing.deviceWidth * 0.07,
+        borderBottomRightRadius: Sizing.deviceWidth * 0.07,
         position: 'relative',
     },
     backButton: {
         position: 'absolute',
-        left: 20,
-        top: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 50,
+        left: Sizing.deviceWidth * 0.045,
+        top: Platform.OS === 'android' ? StatusBar.currentHeight + Sizing.deviceHeight * 0.01 : Sizing.deviceHeight * 0.055,
         zIndex: 10,
     },
     headerContent: {
         alignItems: 'center',
     },
     headerIcon: {
-        marginBottom: 16,
+        marginBottom: Sizing.deviceHeight * 0.018,
     },
     headerTitle: {
-        fontSize: 28,
+        fontSize: Sizing.deviceWidth * 0.065,
         fontWeight: 'bold',
         color: '#fff',
-        marginBottom: 8,
+        marginBottom: Sizing.deviceHeight * 0.01,
     },
     headerSubtitle: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         color: 'rgba(255, 255, 255, 0.9)',
         textAlign: 'center',
         maxWidth: '80%',
     },
     content: {
-        padding: 16,
+        padding: Sizing.deviceWidth * 0.03,
     },
     section: {
-        borderRadius: 20,
-        padding: 24,
-        marginHorizontal: 16,
-        marginTop: 20,
+        borderRadius: Sizing.deviceWidth * 0.04,
+        padding: Sizing.deviceWidth * 0.045,
+        marginHorizontal: Sizing.deviceWidth * 0.03,
+        marginTop: Sizing.deviceHeight * 0.02,
         ...Platform.select({
             ios: {
                 shadowColor: '#000',
@@ -263,76 +264,76 @@ const styles = StyleSheet.create({
         }),
     },
     sectionTitle: {
-        fontSize: 22,
+        fontSize: Sizing.deviceWidth * 0.045,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: Sizing.deviceHeight * 0.02,
     },
     featureList: {
-        gap: 20,
+        gap: Sizing.deviceHeight * 0.02,
     },
     featureItem: {
         flexDirection: 'row',
         alignItems: 'flex-start',
     },
     iconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 12,
+        width: Sizing.deviceWidth * 0.1,
+        height: Sizing.deviceWidth * 0.1,
+        borderRadius: Sizing.deviceWidth * 0.025,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: Sizing.deviceWidth * 0.03,
     },
     featureTextContainer: {
         flex: 1,
     },
     featureTitle: {
-        fontSize: 17,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
-        marginBottom: 6,
+        marginBottom: Sizing.deviceHeight * 0.006,
     },
     featureDescription: {
-        fontSize: 15,
-        lineHeight: 22,
+        fontSize: Sizing.deviceWidth * 0.032,
+        lineHeight: Sizing.deviceHeight * 0.024,
     },
     teamList: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         flexWrap: 'wrap',
-        gap: 24,
+        gap: Sizing.deviceWidth * 0.04,
     },
     teamMember: {
         alignItems: 'center',
-        minWidth: 150,
+        minWidth: Sizing.deviceWidth * 0.3,
     },
     teamIconContainer: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
+        width: Sizing.deviceWidth * 0.14,
+        height: Sizing.deviceWidth * 0.14,
+        borderRadius: Sizing.deviceWidth * 0.07,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 14,
+        marginBottom: Sizing.deviceHeight * 0.015,
     },
     teamName: {
-        fontSize: 18,
+        fontSize: Sizing.deviceWidth * 0.038,
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: Sizing.deviceHeight * 0.004,
     },
     teamRole: {
-        fontSize: 15,
-        marginBottom: 6,
+        fontSize: Sizing.deviceWidth * 0.032,
+        marginBottom: Sizing.deviceHeight * 0.006,
     },
     teamEmail: {
-        fontSize: 14,
+        fontSize: Sizing.deviceWidth * 0.03,
         textDecorationLine: 'underline',
     },
     techList: {
-        gap: 16,
+        gap: Sizing.deviceHeight * 0.015,
     },
     techItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 8,
+        paddingVertical: Sizing.deviceHeight * 0.008,
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(150, 150, 150, 0.1)',
     },
@@ -341,21 +342,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     techDot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        marginRight: 10,
+        width: Sizing.deviceWidth * 0.015,
+        height: Sizing.deviceWidth * 0.015,
+        borderRadius: Sizing.deviceWidth * 0.0075,
+        marginRight: Sizing.deviceWidth * 0.02,
     },
     techTitle: {
-        fontSize: 16,
+        fontSize: Sizing.deviceWidth * 0.035,
         fontWeight: '600',
     },
     techDescription: {
-        fontSize: 15,
+        fontSize: Sizing.deviceWidth * 0.032,
     },
     version: {
         textAlign: 'center',
-        marginTop: 30,
-        fontSize: 14,
+        marginTop: Sizing.deviceHeight * 0.03,
+        fontSize: Sizing.deviceWidth * 0.03,
     },
 }); 
