@@ -122,7 +122,7 @@ We welcome contributions to FriendCircle! Please read our contributing guideline
 
 ## 👥 Team
 
-- [Karwan] - Frontend Developer
-- [Rezdar] - Backend Developer
+- Karwan - Frontend Developer
+- Rezdar - Backend Developer
 
 
