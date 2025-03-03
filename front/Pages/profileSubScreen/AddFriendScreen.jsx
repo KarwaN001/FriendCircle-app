@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ActivityIndicator, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, FlatList, ActivityIndicator, Platform, StatusBar, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -187,6 +187,23 @@ export const AddFriendScreen = ({ navigation }) => {
             styles.userCard,
             { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }
         ]}>
+            <View style={[
+                styles.avatarContainer,
+                { backgroundColor: isLightTheme ? '#f0f0f0' : '#404040' }
+            ]}>
+                {item.profile_photo ? (
+                    <Image
+                        source={{ uri: item.profile_photo }}
+                        style={styles.avatar}
+                    />
+                ) : (
+                    <Icon 
+                        name="account" 
+                        size={Sizing.deviceWidth * 0.06} 
+                        color={isLightTheme ? '#666' : '#aaa'} 
+                    />
+                )}
+            </View>
             <View style={styles.userInfo}>
                 <Text style={[
                     styles.userName,
@@ -194,12 +211,20 @@ export const AddFriendScreen = ({ navigation }) => {
                 ]}>
                     {item.name}
                 </Text>
-                <Text style={[
-                    styles.userEmail,
-                    { color: isLightTheme ? '#666' : '#aaa' }
-                ]}>
-                    {item.email}
-                </Text>
+                <View style={styles.userMetaInfo}>
+                    <Icon 
+                        name="account-circle" 
+                        size={Sizing.deviceWidth * 0.035} 
+                        color={isLightTheme ? '#666' : '#aaa'} 
+                        style={styles.metaIcon}
+                    />
+                    <Text style={[
+                        styles.userMeta,
+                        { color: isLightTheme ? '#666' : '#aaa' }
+                    ]}>
+                        {`User #${item.id}`}
+                    </Text>
+                </View>
             </View>
             <TouchableOpacity
                 style={[
@@ -218,12 +243,12 @@ export const AddFriendScreen = ({ navigation }) => {
                 disabled={sendingRequests[item.id]}
             >
                 {sendingRequests[item.id] ? (
-                    <ActivityIndicator size="small" color="#fff" />
+                    <ActivityIndicator size={Sizing.deviceWidth * 0.04} color="#fff" />
                 ) : (
                     <View style={styles.buttonContent}>
                         <Icon 
                             name={friendRequests[item.id] ? "close" : "account-plus"} 
-                            size={16} 
+                            size={Sizing.deviceWidth * 0.04} 
                             color="#fff" 
                             style={styles.buttonIcon}
                         />
@@ -241,6 +266,23 @@ export const AddFriendScreen = ({ navigation }) => {
             styles.userCard,
             { backgroundColor: isLightTheme ? '#fff' : '#2A2A2A' }
         ]}>
+            <View style={[
+                styles.avatarContainer,
+                { backgroundColor: isLightTheme ? '#f0f0f0' : '#404040' }
+            ]}>
+                {item.recipient.profile_photo ? (
+                    <Image
+                        source={{ uri: item.recipient.profile_photo }}
+                        style={styles.avatar}
+                    />
+                ) : (
+                    <Icon 
+                        name="account" 
+                        size={Sizing.deviceWidth * 0.06} 
+                        color={isLightTheme ? '#666' : '#aaa'} 
+                    />
+                )}
+            </View>
             <View style={styles.userInfo}>
                 <Text style={[
                     styles.userName,
@@ -248,18 +290,20 @@ export const AddFriendScreen = ({ navigation }) => {
                 ]}>
                     {item.recipient.name}
                 </Text>
-                <Text style={[
-                    styles.userEmail,
-                    { color: isLightTheme ? '#666' : '#aaa' }
-                ]}>
-                    {item.recipient.email}
-                </Text>
-                <Text style={[
-                    styles.requestStatus,
-                    { color: isLightTheme ? '#666' : '#aaa' }
-                ]}>
-                    Pending since {new Date(item.created_at).toLocaleDateString()}
-                </Text>
+                <View style={styles.userMetaInfo}>
+                    <Icon 
+                        name="clock-outline" 
+                        size={Sizing.deviceWidth * 0.035} 
+                        color={isLightTheme ? '#666' : '#aaa'} 
+                        style={styles.metaIcon}
+                    />
+                    <Text style={[
+                        styles.userMeta,
+                        { color: isLightTheme ? '#666' : '#aaa' }
+                    ]}>
+                        {`Sent ${new Date(item.created_at).toLocaleDateString()}`}
+                    </Text>
+                </View>
             </View>
             <TouchableOpacity
                 style={[
@@ -271,12 +315,12 @@ export const AddFriendScreen = ({ navigation }) => {
                 disabled={sendingRequests[item.recipient.id]}
             >
                 {sendingRequests[item.recipient.id] ? (
-                    <ActivityIndicator size="small" color="#fff" />
+                    <ActivityIndicator size={Sizing.deviceWidth * 0.04} color="#fff" />
                 ) : (
                     <View style={styles.buttonContent}>
                         <Icon 
                             name="close" 
-                            size={16} 
+                            size={Sizing.deviceWidth * 0.04} 
                             color="#fff" 
                             style={styles.buttonIcon}
                         />
@@ -553,12 +597,20 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     userName: {
-        fontSize: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.038,
         fontWeight: '600',
         marginBottom: Sizing.deviceHeight * 0.004,
     },
-    userEmail: {
-        fontSize: Sizing.deviceWidth * 0.03,
+    userMetaInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    metaIcon: {
+        marginRight: Sizing.deviceWidth * 0.01,
+    },
+    userMeta: {
+        fontSize: Sizing.deviceWidth * 0.032,
+        fontWeight: '500',
     },
     statusIndicator: {
         paddingHorizontal: Sizing.deviceWidth * 0.03,
@@ -669,5 +721,19 @@ const styles = StyleSheet.create({
     requestStatus: {
         fontSize: Sizing.deviceWidth * 0.028,
         marginTop: Sizing.deviceHeight * 0.004,
+    },
+    avatarContainer: {
+        width: Sizing.deviceWidth * 0.12,
+        height: Sizing.deviceWidth * 0.12,
+        borderRadius: Sizing.deviceWidth * 0.06,
+        marginRight: Sizing.deviceWidth * 0.03,
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+    },
+    avatar: {
+        width: '100%',
+        height: '100%',
+        borderRadius: Sizing.deviceWidth * 0.06,
     },
 }); 
