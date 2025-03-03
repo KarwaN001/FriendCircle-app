@@ -253,7 +253,7 @@ export const AddFriendScreen = ({ navigation }) => {
                             style={styles.buttonIcon}
                         />
                         <Text style={styles.addButtonText}>
-                            {friendRequests[item.id] ? 'Cancel Request' : 'Add Friend'}
+                            {friendRequests[item.id] ? 'Cancel' : 'Add Friend'}
                         </Text>
                     </View>
                 )}
@@ -324,7 +324,7 @@ export const AddFriendScreen = ({ navigation }) => {
                             color="#fff" 
                             style={styles.buttonIcon}
                         />
-                        <Text style={styles.addButtonText}>Cancel Request</Text>
+                        <Text style={styles.addButtonText}>Cancel</Text>
                     </View>
                 )}
             </TouchableOpacity>
