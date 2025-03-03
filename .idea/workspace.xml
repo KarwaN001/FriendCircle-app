@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8bc32953-a208-4fa6-98de-27225a7bd434" name="Changes" comment="Enhance group data retrieval and simplify concatenation.&#10;&#10;Added latest message fetching with user details to group data in the `index` method, improving response details. Simplified string concatenation for consistency in handling group photo paths." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/back/composer.json</pharConfigPath>
+    <execution>
+      <executable path="composer" />
+    </execution>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIEW_PUSH_PROTECTED_ONLY" value="true" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;RezdarNajeeb&quot;
+  }
+}</component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="back-dev" />
+                    <option name="lastUsedInstant" value="1738419922" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1738419883" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/KarwaN001/FriendCircle-app.git&quot;,
+    &quot;accountId&quot;: &quot;1b9433b8-8118-47f0-a4dd-16663651465c&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe">
+    <include_path>
+      <path value="$PROJECT_DIR$/back/vendor/jean85/pretty-package-versions" />
+      <path value="$PROJECT_DIR$/back/vendor/mockery/mockery" />
+      <path value="$PROJECT_DIR$/back/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/tinker" />
+      <path value="$PROJECT_DIR$/back/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/back/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/back/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/back/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/back/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/back/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/back/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/back/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/back/vendor/pestphp/pest-plugin-arch" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/back/vendor/pestphp/pest-plugin-laravel" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/css-selector" />
+      <path value="$PROJECT_DIR$/back/vendor/pestphp/pest" />
+      <path value="$PROJECT_DIR$/back/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/back/vendor/pestphp/pest-plugin" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/clock" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/back/vendor/pestphp/pest-plugin-mutate" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/mailer" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-intl-idn" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/mime" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-php83" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/polyfill-uuid" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/uid" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/back/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/back/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/back/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/back/vendor/hamcrest/hamcrest-php" />
+      <path value="$PROJECT_DIR$/back/vendor/carbonphp/carbon-doctrine-types" />
+      <path value="$PROJECT_DIR$/back/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/back/vendor/fakerphp/faker" />
+      <path value="$PROJECT_DIR$/back/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/back/vendor/fruitcake/php-cors" />
+      <path value="$PROJECT_DIR$/back/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/back/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/back/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/back/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/back/vendor/guzzlehttp/uri-template" />
+      <path value="$PROJECT_DIR$/back/vendor/nunomaduro/collision" />
+      <path value="$PROJECT_DIR$/back/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/back/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/back/vendor/dragonmantank/cron-expression" />
+      <path value="$PROJECT_DIR$/back/vendor/graham-campbell/result-type" />
+      <path value="$PROJECT_DIR$/back/vendor/nunomaduro/termwind" />
+      <path value="$PROJECT_DIR$/back/vendor/tijsverkoyen/css-to-inline-styles" />
+      <path value="$PROJECT_DIR$/back/vendor/phpstan/phpdoc-parser" />
+      <path value="$PROJECT_DIR$/back/vendor/fidry/cpu-core-counter" />
+      <path value="$PROJECT_DIR$/back/vendor/composer" />
+      <path value="$PROJECT_DIR$/back/vendor/brianium/paratest" />
+      <path value="$PROJECT_DIR$/back/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/back/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/back/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/back/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/back/vendor/ta-tikoma/phpunit-architecture-test" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/back/vendor/psy/psysh" />
+      <path value="$PROJECT_DIR$/back/vendor/filp/whoops" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/back/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/back/vendor/nette/schema" />
+      <path value="$PROJECT_DIR$/back/vendor/nette/utils" />
+      <path value="$PROJECT_DIR$/back/vendor/voku/portable-ascii" />
+      <path value="$PROJECT_DIR$/back/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/back/vendor/league/config" />
+      <path value="$PROJECT_DIR$/back/vendor/league/flysystem" />
+      <path value="$PROJECT_DIR$/back/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/back/vendor/league/commonmark" />
+      <path value="$PROJECT_DIR$/back/vendor/league/uri" />
+      <path value="$PROJECT_DIR$/back/vendor/league/uri-interfaces" />
+      <path value="$PROJECT_DIR$/back/vendor/league/flysystem-local" />
+      <path value="$PROJECT_DIR$/back/vendor/league/mime-type-detection" />
+      <path value="$PROJECT_DIR$/back/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/back/vendor/staabm/side-effects-detector" />
+      <path value="$PROJECT_DIR$/back/vendor/nesbot/carbon" />
+      <path value="$PROJECT_DIR$/back/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/back/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/framework" />
+      <path value="$PROJECT_DIR$/back/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/back/vendor/dflydev/dot-access-data" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/prompts" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/sail" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/pail" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/pint" />
+      <path value="$PROJECT_DIR$/back/vendor/_laravel_idea" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/breeze" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/sanctum" />
+      <path value="$PROJECT_DIR$/back/vendor/react/promise-timer" />
+      <path value="$PROJECT_DIR$/back/vendor/react/promise" />
+      <path value="$PROJECT_DIR$/back/vendor/react/event-loop" />
+      <path value="$PROJECT_DIR$/back/vendor/react/dns" />
+      <path value="$PROJECT_DIR$/back/vendor/react/stream" />
+      <path value="$PROJECT_DIR$/back/vendor/react/socket" />
+      <path value="$PROJECT_DIR$/back/vendor/evenement/evenement" />
+      <path value="$PROJECT_DIR$/back/vendor/laravel/reverb" />
+      <path value="$PROJECT_DIR$/back/vendor/clue/redis-react" />
+      <path value="$PROJECT_DIR$/back/vendor/clue/redis-protocol" />
+      <path value="$PROJECT_DIR$/back/vendor/ratchet/rfc6455" />
+      <path value="$PROJECT_DIR$/back/vendor/paragonie/sodium_compat" />
+      <path value="$PROJECT_DIR$/back/vendor/pusher/pusher-php-server" />
+      <path value="$PROJECT_DIR$/back/vendor/react/cache" />
+    </include_path>
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2sMTKsRZTno64lVHRlI1VlYsorP" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="openDirectoriesWithSingleClick" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/asoz/OneDrive/Desktop/FriendCircle-app&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;php.override.implement.member.chooser.php.doc&quot;: &quot;NONE&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\PhpStorm 2024.2.0.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\asoz\OneDrive\Desktop\FriendCircle-app\back\app\Http\Controllers\Auth" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Pest.Main">
+    <configuration name="Main" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner configuration_file="$PROJECT_DIR$/back/phpunit.xml" scope="XML" use_alternative_configuration_file="true" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Main" type="PestRunConfigurationType">
+      <option name="pestRunnerSettings">
+        <PestRunner configuration_file="$PROJECT_DIR$/back/phpunit.xml" scope="ConfigurationFile" use_alternative_configuration_file="true" />
+      </option>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-PS-243.24978.50" />
+        <option value="bundled-php-predefined-a98d8de5180a-fbeb0b58ac0f-com.jetbrains.php.sharedIndexes-PS-243.24978.50" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8bc32953-a208-4fa6-98de-27225a7bd434" name="Changes" comment="" />
+      <created>1738264385088</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1738264385088</updated>
+      <workItem from="1738264386794" duration="2451000" />
+      <workItem from="1738267791203" duration="73000" />
+      <workItem from="1738267889603" duration="24842000" />
+      <workItem from="1738359503070" duration="13819000" />
+      <workItem from="1738516054775" duration="15013000" />
+      <workItem from="1738604557644" duration="134858000" />
+      <workItem from="1739815439456" duration="579000" />
+      <workItem from="1739816172977" duration="377000" />
+      <workItem from="1739816575065" duration="807000" />
+      <workItem from="1741026461599" duration="7322000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial Commit">
+      <option name="closed" value="true" />
+      <created>1738265818466</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1738265818466</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add checking on the file whether exists in the update function">
+      <option name="closed" value="true" />
+      <created>1739201759096</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1739201759097</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Broadcasting installed">
+      <option name="closed" value="true" />
+      <created>1739313791568</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1739313791568</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Update configuration files and API service setup&#10;&#10;Enhanced `.idea` settings by adding new exclude folders and refined API endpoint configurations for improved development experience. Unified code style in `api.config.js` and improved error handling for better debugging.">
+      <option name="closed" value="true" />
+      <created>1741026702123</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1741026702123</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Implement group chat and responsive utilities&#10;&#10;Added `CreateGroupScreen` and `GroupChatScreen` components to enable group creation and messaging functionality. Integrated `Sizing.js` for responsive design, updated dependencies, and improved reusable UI handling in multiple screens.">
+      <option name="closed" value="true" />
+      <created>1741027196201</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1741027196201</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Update dependencies to their latest versions&#10;&#10;Upgraded various package dependencies in the `composer.lock` file to their latest stable releases. These updates include versions for Laravel, Symfony, Guzzle, and additional libraries to ensure compatibility, bug fixes, and performance improvements.">
+      <option name="closed" value="true" />
+      <created>1741027550141</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1741027550141</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Refactor profile, group, and friendship update logic&#10;&#10;Improve validation and file handling across ProfileController and GroupController. Enforce ownership checks for profile updates, enhance group member validation, and streamline file path management. Simplify friend request decline logic by switching to deletion instead of status updates.">
+      <option name="closed" value="true" />
+      <created>1741033194586</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1741033194586</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Enhance group data retrieval and simplify concatenation.&#10;&#10;Added latest message fetching with user details to group data in the `index` method, improving response details. Simplified string concatenation for consistency in handling group photo paths.">
+      <option name="closed" value="true" />
+      <created>1741033738213</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1741033738213</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial Commit" />
+    <MESSAGE value="add checking on the file whether exists in the update function" />
+    <MESSAGE value="Broadcasting installed" />
+    <MESSAGE value="Update configuration files and API service setup&#10;&#10;Enhanced `.idea` settings by adding new exclude folders and refined API endpoint configurations for improved development experience. Unified code style in `api.config.js` and improved error handling for better debugging." />
+    <MESSAGE value="Implement group chat and responsive utilities&#10;&#10;Added `CreateGroupScreen` and `GroupChatScreen` components to enable group creation and messaging functionality. Integrated `Sizing.js` for responsive design, updated dependencies, and improved reusable UI handling in multiple screens." />
+    <MESSAGE value="Update dependencies to their latest versions&#10;&#10;Upgraded various package dependencies in the `composer.lock` file to their latest stable releases. These updates include versions for Laravel, Symfony, Guzzle, and additional libraries to ensure compatibility, bug fixes, and performance improvements." />
+    <MESSAGE value="Refactor profile, group, and friendship controllers for clarity.&#10;&#10;Added stricter validation, improved file handling, and ensured proper authorization for user and group actions. Updated routes to include specific identifiers where necessary. Simplified declining friend requests by deleting the request instead of updating its status." />
+    <MESSAGE value="Refactor profile, group, and friendship update logic&#10;&#10;Improve validation and file handling across ProfileController and GroupController. Enforce ownership checks for profile updates, enhance group member validation, and streamline file path management. Simplify friend request decline logic by switching to deletion instead of status updates." />
+    <MESSAGE value="Enhance group data retrieval and simplify concatenation.&#10;&#10;Added latest message fetching with user details to group data in the `index` method, improving response details. Simplified string concatenation for consistency in handling group photo paths." />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhance group data retrieval and simplify concatenation.&#10;&#10;Added latest message fetching with user details to group data in the `index` method, improving response details. Simplified string concatenation for consistency in handling group photo paths." />
+  </component>
+</project>
