@@ -118,10 +118,9 @@ class FriendshipController extends Controller
             return response()->json(['message' => 'Friend request is not pending.'], 422);
         }
 
-        $friendship->status = 'declined';
-        $friendship->save();
+        $friendship->delete();
 
-        return response()->json($friendship);
+        return response()->json(['message' => 'Friend request declined.']);
     }
 
     // DELETE /api/friend-requests/{friendship}

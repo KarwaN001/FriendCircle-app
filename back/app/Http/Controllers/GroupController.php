@@ -27,7 +27,7 @@ class GroupController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'group_photo' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
-            'members' => 'required|array',
+            'members' => 'sometimes|array',
             'members.*' => 'exists:users,id'
         ]);
 
@@ -37,14 +37,11 @@ class GroupController extends Controller
             return response()->json(['message' => 'You need to have friends to create a group.'], 400);
         }
 
-        if ($user->groups()->where('name', $validated['name'])->exists()) {
-            return response()->json(['message' => 'You already have a group with this name.'], 400);
-        }
-
         if ($request->hasFile('group_photo')) {
             $groupPhoto = $request->file('group_photo');
-            $groupPhoto->move(public_path('group-photos'));
-            $validated['group_photo'] = $groupPhoto->hashName();
+            $fileName = $groupPhoto->hashName();
+            $groupPhoto->move(public_path('group-photos'), $fileName);
+            $validated['group_photo'] = 'group-photos/' . $fileName;
         }
 
         $group = $user->adminGroups()->create([
@@ -55,17 +52,19 @@ class GroupController extends Controller
         // Add the creator to the group
         $group->members()->attach($user->id);
 
-        // Verify all members are friends of the creator
-        $friends = $user->friends()->pluck('users.id');
-        $invalidMembers = collect($validated['members'])->diff($friends);
+        if (isset($validated['members'])) {
+            // Verify all members are friends of the creator
+            $friends = $user->friends()->pluck('users.id');
+            $invalidMembers = collect($validated['members'])->diff($friends);
 
-        if ($invalidMembers->isNotEmpty()) {
-            $group->delete();
-            return response()->json(['message' => 'One or more members are not your friends.'], 400);
+            if ($invalidMembers->isNotEmpty()) {
+                $group->delete();
+                return response()->json(['message' => 'One or more members are not your friends.'], 400);
+            }
+
+            // Add all members to the group
+            $group->members()->attach($validated['members']);
         }
-
-        // Add all members to the group
-        $group->members()->attach($validated['members']);
 
         // Load the members relationship for the response
         $group->load(['members:id,name,profile_photo', 'groupAdmin:id,name,profile_photo']);
@@ -73,7 +72,7 @@ class GroupController extends Controller
         return response()->json($group, 201);
     }
 
-    // PUT /api/groups/{group}
+    // PATCH /api/groups/{group}
     public function update(Request $request, Group $group)
     {
         $user = $request->user();
@@ -88,13 +87,14 @@ class GroupController extends Controller
         ]);
 
         if ($request->hasFile('group_photo')) {
-            if ($group->group_photo && file_exists(public_path('group-photos/'.$group->group_photo))) {
-                unlink(public_path('group-photos/'.$group->group_photo));
+            if ($group->group_photo && file_exists(public_path($group->group_photo))) {
+                unlink(public_path($group->group_photo));
             }
 
             $groupPhoto = $request->file('group_photo');
-            $groupPhoto->move(public_path('group-photos'));
-            $validated['group_photo'] = $groupPhoto->hashName();
+            $fileName = $groupPhoto->hashName();
+            $groupPhoto->move(public_path('group-photos'), $fileName);
+            $validated['group_photo'] = 'group-photos/' . $fileName;
         }
 
         $group->update($validated);
