@@ -134,6 +134,8 @@
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/_laravel_idea" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/laravel/breeze" />
       <excludeFolder url="file://$MODULE_DIR$/back/vendor/laravel/sanctum" />
+      <excludeFolder url="file://$MODULE_DIR$/back/storage/app" />
+      <excludeFolder url="file://$MODULE_DIR$/back/storage/framework" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
