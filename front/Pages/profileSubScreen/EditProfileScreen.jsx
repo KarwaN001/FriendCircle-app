@@ -223,7 +223,7 @@ export const EditProfileScreen = () => {
                 >
                     <Icon
                         name="arrow-left"
-                        size={24}
+                        size={Sizing.deviceWidth * 0.05}
                         color={isLightTheme ? '#000' : '#fff'}
                     />
                 </Pressable>
@@ -236,7 +236,7 @@ export const EditProfileScreen = () => {
                     disabled={loading}
                 >
                     {loading ? (
-                        <ActivityIndicator color="#fff" size="small" />
+                        <ActivityIndicator color="#fff" size={Sizing.deviceWidth * 0.035} />
                     ) : (
                         <Text style={styles.saveButtonText}>Save</Text>
                     )}
@@ -257,7 +257,11 @@ export const EditProfileScreen = () => {
                             style={styles.profilePhoto}
                         />
                         <View style={styles.editIconContainer}>
-                            <Icon name="camera" size={20} color="#fff" />
+                            <Icon 
+                                name="camera" 
+                                size={Sizing.deviceWidth * 0.04} 
+                                color="#fff" 
+                            />
                         </View>
                     </Pressable>
                 </View>
@@ -370,19 +374,40 @@ export const EditProfileScreen = () => {
                         <View style={styles.genderContainer}>
                             <Pressable
                                 style={[
-                                    styles.genderButton,
-                                    formData.gender === 'male' && styles.genderButtonActive,
+                                    styles.genderOption,
+                                    formData.gender === 'male' && styles.genderOptionActive,
                                     {
-                                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                        backgroundColor: isLightTheme 
+                                            ? formData.gender === 'male' 
+                                                ? 'rgba(33, 150, 243, 0.1)' 
+                                                : '#fff' 
+                                            : formData.gender === 'male'
+                                                ? 'rgba(33, 150, 243, 0.2)'
+                                                : '#2A2A2A'
                                     }
                                 ]}
                                 onPress={() => setFormData({ ...formData, gender: 'male' })}
                             >
+                                <View style={[
+                                    styles.radioOuter,
+                                    formData.gender === 'male' && styles.radioOuterActive,
+                                    { borderColor: isLightTheme ? '#2196F3' : '#fff' }
+                                ]}>
+                                    {formData.gender === 'male' && (
+                                        <View style={styles.radioInner} />
+                                    )}
+                                </View>
+                                <Icon 
+                                    name="gender-male" 
+                                    size={Sizing.deviceWidth * 0.055} 
+                                    color={formData.gender === 'male' ? '#2196F3' : isLightTheme ? '#666' : '#999'} 
+                                    style={styles.genderIcon}
+                                />
                                 <Text
                                     style={[
-                                        styles.genderButtonText,
-                                        formData.gender === 'male' && styles.genderButtonTextActive,
-                                        { color: isLightTheme ? '#000' : '#fff' }
+                                        styles.genderText,
+                                        formData.gender === 'male' && styles.genderTextActive,
+                                        { color: isLightTheme ? formData.gender === 'male' ? '#2196F3' : '#666' : '#fff' }
                                     ]}
                                 >
                                     Male
@@ -390,19 +415,40 @@ export const EditProfileScreen = () => {
                             </Pressable>
                             <Pressable
                                 style={[
-                                    styles.genderButton,
-                                    formData.gender === 'female' && styles.genderButtonActive,
+                                    styles.genderOption,
+                                    formData.gender === 'female' && styles.genderOptionActive,
                                     {
-                                        backgroundColor: isLightTheme ? '#fff' : '#2A2A2A',
+                                        backgroundColor: isLightTheme 
+                                            ? formData.gender === 'female' 
+                                                ? 'rgba(33, 150, 243, 0.1)' 
+                                                : '#fff' 
+                                            : formData.gender === 'female'
+                                                ? 'rgba(33, 150, 243, 0.2)'
+                                                : '#2A2A2A'
                                     }
                                 ]}
                                 onPress={() => setFormData({ ...formData, gender: 'female' })}
                             >
+                                <View style={[
+                                    styles.radioOuter,
+                                    formData.gender === 'female' && styles.radioOuterActive,
+                                    { borderColor: isLightTheme ? '#2196F3' : '#fff' }
+                                ]}>
+                                    {formData.gender === 'female' && (
+                                        <View style={styles.radioInner} />
+                                    )}
+                                </View>
+                                <Icon 
+                                    name="gender-female" 
+                                    size={Sizing.deviceWidth * 0.055} 
+                                    color={formData.gender === 'female' ? '#2196F3' : isLightTheme ? '#666' : '#999'} 
+                                    style={styles.genderIcon}
+                                />
                                 <Text
                                     style={[
-                                        styles.genderButtonText,
-                                        formData.gender === 'female' && styles.genderButtonTextActive,
-                                        { color: isLightTheme ? '#000' : '#fff' }
+                                        styles.genderText,
+                                        formData.gender === 'female' && styles.genderTextActive,
+                                        { color: isLightTheme ? formData.gender === 'female' ? '#2196F3' : '#666' : '#fff' }
                                     ]}
                                 >
                                     Female
@@ -423,44 +469,43 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         flex: 1,
-        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: Sizing.deviceWidth * 0.035,
-        paddingTop: Platform.OS === 'ios' ? Sizing.deviceHeight * 0.02 : Sizing.deviceHeight * 0.01,
-        paddingBottom: Sizing.deviceHeight * 0.012,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(0,0,0,0.1)',
+        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingVertical: Sizing.deviceHeight * 0.015,
         marginBottom: Sizing.deviceHeight * 0.015,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0,0,0,0.05)',
     },
     backButton: {
         padding: Sizing.deviceWidth * 0.015,
-        borderRadius: Sizing.deviceWidth * 0.04,
-        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderRadius: Sizing.deviceWidth * 0.01,
+        backgroundColor: 'rgba(33, 150, 243, 0.08)',
     },
     headerTitle: {
-        fontSize: Sizing.deviceWidth * 0.045,
+        fontSize: Sizing.deviceWidth * 0.042,
         fontWeight: '700',
         letterSpacing: 0.5,
     },
     saveButton: {
         backgroundColor: '#2196F3',
-        paddingHorizontal: Sizing.deviceWidth * 0.04,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
         paddingVertical: Sizing.deviceHeight * 0.01,
-        borderRadius: Sizing.deviceWidth * 0.05,
+        borderRadius: Sizing.deviceWidth * 0.02,
         minWidth: Sizing.deviceWidth * 0.18,
         alignItems: 'center',
-        shadowColor: '#000',
+        shadowColor: '#2196F3',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: Sizing.deviceHeight * 0.001,
         },
         shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+        shadowRadius: Sizing.deviceWidth * 0.015,
+        elevation: 4,
     },
     saveButtonText: {
         color: '#fff',
@@ -473,117 +518,152 @@ const styles = StyleSheet.create({
     },
     photoContainer: {
         position: 'relative',
+        padding: Sizing.deviceWidth * 0.008,
+        backgroundColor: '#fff',
+        borderRadius: Sizing.deviceWidth * 0.12,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 4,
+            height: Sizing.deviceHeight * 0.002,
         },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
-        elevation: 8,
+        shadowOpacity: 0.2,
+        shadowRadius: Sizing.deviceWidth * 0.015,
+        elevation: 6,
     },
     profilePhoto: {
-        width: Sizing.deviceWidth * 0.28,
-        height: Sizing.deviceWidth * 0.28,
-        borderRadius: Sizing.deviceWidth * 0.14,
-        borderWidth: 1.5,
-        borderColor: '#fff',
+        width: Sizing.deviceWidth * 0.24,
+        height: Sizing.deviceWidth * 0.24,
+        borderRadius: Sizing.deviceWidth * 0.12,
+        borderWidth: Sizing.deviceWidth * 0.003,
+        borderColor: '#2196F3',
     },
     editIconContainer: {
         position: 'absolute',
-        right: 5,
-        bottom: 5,
+        right: -Sizing.deviceWidth * 0.008,
+        bottom: -Sizing.deviceWidth * 0.008,
         backgroundColor: '#2196F3',
-        width: Sizing.deviceWidth * 0.08,
-        height: Sizing.deviceWidth * 0.08,
-        borderRadius: Sizing.deviceWidth * 0.04,
+        width: Sizing.deviceWidth * 0.07,
+        height: Sizing.deviceWidth * 0.07,
+        borderRadius: Sizing.deviceWidth * 0.035,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 3,
+        borderWidth: Sizing.deviceWidth * 0.003,
+        borderColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 4,
     },
     form: {
         marginTop: Sizing.deviceHeight * 0.01,
     },
     inputContainer: {
-        marginBottom: Sizing.deviceHeight * 0.022,
+        marginBottom: Sizing.deviceHeight * 0.018,
     },
     label: {
-        fontSize: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '600',
         marginBottom: Sizing.deviceHeight * 0.008,
         marginLeft: Sizing.deviceWidth * 0.01,
-        letterSpacing: 0.5,
+        letterSpacing: 0.3,
     },
     input: {
         borderWidth: 1,
-        borderRadius: Sizing.deviceWidth * 0.03,
-        paddingHorizontal: Sizing.deviceWidth * 0.04,
-        paddingVertical: Sizing.deviceHeight * 0.015,
-        fontSize: Sizing.deviceWidth * 0.035,
+        borderRadius: Sizing.deviceWidth * 0.02,
+        height: Sizing.deviceHeight * 0.052,
+        paddingHorizontal: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.032,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 1,
         },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
         elevation: 2,
     },
     multilineInput: {
-        height: Sizing.deviceHeight * 0.12,
+        height: Sizing.deviceHeight * 0.1,
         textAlignVertical: 'top',
-        paddingTop: Sizing.deviceHeight * 0.015,
+        paddingTop: Sizing.deviceHeight * 0.012,
     },
     genderContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: Sizing.deviceWidth * 0.02,
+        gap: Sizing.deviceWidth * 0.03,
+        height: Sizing.deviceHeight * 0.052,
     },
-    genderButton: {
+    genderOption: {
         flex: 1,
-        borderWidth: 1,
-        borderRadius: Sizing.deviceWidth * 0.03,
-        paddingVertical: Sizing.deviceHeight * 0.015,
+        flexDirection: 'row',
         alignItems: 'center',
+        paddingHorizontal: Sizing.deviceWidth * 0.03,
+        borderRadius: Sizing.deviceWidth * 0.02,
+        borderWidth: 1,
         borderColor: 'rgba(0,0,0,0.1)',
     },
-    genderButtonActive: {
-        backgroundColor: '#2196F3',
+    genderOptionActive: {
         borderColor: '#2196F3',
     },
-    genderButtonText: {
-        fontSize: Sizing.deviceWidth * 0.035,
+    radioOuter: {
+        width: Sizing.deviceWidth * 0.042,
+        height: Sizing.deviceWidth * 0.042,
+        borderRadius: Sizing.deviceWidth * 0.021,
+        borderWidth: 1.5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Sizing.deviceWidth * 0.015,
+    },
+    radioOuterActive: {
+        borderColor: '#2196F3',
+    },
+    radioInner: {
+        width: Sizing.deviceWidth * 0.021,
+        height: Sizing.deviceWidth * 0.021,
+        borderRadius: Sizing.deviceWidth * 0.0105,
+        backgroundColor: '#2196F3',
+    },
+    genderIcon: {
+        marginRight: Sizing.deviceWidth * 0.015,
+    },
+    genderText: {
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '500',
     },
-    genderButtonTextActive: {
-        color: '#fff',
+    genderTextActive: {
+        color: '#2196F3',
     },
     phoneInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderRadius: Sizing.deviceWidth * 0.03,
+        borderRadius: Sizing.deviceWidth * 0.02,
+        height: Sizing.deviceHeight * 0.052,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 1,
         },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
         elevation: 2,
     },
     phonePrefix: {
         paddingHorizontal: Sizing.deviceWidth * 0.03,
-        paddingVertical: Sizing.deviceHeight * 0.015,
-        fontSize: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.032,
         fontWeight: '500',
         borderRightWidth: 1,
         borderRightColor: 'rgba(0,0,0,0.1)',
+        height: '100%',
+        textAlignVertical: 'center',
     },
     phoneInput: {
         flex: 1,
         paddingHorizontal: Sizing.deviceWidth * 0.03,
-        paddingVertical: Sizing.deviceHeight * 0.015,
-        fontSize: Sizing.deviceWidth * 0.035,
+        fontSize: Sizing.deviceWidth * 0.032,
     },
 }); 
