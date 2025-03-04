@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Sizing from '../../utils/Sizing';
-import rezdarImage from '../../assets/images/rezdar.jpeg';
+import rezdarImage from '../../assets/images/rezdar.jpg';
 import karwanImage from '../../assets/images/karwan.jpeg';
 
 export const AppInfoScreen = () => {
