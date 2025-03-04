@@ -14,6 +14,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from "../../DarkMode/ThemeContext";
 import axiosInstance from '../../services/api.config';
+import { createEcho } from '../../config/echo';
 import Sizing from '../../utils/Sizing';
 
 const GroupChatScreenComponent = ({ route, navigation }) => {
@@ -26,6 +27,7 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
     const [error, setError] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const flatListRef = useRef(null);
+    const echoRef = useRef(null);
 
     // Estimate item height for getItemLayout
     const MESSAGE_ITEM_HEIGHT = 80; // Estimated average height of a message item
@@ -36,12 +38,91 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
         index,
     });
 
-    useEffect(() => {
-        fetchCurrentUser();
-        fetchMessages();
-        const messageInterval = setInterval(fetchMessages, 5000); // Poll for new messages every 5 seconds
+    const initializeEcho = () => {
+        try {
+            // Initialize Laravel Echo using the configuration
+            echoRef.current = createEcho();
 
-        return () => clearInterval(messageInterval);
+            // Subscribe to the private group channel
+            const channelName = `group.${groupId}`;
+            console.log('Subscribing to channel:', channelName);
+
+            const channel = echoRef.current.private(channelName);
+
+            // Handle connection states
+            channel.subscribed(() => {
+                console.log('Successfully subscribed to channel:', channelName);
+                setError(null);
+            });
+
+            channel.error((error) => {
+                console.error('Echo channel error:', error);
+                setError('Failed to connect to chat');
+            });
+
+            // Listen for events
+            channel
+                .listen('.message.sent', (e) => {
+                    console.log('Received message:', e);
+                    // Only add message if it's from another user
+                    if (e.message.user.id !== currentUserId) {
+                        setMessages(prevMessages => [...prevMessages, e.message]);
+                        flatListRef.current?.scrollToEnd();
+                    }
+                })
+                .listen('.message.updated', (e) => {
+                    console.log('Message updated:', e);
+                    setMessages(prevMessages => 
+                        prevMessages.map(msg => 
+                            msg.id === e.message.id ? e.message : msg
+                        )
+                    );
+                })
+                .listen('.message.deleted', (e) => {
+                    console.log('Message deleted:', e);
+                    setMessages(prevMessages => 
+                        prevMessages.filter(msg => msg.id !== e.messageId)
+                    );
+                });
+
+            return channel;
+        } catch (error) {
+            console.error('Error initializing Echo:', error);
+            setError('Failed to initialize chat connection');
+            return null;
+        }
+    };
+
+    useEffect(() => {
+        let channel = null;
+        
+        const initialize = async () => {
+            try {
+                await fetchCurrentUser();
+                channel = initializeEcho();
+                await fetchMessages();
+            } catch (error) {
+                console.error('Error in initialization:', error);
+                setError('Failed to initialize chat');
+            }
+        };
+
+        initialize();
+
+        return () => {
+            // Cleanup Echo listeners when component unmounts
+            try {
+                if (channel) {
+                    console.log('Leaving channel:', `group.${groupId}`);
+                    channel.unsubscribe();
+                }
+                if (echoRef.current) {
+                    echoRef.current.leave(`group.${groupId}`);
+                }
+            } catch (error) {
+                console.error('Error cleaning up Echo:', error);
+            }
+        };
     }, [groupId]);
 
     const fetchCurrentUser = async () => {
@@ -75,11 +156,18 @@ const GroupChatScreenComponent = ({ route, navigation }) => {
         if (!newMessage.trim()) return;
 
         try {
-            await axiosInstance.post(`/groups/${groupId}/messages`, {
+            const response = await axiosInstance.post(`/groups/${groupId}/messages`, {
                 content: newMessage.trim()
             });
+            
+            // Optimistically add the message to the UI
+            const tempMessage = {
+                ...response.data,
+                user: { id: currentUserId, name: 'You' }, // Temporary user info
+                created_at: new Date().toISOString(),
+            };
+            setMessages(prevMessages => [...prevMessages, tempMessage]);
             setNewMessage('');
-            fetchMessages();
             flatListRef.current?.scrollToEnd();
         } catch (error) {
             console.error('Error sending message:', error);
