@@ -182,21 +182,57 @@ const FeatureItem = ({ icon, title, description, primaryColor, textPrimary, text
     </View>
 );
 
-const TeamMember = ({ name, role, email, primaryColor, textPrimary, textSecondary, onEmailPress }) => (
-    <View style={styles.teamMember}>
-        <Image 
-            source={name === "Rezdar" ? rezdarImage : karwanImage}
-            style={styles.teamMemberImage}
-        />
-        <Text style={[styles.teamName, { color: textPrimary }]}>{name}</Text>
-        <Text style={[styles.teamRole, { color: textSecondary }]}>{role}</Text>
-        <TouchableOpacity onPress={() => onEmailPress(email)}>
-            <Text style={[styles.teamEmail, { color: primaryColor }]}>
-                {email}
-            </Text>
-        </TouchableOpacity>
-    </View>
-);
+const TeamMember = ({ name, role, email, primaryColor, textPrimary, textSecondary, onEmailPress }) => {
+    const socialLinks = {
+        Karwan: {
+            github: "https://github.com/KarwaN001",
+            linkedin: "https://www.linkedin.com/in/karwan-yousif-747071308/",
+            email: "mailto:karwanusf1@gmail.com"
+        },
+        Rezdar: {
+            github: "https://github.com/RezdarNajeeb",
+            linkedin: "https://www.linkedin.com/in/rezdar-najeeb-52b794241/",
+            email: "mailto:rezdar.00166214@gmail.com"
+        }
+    };
+
+    const handleSocialPress = (url) => {
+        Linking.openURL(url);
+    };
+
+    const iconSize = Sizing.deviceWidth * 0.045; 
+
+    return (
+        <View style={styles.teamMember}>
+            <Image 
+                source={name === "Rezdar" ? rezdarImage : karwanImage}
+                style={styles.teamMemberImage}
+            />
+            <Text style={[styles.teamName, { color: textPrimary }]}>{name}</Text>
+            <Text style={[styles.teamRole, { color: textSecondary }]}>{role}</Text>
+            <View style={styles.contactContainer}>
+                <TouchableOpacity 
+                    onPress={() => handleSocialPress(socialLinks[name].github)}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
+                    <Icon name="github" size={iconSize} color={textPrimary} style={styles.socialIcon} />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={() => handleSocialPress(socialLinks[name].linkedin)}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
+                    <Icon name="linkedin" size={iconSize} color="#0077B5" style={styles.socialIcon} />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={() => handleSocialPress(socialLinks[name].email)}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                >
+                    <Icon name="email-outline" size={iconSize} color={primaryColor} style={styles.socialIcon} />
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+};
 
 const TechItem = ({ title, description, textPrimary, textSecondary, primaryColor }) => (
     <View style={styles.techItem}>
@@ -307,13 +343,13 @@ const styles = StyleSheet.create({
     teamMember: {
         alignItems: 'center',
         minWidth: Sizing.deviceWidth * 0.3,
+        padding: Sizing.deviceWidth * 0.03,
+        borderRadius: Sizing.deviceWidth * 0.03,
     },
     teamMemberImage: {
         width: Sizing.deviceWidth * 0.17,
         height: Sizing.deviceWidth * 0.17,
         borderRadius: 1000,
-        justifyContent: 'center',
-        alignItems: 'center',
         marginBottom: Sizing.deviceHeight * 0.015,
     },
     teamName: {
@@ -323,11 +359,16 @@ const styles = StyleSheet.create({
     },
     teamRole: {
         fontSize: Sizing.deviceWidth * 0.032,
-        marginBottom: Sizing.deviceHeight * 0.006,
+        marginBottom: Sizing.deviceHeight * 0.012,
     },
-    teamEmail: {
-        fontSize: Sizing.deviceWidth * 0.03,
-        textDecorationLine: 'underline',
+    contactContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: Sizing.deviceWidth * 0.035,
+        marginTop: Sizing.deviceHeight * 0.005,
+    },
+    socialIcon: {
+        opacity: 0.85,
     },
     techList: {
         gap: Sizing.deviceHeight * 0.015,
