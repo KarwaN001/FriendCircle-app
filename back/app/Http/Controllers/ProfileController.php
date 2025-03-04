@@ -21,13 +21,14 @@ class ProfileController extends Controller
         }
 
         $validatedData = $request->validate([
-            'name' => ['string', 'max:255'],
-            'age' => ['integer', 'min:13'],
-            'gender' => ['string', 'max:255', 'in:male,female'],
-            'phone_number' => ['string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'age' => ['sometimes', 'integer', 'min:13'],
+            'gender' => ['sometimes', 'string', 'max:255', 'in:male,female'],
+            'phone_number' => ['sometimes', 'string', 'max:255'],
             'profile_photo' => ['sometimes', 'image', 'max:2048', 'mimes:jpeg,png,jpg'],
-            'latitude' => ['numeric', 'between:-90,90'],
-            'longitude' => ['numeric', 'between:-180,180']
+            'bio' => ['sometimes', 'string'],
+            'latitude' => ['sometimes', 'numeric', 'between:-90,90'],
+            'longitude' => ['sometimes', 'numeric', 'between:-180,180']
         ]);
 
         if ($request->hasFile('profile_photo')) {
