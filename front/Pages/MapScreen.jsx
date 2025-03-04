@@ -166,8 +166,12 @@ export const MapScreen = () => {
                 accuracy: Location.Accuracy.High
             });
 
+            // Get current user data
+            const userResponse = await axiosInstance.get('/profile');
+            const userId = userResponse.data.id;
+
             // Update location on the server
-            await axiosInstance.patch('/profile', {
+            await axiosInstance.patch(`/profile/${userId}`, {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude
             });
