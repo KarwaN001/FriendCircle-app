@@ -12,6 +12,20 @@ export const ProfileScreen = () => {
     const isLightTheme = theme === 'light';
     const navigation = useNavigation();
     const [userData, setUserData] = useState(null);
+    const [friendRequests, setFriendRequests] = useState({ incoming: [], outgoing: [] });
+
+    const fetchFriendRequests = async () => {
+        try {
+            const response = await axiosInstance.get('/friend-requests');
+            setFriendRequests({
+                incoming: response.data.incoming?.data || [],
+                outgoing: response.data.outgoing?.data || []
+            });
+        } catch (error) {
+            console.error('Error fetching friend requests:', error);
+            setFriendRequests({ incoming: [], outgoing: [] });
+        }
+    };
 
     const fetchUserData = async () => {
         try {
@@ -39,6 +53,7 @@ export const ProfileScreen = () => {
     useFocusEffect(
         useCallback(() => {
             fetchUserData();
+            fetchFriendRequests();
         }, [])
     );
     // useEffect(() => {
@@ -95,12 +110,17 @@ export const ProfileScreen = () => {
     const menuItems = [
         { icon: 'account-edit', title: 'Edit Profile', subtitle: 'Update your information' },
         { icon: 'account-plus', title: 'Add Friend', subtitle: 'Find and add new friends' },
-        { icon: 'account-group', title: 'Friends', subtitle: 'View and manage your friends' },
+        { 
+            icon: 'account-group', 
+            title: 'Friends', 
+            subtitle: 'View and manage your friends',
+            badge: friendRequests.incoming.length || 0
+        },
         { icon: 'bell-outline', title: 'Notifications', subtitle: 'Manage your alerts' },
         { icon: 'information', title: 'About App', subtitle: 'Learn more about FriendCircle' },
     ];
 
-    const MenuItem = ({ icon, title, subtitle, onPress }) => (
+    const MenuItem = ({ icon, title, subtitle, onPress, badge }) => (
         <Pressable
             style={styles.menuItem}
             android_ripple={{ color: isLightTheme ? '#eee' : '#333' }}
@@ -111,7 +131,7 @@ export const ProfileScreen = () => {
                     navigation.navigate('EditProfile');
                 } else if (title === 'Add Friend') {
                     navigation.navigate('AddFriend');
-                } else if (title === 'Friends') {
+                } else if (title.startsWith('Friends')) {
                     navigation.navigate('Friends');
                 } else if (title === 'About App') {
                     navigation.navigate('AppInfo');
@@ -132,11 +152,18 @@ export const ProfileScreen = () => {
                     {subtitle}
                 </Text>
             </View>
-            <Icon
-                name="chevron-right"
-                size={24}
-                color={isLightTheme ? '#666' : '#aaa'}
-            />
+            <View style={styles.rightContainer}>
+                {badge > 0 && (
+                    <View style={styles.badge}>
+                        <Text style={styles.badgeText}>{badge}</Text>
+                    </View>
+                )}
+                <Icon
+                    name="chevron-right"
+                    size={24}
+                    color={isLightTheme ? '#666' : '#aaa'}
+                />
+            </View>
         </Pressable>
     );
 
@@ -471,5 +498,24 @@ const styles = StyleSheet.create({
         opacity: 0.6,
         fontWeight: '500',
         letterSpacing: 0.5,
+    },
+    rightContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    badge: {
+        backgroundColor: '#dc2626',
+        borderRadius: 1000,
+        minWidth: Sizing.deviceWidth * 0.05,
+        height: Sizing.deviceWidth * 0.05,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: Sizing.deviceWidth * 0.04,
+        paddingHorizontal: Sizing.deviceWidth * 0.015,
+    },
+    badgeText: {
+        color: '#fff',
+        fontSize: Sizing.deviceWidth * 0.03,
+        fontWeight: 'bold',
     },
 });
