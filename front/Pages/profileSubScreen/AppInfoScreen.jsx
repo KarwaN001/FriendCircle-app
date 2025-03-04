@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Linking, Platform, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Linking, Platform, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { useTheme } from '../../DarkMode/ThemeContext';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Sizing from '../../utils/Sizing';
+import rezdarImage from '../../assets/images/rezdar.jpeg';
+import karwanImage from '../../assets/images/karwan.jpeg';
 
 export const AppInfoScreen = () => {
     const { theme } = useTheme();
@@ -182,9 +184,10 @@ const FeatureItem = ({ icon, title, description, primaryColor, textPrimary, text
 
 const TeamMember = ({ name, role, email, primaryColor, textPrimary, textSecondary, onEmailPress }) => (
     <View style={styles.teamMember}>
-        <View style={[styles.teamIconContainer, { backgroundColor: `${primaryColor}15` }]}>
-            <Icon name="account" size={32} color={primaryColor} />
-        </View>
+        <Image 
+            source={name === "Rezdar" ? rezdarImage : karwanImage}
+            style={styles.teamMemberImage}
+        />
         <Text style={[styles.teamName, { color: textPrimary }]}>{name}</Text>
         <Text style={[styles.teamRole, { color: textSecondary }]}>{role}</Text>
         <TouchableOpacity onPress={() => onEmailPress(email)}>
@@ -305,10 +308,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         minWidth: Sizing.deviceWidth * 0.3,
     },
-    teamIconContainer: {
-        width: Sizing.deviceWidth * 0.14,
-        height: Sizing.deviceWidth * 0.14,
-        borderRadius: Sizing.deviceWidth * 0.07,
+    teamMemberImage: {
+        width: Sizing.deviceWidth * 0.17,
+        height: Sizing.deviceWidth * 0.17,
+        borderRadius: 1000,
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: Sizing.deviceHeight * 0.015,
