@@ -187,7 +187,7 @@ export const EditProfileScreen = () => {
             }
 
             console.log('Making PATCH request to /profile...');
-            const response = await axiosInstance.patch('/profile', requestData, { headers });
+            const response = await axiosInstance.patch(`/profile/${userData.id}`, requestData, { headers });
 
             console.log('Profile update response:', response.data);
 
