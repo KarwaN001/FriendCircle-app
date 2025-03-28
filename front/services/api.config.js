@@ -5,8 +5,8 @@ import { Platform } from 'react-native';
 //php artisan serve --host=192.168.1.200 --port=5000
 //for table update : php artisan migrate
 const API_URL = Platform.select({
-    android: "http://192.168.224.4:5000/api",
-    //android: "http://192.168.1.200:8000/api",
+    //android: "http://192.168.224.4:5000/api",
+    android: "http://192.168.1.200:8081/api",
     // android: "http://192.168.174.51:8000/api",
     ios: "http://localhost:8000/api",
 });
